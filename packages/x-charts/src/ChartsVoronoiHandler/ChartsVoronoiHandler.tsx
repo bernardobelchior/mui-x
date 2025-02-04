@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Delaunay } from '@mui/x-charts-vendor/d3-delaunay';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
-import { getValueToPositionMapper } from '../hooks/useScale';
+import { getPositionToValueMapper, getValueToPositionMapper } from '../hooks/useScale';
 import { useStore } from '../internals/store/useStore';
 import { getSVGPoint } from '../internals/getSVGPoint';
 import { ScatterItemIdentifier } from '../models';
@@ -77,24 +77,22 @@ function ChartsVoronoiHandler(props: ChartsVoronoiHandlerProps) {
     seriesOrder.forEach((seriesId) => {
       const { data, xAxisId, yAxisId } = series[seriesId];
 
-      const xScale = xAxis[xAxisId ?? defaultXAxisId].scale;
-      const yScale = yAxis[yAxisId ?? defaultYAxisId].scale;
+      // const xScale = xAxis[xAxisId ?? defaultXAxisId].scale;
+      // const yScale = yAxis[yAxisId ?? defaultYAxisId].scale;
 
-      const getXPosition = getValueToPositionMapper(xScale);
-      const getYPosition = getValueToPositionMapper(yScale);
+      // const getXPosition = getValueToPositionMapper(xScale);
+      // const getYPosition = getValueToPositionMapper(yScale);
 
       const seriesPoints = data.flatMap(({ x, y }) => {
-        const pointX = getXPosition(x);
-        const pointY = getYPosition(y);
+        // TODO: Does this negatively affect performance? It could, e.g., if Delaunay caches the points.
+        // if (!instance.isPointInside({ x: pointX, y: pointY })) {
+        //  // If the point is not displayed we move them to a trash coordinate.
+        //  // This avoids managing index mapping before/after filtering.
+        //  // The trash point is far enough such that any point in the drawing area will be closer to the mouse than the trash coordinate.
+        //  return [-drawingArea.width, -drawingArea.height];
+        // }
 
-        if (!instance.isPointInside({ x: pointX, y: pointY })) {
-          // If the point is not displayed we move them to a trash coordinate.
-          // This avoids managing index mapping before/after filtering.
-          // The trash point is far enough such that any point in the drawing area will be closer to the mouse than the trash coordinate.
-          return [-drawingArea.width, -drawingArea.height];
-        }
-
-        return [pointX, pointY];
+        return [x, y];
       });
 
       voronoiRef.current[seriesId] = {
@@ -107,7 +105,7 @@ function ChartsVoronoiHandler(props: ChartsVoronoiHandlerProps) {
 
     delauneyRef.current = new Delaunay(points);
     lastFind.current = undefined;
-  }, [defaultXAxisId, defaultYAxisId, series, seriesOrder, xAxis, yAxis, drawingArea, instance]);
+  }, [defaultXAxisId, defaultYAxisId, series, seriesOrder, drawingArea, instance]);
 
   React.useEffect(() => {
     if (svgRef.current === null) {
@@ -134,33 +132,106 @@ function ChartsVoronoiHandler(props: ChartsVoronoiHandlerProps) {
         return 'no-point-found';
       }
 
-      const closestPointIndex = delauneyRef.current.find(svgPoint.x, svgPoint.y, lastFind.current);
-      if (closestPointIndex === undefined) {
+      if (seriesOrder === undefined || series === undefined) {
+        // If there is no scatter chart series
+        // TODO: Should we return a different value?
         return 'no-point-found';
       }
 
-      lastFind.current = closestPointIndex;
-      const closestSeries = Object.values(voronoiRef.current).find((value) => {
-        return 2 * closestPointIndex >= value.startIndex && 2 * closestPointIndex < value.endIndex;
-      });
+      const points: number[] = [];
+      for (const seriesId of seriesOrder) {
+        const { xAxisId, yAxisId } = series[seriesId];
+        const xScale = xAxis[xAxisId ?? defaultXAxisId].scale;
+        const yScale = yAxis[yAxisId ?? defaultYAxisId].scale;
 
-      if (closestSeries === undefined) {
-        return 'no-point-found';
+        const getXValue = getPositionToValueMapper(xScale);
+        const getYValue = getPositionToValueMapper(yScale);
+
+        const getXPosition = getValueToPositionMapper(xScale);
+        const getYPosition = getValueToPositionMapper(yScale);
+
+        const closestPointIndex = delauneyRef.current.find(
+          getXValue(svgPoint.x),
+          getYValue(svgPoint.y),
+          // TODO: Can we use lastFind here?
+          lastFind.current,
+        );
+
+        points.push(closestPointIndex);
       }
 
-      const dataIndex =
-        (2 * closestPointIndex - voronoiRef.current[closestSeries.seriesId].startIndex) / 2;
+      const dataIndices = [];
+      for (const closestPointIndex of points) {
+        const closestSeries = Object.values(voronoiRef.current).find((value) => {
+          return (
+            2 * closestPointIndex >= value.startIndex && 2 * closestPointIndex < value.endIndex
+          );
+        });
 
-      if (voronoiMaxRadius !== undefined) {
-        const pointX = delauneyRef.current.points[2 * closestPointIndex];
-        const pointY = delauneyRef.current.points[2 * closestPointIndex + 1];
-        const dist2 = (pointX - svgPoint.x) ** 2 + (pointY - svgPoint.y) ** 2;
-        if (dist2 > voronoiMaxRadius ** 2) {
-          // The closest point is too far to be considered.
-          return 'outside-voronoi-max-radius';
+        if (closestSeries === undefined) {
+          // return 'no-point-found';
+          continue;
         }
+
+        const dataIndex =
+          (2 * closestPointIndex - voronoiRef.current[closestSeries.seriesId].startIndex) / 2;
+
+        if (voronoiMaxRadius !== undefined) {
+          const { xAxisId, yAxisId } = series[closestSeries.seriesId];
+          const xScale = xAxis[xAxisId ?? defaultXAxisId].scale;
+          const yScale = yAxis[yAxisId ?? defaultYAxisId].scale;
+
+          const getXPosition = getValueToPositionMapper(xScale);
+          const getYPosition = getValueToPositionMapper(yScale);
+
+          const pointX = getXPosition(delauneyRef.current.points[2 * closestPointIndex]);
+          const pointY = getYPosition(delauneyRef.current.points[2 * closestPointIndex + 1]);
+          const dist2 = (pointX - svgPoint.x) ** 2 + (pointY - svgPoint.y) ** 2;
+          if (dist2 > voronoiMaxRadius ** 2) {
+            // The closest point is too far to be considered.
+            continue;
+          }
+        }
+
+        dataIndices.push({ seriesId: closestSeries.seriesId, dataIndex });
       }
-      return { seriesId: closestSeries.seriesId, dataIndex };
+
+      console.log({ dataIndices });
+
+      if (dataIndices.length > 0) {
+        lastFind.current = dataIndices[0].dataIndex;
+        return dataIndices[0];
+      }
+
+      return 'no-point-found';
+
+      // const closestPointIndex = delauneyRef.current.find(svgPoint.x, svgPoint.y, lastFind.current);
+      // if (closestPointIndex === undefined) {
+      //  return 'no-point-found';
+      // }
+
+      // lastFind.current = closestPointIndex;
+      // const closestSeries = Object.values(voronoiRef.current).find((value) => {
+      //  return 2 * closestPointIndex >= value.startIndex && 2 * closestPointIndex < value.endIndex;
+      // });
+
+      // if (closestSeries === undefined) {
+      //  return 'no-point-found';
+      // }
+
+      // const dataIndex =
+      //  (2 * closestPointIndex - voronoiRef.current[closestSeries.seriesId].startIndex) / 2;
+
+      // if (voronoiMaxRadius !== undefined) {
+      //  const pointX = delauneyRef.current.points[2 * closestPointIndex];
+      //  const pointY = delauneyRef.current.points[2 * closestPointIndex + 1];
+      //  const dist2 = (pointX - svgPoint.x) ** 2 + (pointY - svgPoint.y) ** 2;
+      //  if (dist2 > voronoiMaxRadius ** 2) {
+      //    // The closest point is too far to be considered.
+      //    return 'outside-voronoi-max-radius';
+      //  }
+      // }
+      // return { seriesId: closestSeries.seriesId, dataIndex };
     }
 
     const handleMouseLeave = () => {
@@ -228,7 +299,20 @@ function ChartsVoronoiHandler(props: ChartsVoronoiHandlerProps) {
       element.removeEventListener('pointermove', handleMouseMove);
       element.removeEventListener('click', handleMouseClick);
     };
-  }, [svgRef, yAxis, xAxis, voronoiMaxRadius, onItemClick, drawingArea, store, instance]);
+  }, [
+    svgRef,
+    yAxis,
+    xAxis,
+    voronoiMaxRadius,
+    onItemClick,
+    drawingArea,
+    store,
+    instance,
+    seriesOrder,
+    series,
+    defaultXAxisId,
+    defaultYAxisId,
+  ]);
 
   // eslint-disable-next-line react/jsx-no-useless-fragment
   return <React.Fragment />;

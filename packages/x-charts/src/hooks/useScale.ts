@@ -16,6 +16,20 @@ export function getValueToPositionMapper(scale: D3Scale) {
   return (value: any) => scale(value) as number;
 }
 
+export function getPositionToValueMapper(scale: D3Scale) {
+  if (isBandScale(scale)) {
+    return (value: any) => {
+      const domain = scale.domain();
+      const paddingOuter = scale(domain[0]);
+      const eachBand = scale.step();
+
+      const index = Math.floor((value - paddingOuter) / eachBand);
+      return domain[Math.max(0, Math.min(index, domain.length - 1))] as number;
+    };
+  }
+  return (value: any) => scale.invert(value) as number;
+}
+
 export function useXScale<S extends ScaleName>(
   identifier?: number | string,
 ): AxisScaleConfig[S]['scale'] {
