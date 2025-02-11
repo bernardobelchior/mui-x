@@ -14,6 +14,10 @@ const stringCache: StringCache = {
   widthCache: {},
   cacheCount: 0,
 };
+const canvasStringCache: StringCache = {
+  widthCache: {},
+  cacheCount: 0,
+};
 const MAX_CACHE_NUM = 2000;
 const SPAN_STYLE = {
   position: 'absolute',
@@ -23,7 +27,7 @@ const SPAN_STYLE = {
   margin: 0,
   border: 'none',
   whiteSpace: 'pre',
-};
+} satisfies React.CSSProperties;
 const STYLE_LIST = [
   'minWidth',
   'maxWidth',
@@ -46,6 +50,7 @@ const STYLE_LIST = [
   'marginBottom',
 ];
 export const MEASUREMENT_SPAN_ID = 'mui_measurement_span';
+export const MEASUREMENT_CANVAS_ID = 'mui_measurement_canvas';
 
 /**
  *
@@ -98,6 +103,12 @@ export const getStyleString = (style: React.CSSProperties) =>
     );
 
 let domCleanTimeout: NodeJS.Timeout | undefined;
+const domResults = { count: 0, time: 0 };
+
+if (typeof window !== 'undefined') {
+  window.domResults = domResults;
+}
+
 /**
  *
  * @param text The string to estimate
@@ -117,6 +128,9 @@ export const getStringSize = (text: string | number, style: React.CSSProperties 
     return stringCache.widthCache[cacheKey];
   }
 
+  domResults.count++;
+
+  const startTime = performance.now();
   try {
     let measurementSpan = document.getElementById(MEASUREMENT_SPAN_ID);
     if (measurementSpan === null) {
@@ -158,8 +172,75 @@ export const getStringSize = (text: string | number, style: React.CSSProperties 
     return result;
   } catch {
     return { width: 0, height: 0 };
+  } finally {
+    domResults.time += performance.now() - startTime;
   }
 };
+
+function applyCSSStyleToCanvas(
+  canvasContext: CanvasRenderingContext2D,
+  style: React.CSSProperties,
+) {
+  canvasContext.font = style.font
+    ? style.font
+    : `${style.fontWeight} ${style.fontVariant} ${style.fontStyle} ${style.fontSize}px/${style.lineHeight} ${style.fontStretch} ${style.fontFamily}`;
+  canvasContext.letterSpacing = style.letterSpacing ?? 'normal';
+  const defaultBaseline = style.writingMode?.startsWith('vertical') ? 'central' : 'alphabetic';
+  canvasContext.textBaseline =
+    style.dominantBaseline === 'auto'
+      ? defaultBaseline
+      : (style.dominantBaseline ?? defaultBaseline);
+}
+
+export function measureTextWidth(text: string | number, style: React.CSSProperties = {}) {
+  const str = `${text}`;
+  const styleString = getStyleString(style);
+  const cacheKey = `${str}-${styleString}`;
+
+  if (canvasStringCache.widthCache[cacheKey]) {
+    return canvasStringCache.widthCache[cacheKey];
+  }
+
+  domResults.count++;
+
+  const startTime = performance.now();
+  try {
+    let measurementCanvas = document.getElementById(MEASUREMENT_CANVAS_ID) as HTMLCanvasElement;
+    if (measurementCanvas === null) {
+      measurementCanvas = document.createElement('canvas');
+      measurementCanvas.setAttribute('id', MEASUREMENT_CANVAS_ID);
+      measurementCanvas.setAttribute('aria-hidden', 'true');
+      Object.entries(SPAN_STYLE).forEach(([key, value]) => {
+        measurementCanvas.style[key] = value;
+      });
+      document.body.appendChild(measurementCanvas);
+    }
+
+    const canvasContext = measurementCanvas.getContext('2d')!;
+    applyCSSStyleToCanvas(canvasContext, style);
+
+    const metrics = canvasContext.measureText(str);
+    const result = {
+      width: metrics.width,
+      height: metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent,
+    };
+
+    canvasStringCache.widthCache[cacheKey] = result;
+
+    if (canvasStringCache.cacheCount + 1 > MAX_CACHE_NUM) {
+      canvasStringCache.cacheCount = 0;
+      canvasStringCache.widthCache = {};
+    } else {
+      canvasStringCache.cacheCount += 1;
+    }
+
+    return result;
+  } catch {
+    return { width: 0, height: 0 };
+  } finally {
+    domResults.time += performance.now() - startTime;
+  }
+}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export function unstable_cleanupDOM() {

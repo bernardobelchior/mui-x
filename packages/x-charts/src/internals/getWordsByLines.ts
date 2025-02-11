@@ -1,4 +1,4 @@
-import { getStringSize } from './domUtils';
+import { getStringSize, measureTextWidth } from './domUtils';
 
 export type ChartsTextBaseline = 'hanging' | 'central' | 'auto';
 
@@ -30,6 +30,6 @@ export interface GetWordsByLinesParams {
 export function getWordsByLines({ style, needsComputation, text }: GetWordsByLinesParams) {
   return text.split('\n').map((subText) => ({
     text: subText,
-    ...(needsComputation ? getStringSize(subText, style) : { width: 0, height: 0 }),
+    ...(needsComputation ? measureTextWidth(subText, style) : { width: 0, height: 0 }),
   }));
 }
