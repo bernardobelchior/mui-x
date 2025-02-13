@@ -32,7 +32,7 @@ describe('LineChartPro', () => {
         />,
       );
 
-      await findByText('60', { ignore: 'span' });
+      await findByText('150', { ignore: 'span' });
 
       cleanup();
     },
