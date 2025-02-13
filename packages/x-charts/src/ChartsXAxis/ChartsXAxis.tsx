@@ -4,11 +4,12 @@ import PropTypes from 'prop-types';
 import useSlotProps from '@mui/utils/useSlotProps';
 import composeClasses from '@mui/utils/composeClasses';
 import { useThemeProps, useTheme, Theme, styled } from '@mui/material/styles';
+import { useMounted } from '@mui/x-charts/hooks/useMounted';
 import { useTicks, TickItemType } from '../hooks/useTicks';
 import { AxisDefaultized, ChartsXAxisProps } from '../models/axis';
 import { getAxisUtilityClass } from '../ChartsAxis/axisClasses';
 import { AxisRoot } from '../internals/components/AxisSharedComponents';
-import { ChartsText, ChartsTextProps } from '../ChartsText';
+import { ChartsText, ChartsTextProps, ChartsTextStyle } from '../ChartsText';
 import { getMinXTranslation } from '../internals/geometry';
 import { useDrawingArea } from '../hooks/useDrawingArea';
 import { isInfinity } from '../internals/isInfinity';
@@ -30,37 +31,75 @@ const useUtilityClasses = (ownerState: ChartsXAxisProps & { theme: Theme }) => {
   return composeClasses(slots, getAxisUtilityClass, classes);
 };
 
+function useVisibleLabels({
+  xTicks,
+  textMapRef,
+  tickLabelStyle,
+  tickLabelInterval,
+  reverse,
+}: {
+  xTicks: TickItemType[];
+  textMapRef: React.RefObject<Map<number, SVGTextElement>>;
+  tickLabelStyle?: ChartsTextStyle;
+  tickLabelInterval: ChartsXAxisProps['tickLabelInterval'];
+  reverse?: boolean;
+}) {
+  const isLabelVisibilityUserDefined = typeof tickLabelInterval === 'function';
+  const textMeasurementCache = React.useRef<Map<number, { width: number; height: number }>>(
+    new Map(),
+  );
+  const mounted = useMounted(true);
+
+  // Note: by moving this into a hook the compiler doesn't notice the issue, but we shouldn't be able to access this in
+  // a ref.
+  const measure = React.useCallback(
+    (index: number) => {
+      const value =
+        textMeasurementCache.current.get(index) ?? textMapRef.current.get(index)?.getBBox();
+
+      if (value !== undefined) {
+        textMeasurementCache.current.set(index, { width: value.width, height: value.height });
+      }
+
+      return value ?? { width: 0, height: 0 };
+    },
+    [textMapRef],
+  );
+
+  // Can only measure after the chart is mounted, so for now render all ticks.
+  if (!mounted) {
+    return new Set(xTicks.map((_, i) => i));
+  }
+
+  const visibleLabels = isLabelVisibilityUserDefined
+    ? new Set(
+        xTicks
+          .filter((item, index) => tickLabelInterval(item.value, index))
+          .map((_, index) => index),
+      )
+    : computeVisibleLabels(xTicks, { tickLabelStyle, reverse, measure });
+
+  return visibleLabels;
+}
+
 function computeVisibleLabels(
   xTicks: TickItemType[],
   {
     tickLabelStyle: style,
-    tickLabelInterval,
     reverse,
-    measurements,
-  }: Pick<ChartsXAxisProps, 'tickLabelInterval' | 'tickLabelStyle'> &
+    measure,
+  }: Pick<ChartsXAxisProps, 'tickLabelStyle'> &
     Pick<AxisDefaultized, 'reverse'> & {
-      measurements: Map<number, { width: number; height: number }>;
+      measure: (labelIndex: number) => { width: number; height: number };
     },
 ): Set<number> {
   const visibleLabels = new Set<number>();
-  if (typeof tickLabelInterval === 'function') {
-    xTicks.forEach((item, index) => {
-      const isLabelVisible = tickLabelInterval(item.value, index);
-
-      if (isLabelVisible) {
-        visibleLabels.add(index);
-      }
-    });
-
-    return visibleLabels;
-  }
-
   // Filter label to avoid overlap
   let currentTextLimit = 0;
   let previousTextLimit = 0;
   const direction = reverse ? -1 : 1;
   xTicks.forEach((item, labelIndex) => {
-    const { width, height } = measurements.get(labelIndex) ?? { width: 0, height: 0 };
+    const { width, height } = measure(labelIndex);
     const { offset, labelOffset } = item;
 
     const distance = getMinXTranslation(width, height, style?.angle);
@@ -136,7 +175,6 @@ function ChartsXAxis(inProps: ChartsXAxisProps) {
   const classes = useUtilityClasses({ ...defaultizedProps, theme });
   const { left, top, width, height } = useDrawingArea();
   const { instance } = useChartContext();
-  const [needsMeasuring, setNeedsMeasuring] = React.useState(true);
   const textMapRef = React.useRef(new Map<number, SVGTextElement>());
 
   const tickSize = disableTicks ? 4 : tickSizeProp;
@@ -171,36 +209,13 @@ function ChartsXAxis(inProps: ChartsXAxisProps) {
     tickPlacement,
     tickLabelPlacement,
   });
-  const [measurements, setMeasurements] = React.useState(
-    new Map<number, { width: number; height: number }>(),
-  );
 
-  React.useLayoutEffect(
-    function measureTicks() {
-      if (needsMeasuring) {
-        setMeasurements(
-          new Map(
-            xTicks.map(function measureTick(_, index) {
-              const bbox = textMapRef.current.get(index)?.getBBox() ?? {
-                width: 0,
-                height: 0,
-              };
-
-              return [index, { width: bbox.width, height: bbox.height }] as const;
-            }),
-          ),
-        );
-        setNeedsMeasuring(false);
-      }
-    },
-    [needsMeasuring, xTicks],
-  );
-
-  const visibleLabels = computeVisibleLabels(xTicks, {
+  const visibleLabels = useVisibleLabels({
+    xTicks,
+    textMapRef,
     tickLabelStyle: axisTickLabelProps.style,
     tickLabelInterval,
     reverse,
-    measurements,
   });
 
   const labelRefPoint = {
@@ -260,12 +275,11 @@ function ChartsXAxis(inProps: ChartsXAxisProps) {
               />
             )}
 
-            {needsMeasuring || (formattedValue !== undefined && isLabelVisible && showTickLabel) ? (
+            {formattedValue !== undefined && isLabelVisible && showTickLabel ? (
               <TickLabel
                 x={xTickLabel}
                 y={yTickLabel}
                 {...axisTickLabelProps}
-                measuring={needsMeasuring}
                 ref={(ref) => {
                   const textMap = textMapRef.current;
 
