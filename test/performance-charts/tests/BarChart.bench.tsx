@@ -36,7 +36,7 @@ describe('BarChart', () => {
         />,
       );
 
-      await findByText('80', { ignore: 'span' });
+      await findByText('142', { ignore: 'span' });
 
       cleanup();
     },
