@@ -45,11 +45,7 @@ type Placement =
   | 'bottom'
   | 'bottom-end';
 
-type DefaultTypes<PropName> = {
-  /**
-   * Name of the prop, for example 'children'
-   */
-  propName: PropName;
+type DefaultTypes = {
   /**
    * The display name of the prop, for example 'X Axis Label'
    */
@@ -79,76 +75,83 @@ type ConditionalTypes = {
   max?: number;
 };
 
-type NumberDataType<PropName> = {
+type NumberDataType = {
   knob: 'number' | 'slider';
   /**
    * The default value to be used by the components.
    */
   defaultValue?: number;
-} & DefaultTypes<PropName> &
+} & DefaultTypes &
   Pick<ConditionalTypes, 'step' | 'min' | 'max'>;
 
-type SelectDataType<PropName> = {
+type SelectDataType = {
   knob: 'select';
   /**
    * The default value to be used by the components.
    */
   defaultValue?: string;
-} & DefaultTypes<PropName> &
+} & DefaultTypes &
   Pick<ConditionalTypes, 'options'>;
 
-type RadioDataType<PropName> = {
+type RadioDataType = {
   knob: 'radio';
   /**
    * The default value to be used by the components.
    */
   defaultValue?: string;
-} & DefaultTypes<PropName> &
+} & DefaultTypes &
   Pick<ConditionalTypes, 'options' | 'labels'>;
 
-type SwitchDataType<PropName> = {
+type SwitchDataType = {
   knob: 'switch';
   /**
    * The default value to be used by the components.
    */
   defaultValue?: boolean;
-} & DefaultTypes<PropName>;
+} & DefaultTypes;
 
-type ColorDataType<PropName> = {
+type ColorDataType = {
   knob: 'color';
   /**
    * The default value to be used by the components.
    */
   defaultValue?: string;
-} & DefaultTypes<PropName> &
+} & DefaultTypes &
   Pick<ConditionalTypes, 'options'>;
 
-type InputDataType<PropName> = {
+type InputDataType = {
   knob: 'input';
   /**
    * The default value to be used by the components.
    */
   defaultValue?: string;
-} & DefaultTypes<PropName>;
+} & DefaultTypes;
 
-type PlacementDataType<PropName> = {
+type PlacementDataType = {
   knob: 'placement';
   /**
    * The default value to be used by the components.
    */
   defaultValue?: Placement;
-} & DefaultTypes<PropName>;
+} & DefaultTypes;
 
-export type DataType<PropName extends string> =
-  | NumberDataType<PropName>
-  | SelectDataType<PropName>
-  | RadioDataType<PropName>
-  | SwitchDataType<PropName>
-  | ColorDataType<PropName>
-  | InputDataType<PropName>
-  | PlacementDataType<PropName>;
+export type DataType =
+  | NumberDataType
+  | SelectDataType
+  | RadioDataType
+  | SwitchDataType
+  | ColorDataType
+  | InputDataType
+  | PlacementDataType;
 
-interface ChartDemoPropsFormProps<PropName extends string> {
+export type PropsFromData<Data extends Record<string, DataType>> = {
+  [K in keyof Data]: Data[K]['defaultValue'];
+};
+
+interface ChartDemoPropsFormProps<
+  Data extends Record<string, DataType>,
+  Props extends PropsFromData<Data>,
+> {
   /**
    * Name of the component to show in the code block.
    */
@@ -156,28 +159,23 @@ interface ChartDemoPropsFormProps<PropName extends string> {
   /**
    * Configuration
    */
-  data: readonly DataType<PropName>[];
+  data: Data;
   /**
    * Props to be displayed in the form
    */
-  props: Record<PropName, any>;
-  onPropsChange: (data: Record<PropName, any> | ((data: Record<PropName, any>) => void)) => void;
+  props: Props;
+  onPropsChange: (state: Props | ((prevState: Props) => Props)) => void;
 }
 
-export default function ChartDemoPropsForm<T extends string>({
-  componentName,
-  data,
-  props,
-  onPropsChange,
-}: ChartDemoPropsFormProps<T>) {
-  const initialProps = React.useMemo<Record<T, any>>(
+export default function ChartDemoPropsForm<
+  Data extends Record<string, DataType>,
+  Props extends PropsFromData<Data>,
+>({ componentName, data, props, onPropsChange }: ChartDemoPropsFormProps<Data, Props>) {
+  const initialProps = React.useMemo(
     () =>
-      data.reduce(
-        (acc, { propName, defaultValue }) => {
-          acc[propName] = defaultValue;
-          return acc;
-        },
-        {} as Record<T, any>,
+      Object.entries(data).reduce(
+        (acc, [propName, value]) => ({ ...acc, [propName]: value.defaultValue }),
+        {} as Props,
       ),
     [data],
   );
@@ -240,8 +238,8 @@ export default function ChartDemoPropsForm<T extends string>({
           },
         }}
       >
-        {data.map((propData) => {
-          const { propName, knob, defaultValue, displayName } = propData;
+        {Object.entries(data).map(([propName, propData]) => {
+          const { knob, defaultValue, displayName } = propData;
           const resolvedValue = props[propName] ?? defaultValue;
           const title = displayName || propName;
           if (!knob) {

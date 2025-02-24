@@ -13,24 +13,27 @@ export default function BarGap() {
   return (
     <ChartsUsageDemo
       componentName="Bar gap"
-      data={[
-        {
-          propName: `categoryGapRatio`,
+      data={{
+        categoryGapRatio: {
           knob: 'number',
           defaultValue: 0.3,
           step: 0.1,
           min: 0,
           max: 1,
         },
-        {
-          propName: `barGapRatio`,
+        barGapRatio: {
           knob: 'number',
           defaultValue: 0.1,
           step: 0.1,
           min: -2,
           max: 5,
         },
-      ]}
+        testProp: {
+          knob: 'select',
+          defaultValue: 'test',
+          options: ['test', 'test2'],
+        },
+      }}
       renderDemo={(props) => (
         <BarChart
           dataset={balanceSheet}
@@ -40,7 +43,6 @@ export default function BarGap() {
             {
               scaleType: 'band',
               dataKey: 'year',
-              // @ts-expect-error
               categoryGapRatio: props.categoryGapRatio,
               barGapRatio: props.barGapRatio,
             },
