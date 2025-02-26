@@ -452,6 +452,20 @@ export type AxisDefaultized<
       ? MakeRequired<AxisSideConfig<AxisProps>, 'width'>
       : AxisSideConfig<AxisProps>);
 
+type AxisWithDefaults<
+  S extends ScaleName = ScaleName,
+  V = any,
+  AxisProps extends ChartsAxisProps = ChartsXAxisProps | ChartsYAxisProps,
+> = MakeRequired<AxisConfig<S, V, AxisProps>, 'id' | 'offset'>;
+export type XAxisWithDefaults<S extends ScaleName = ScaleName, V = any> = MakeRequired<
+  AxisWithDefaults<S, V, ChartsXAxisProps>,
+  'height'
+>;
+export type YAxisWithDefaults<S extends ScaleName = ScaleName, V = any> = MakeRequired<
+  AxisWithDefaults<S, V, ChartsYAxisProps>,
+  'width'
+>;
+
 export function isBandScaleConfig(
   scaleConfig: AxisConfig<ScaleName>,
 ): scaleConfig is AxisConfig<'band'> & { scaleType: 'band' } {

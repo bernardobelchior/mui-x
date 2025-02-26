@@ -9,6 +9,8 @@ import type {
   AxisId,
   AxisConfig,
   ChartsAxisData,
+  XAxisWithDefaults,
+  YAxisWithDefaults,
 } from '../../../../models/axis';
 import type { UseChartSeriesSignature } from '../../corePlugins/useChartSeries';
 import type { ZoomData, ZoomOptions } from './zoom.types';
@@ -52,8 +54,8 @@ export interface UseChartCartesianAxisParameters {
 }
 
 export type UseChartCartesianAxisDefaultizedParameters = UseChartCartesianAxisParameters & {
-  defaultizedXAxis: AxisConfig<ScaleName, any, ChartsXAxisProps>[];
-  defaultizedYAxis: AxisConfig<ScaleName, any, ChartsYAxisProps>[];
+  defaultizedXAxis: XAxisWithDefaults[];
+  defaultizedYAxis: YAxisWithDefaults[];
 };
 
 export interface DefaultizedZoomOptions extends Required<ZoomOptions> {
@@ -70,8 +72,8 @@ export interface UseChartCartesianAxisState {
     zoomData: readonly ZoomData[];
   };
   cartesianAxis: {
-    x: AxisConfig<ScaleName, any, ChartsXAxisProps>[];
-    y: AxisConfig<ScaleName, any, ChartsYAxisProps>[];
+    x: XAxisWithDefaults[];
+    y: YAxisWithDefaults[];
   };
 }
 
@@ -80,14 +82,11 @@ export type ExtremumFilter = (
   dataIndex: number,
 ) => boolean;
 
-export interface UseChartCartesianAxisInstance {}
-
 export type UseChartCartesianAxisSignature<SeriesType extends ChartSeriesType = ChartSeriesType> =
   ChartPluginSignature<{
     params: UseChartCartesianAxisParameters;
     defaultizedParams: UseChartCartesianAxisDefaultizedParameters;
     state: UseChartCartesianAxisState;
-    // instance: UseChartCartesianAxisInstance;
     dependencies: [UseChartSeriesSignature<SeriesType>];
     optionalDependencies: [UseChartInteractionSignature];
   }>;

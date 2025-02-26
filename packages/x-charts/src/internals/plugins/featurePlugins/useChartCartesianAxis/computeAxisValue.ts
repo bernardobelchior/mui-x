@@ -7,6 +7,8 @@ import {
   isBandScaleConfig,
   isPointScaleConfig,
   AxisId,
+  YAxisWithDefaults,
+  XAxisWithDefaults,
 } from '../../../../models/axis';
 import { CartesianChartSeriesType, ChartSeriesType } from '../../../../models/seriesType/config';
 import { getColorScale, getOrdinalColorScale } from '../../../colorScale';
@@ -64,13 +66,13 @@ type ComputeCommonParams<T extends ChartSeriesType = ChartSeriesType> = {
 
 export function computeAxisValue<T extends ChartSeriesType>(
   options: ComputeCommonParams<T> & {
-    axis?: AxisConfig<ScaleName, any, ChartsYAxisProps>[];
+    axis?: YAxisWithDefaults[];
     axisDirection: 'y';
   },
 ): ComputeResult<ChartsYAxisProps>;
 export function computeAxisValue<T extends ChartSeriesType>(
   options: ComputeCommonParams<T> & {
-    axis?: AxisConfig<ScaleName, any, ChartsXAxisProps>[];
+    axis?: XAxisWithDefaults[];
     axisDirection: 'x';
   },
 ): ComputeResult<ChartsXAxisProps>;
