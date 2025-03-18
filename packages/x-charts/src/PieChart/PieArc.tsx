@@ -73,7 +73,7 @@ function pieArcPropsInterpolator(from: PieArcInterpolatedProps, to: PieArcInterp
   };
 }
 
-function usePieArcAnimatedProps(props: PieArcAnimatedProps) {
+function useAnimatePieArc(props: PieArcAnimatedProps) {
   const ref = useAnimate(
     { startAngle: props.startAngle, endAngle: props.endAngle },
     {
@@ -156,7 +156,7 @@ function PieArc(props: PieArcProps) {
   const classes = useUtilityClasses(ownerState);
 
   const interactionProps = useInteractionItemProps({ type: 'pie', seriesId: id, dataIndex });
-  const animatedProps = usePieArcAnimatedProps(props);
+  const animatedProps = useAnimatePieArc(props);
 
   return (
     <PieArcRoot
