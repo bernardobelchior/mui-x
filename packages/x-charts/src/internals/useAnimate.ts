@@ -11,10 +11,12 @@ export function useAnimate<Props, Elem extends Element>(
     createInterpolator,
     applyProps,
     skip,
+    initialProps,
   }: {
     createInterpolator: (lastProps: Props, newProps: Props) => (t: number) => Props;
     applyProps: (element: Elem, props: Props) => void;
     skip?: boolean;
+    initialProps?: Props;
   },
 ) {
   const transitionName = `MuiUseAnimate-${useId()}`;
@@ -22,7 +24,7 @@ export function useAnimate<Props, Elem extends Element>(
    * T1. The transitioned element changes;
    * T2. The transitioned element is unmounted;
    * T3. The component calling this hook is unmounted. */
-  const lastInterpolatedProps = React.useRef(props);
+  const lastInterpolatedProps = React.useRef(initialProps ?? props);
   const transitionRef = React.useRef<Transition<Elem, unknown, null, undefined>>(null);
   const elementRef = React.useRef<Elem>(null);
   const elementUnmounted = React.useRef(false);
