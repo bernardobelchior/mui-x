@@ -64,8 +64,7 @@ export function useAnimate<Props, Elem extends Element>(
         .duration(skip ? 0 : ANIMATION_DURATION_MS)
         .ease(ANIMATION_TIMING_FUNCTION_JS)
         .tween('animate', () => {
-          const lastProps = lastInterpolatedProps.current;
-          const interpolate = createInterpolator(lastProps, props);
+          const interpolate = createInterpolator(lastInterpolatedProps.current, props);
 
           return function animateAt(t) {
             const interpolatedProps = interpolate(t);
