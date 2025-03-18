@@ -73,19 +73,29 @@ function pieArcPropsInterpolator(from: PieArcInterpolatedProps, to: PieArcInterp
   };
 }
 
-function usePieArcAnimatedProps(props: PieArcAnimatedProps) {
+function usePieArcAnimatedProps({
+  startAngle,
+  endAngle,
+  paddingAngle,
+  innerRadius,
+  outerRadius,
+  cornerRadius,
+  ...rest
+}: React.ComponentProps<typeof PieArcRoot> & PieArcAnimatedProps): React.ComponentProps<
+  typeof PieArcRoot
+> {
   const ref = useAnimate(
-    { startAngle: props.startAngle, endAngle: props.endAngle },
+    { startAngle, endAngle },
     {
       createInterpolator: pieArcPropsInterpolator,
       applyProps(element, animatedProps) {
         element.setAttribute(
           'd',
           d3Arc()
-            .cornerRadius(props.cornerRadius)({
-              padAngle: props.paddingAngle,
-              innerRadius: props.innerRadius,
-              outerRadius: props.cornerRadius,
+            .cornerRadius(cornerRadius)({
+              padAngle: paddingAngle,
+              innerRadius,
+              outerRadius: cornerRadius,
               startAngle: animatedProps.startAngle,
               endAngle: animatedProps.endAngle,
             })!
@@ -93,20 +103,21 @@ function usePieArcAnimatedProps(props: PieArcAnimatedProps) {
         );
       },
       initialProps: {
-        startAngle: (props.startAngle + props.endAngle) / 2,
-        endAngle: (props.startAngle + props.endAngle) / 2,
+        startAngle: (startAngle + endAngle) / 2,
+        endAngle: (startAngle + endAngle) / 2,
       },
     },
   );
 
   return {
+    ...rest,
     ref,
-    d: d3Arc().cornerRadius(props.cornerRadius)({
-      padAngle: props.paddingAngle,
-      innerRadius: props.innerRadius,
-      outerRadius: props.cornerRadius,
-      startAngle: props.startAngle,
-      endAngle: props.endAngle,
+    d: d3Arc().cornerRadius(cornerRadius)({
+      padAngle: paddingAngle,
+      innerRadius,
+      outerRadius,
+      startAngle,
+      endAngle,
     })!,
   };
 }
@@ -136,7 +147,6 @@ function PieArc(props: PieArcProps) {
   const {
     classes: innerClasses,
     color,
-    cornerRadius,
     dataIndex,
     id,
     isFaded,
@@ -156,24 +166,21 @@ function PieArc(props: PieArcProps) {
   const classes = useUtilityClasses(ownerState);
 
   const interactionProps = useInteractionItemProps({ type: 'pie', seriesId: id, dataIndex });
-  const animatedProps = usePieArcAnimatedProps(props);
+  const animatedProps = usePieArcAnimatedProps({
+    onClick,
+    cursor: onClick ? 'pointer' : 'unset',
+    ownerState,
+    className: classes.root,
+    fill: ownerState.color,
+    opacity: ownerState.isFaded ? 0.3 : 1,
+    filter: ownerState.isHighlighted ? 'brightness(120%)' : 'none',
+    strokeWidth: 1,
+    strokeLinejoin: 'round',
+    ...other,
+    ...interactionProps,
+  });
 
-  return (
-    <PieArcRoot
-      onClick={onClick}
-      cursor={onClick ? 'pointer' : 'unset'}
-      ownerState={ownerState}
-      className={classes.root}
-      fill={ownerState.color}
-      opacity={ownerState.isFaded ? 0.3 : 1}
-      filter={ownerState.isHighlighted ? 'brightness(120%)' : 'none'}
-      strokeWidth={1}
-      strokeLinejoin="round"
-      {...other}
-      {...interactionProps}
-      {...animatedProps}
-    />
-  );
+  return <PieArcRoot {...animatedProps} />;
 }
 
 PieArc.propTypes = {
