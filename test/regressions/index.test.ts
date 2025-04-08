@@ -300,8 +300,6 @@ async function main() {
           printButton.click();
         });
 
-        await sleep(4000);
-
         return new Promise((resolve, reject) => {
           // See https://ffmpeg.org/ffmpeg-devices.html#x11grab
           const args = `-y -f x11grab -framerate 1 -video_size 460x400 -i :99.0+90,95 -vframes 1 ${screenshotPath}`;
