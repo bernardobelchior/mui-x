@@ -287,9 +287,12 @@ async function main() {
         console.log('test start');
         this.timeout(20000);
 
+        console.log('after timeout');
         const route = '/docs-charts-export/PrintChartNoSnap';
         const screenshotPath = path.resolve(screenshotDir, `.${route}Print.png`);
+        console.log('before ensure dir');
         await fse.ensureDir(path.dirname(screenshotPath));
+        console.log('before navigate to test');
 
         await navigateToTest(route);
 
