@@ -1,6 +1,11 @@
 import { ChartPlugin } from '@mui/x-charts/internals';
 import { printChart } from './print';
-import { ChartPrintExportOptions, UseChartProExportSignature } from './useChartProExport.types';
+import { exportImage } from './export-image';
+import {
+  ChartImageExportOptions,
+  ChartPrintExportOptions,
+  UseChartProExportSignature,
+} from './useChartProExport.types';
 
 function waitForAnimationFrame() {
   let resolve;
@@ -35,12 +40,22 @@ export const useChartProExport: ChartPlugin<UseChartProExportSignature> = ({
     }
   };
 
+  const exportAsImage = (options?: ChartImageExportOptions) => {
+    const svg = svgRef.current;
+
+    if (svg) {
+      exportImage(svg, options);
+    }
+  };
+
   return {
     publicAPI: {
       print,
+      exportAsImage,
     },
     instance: {
       print,
+      exportAsImage,
     },
   };
 };
