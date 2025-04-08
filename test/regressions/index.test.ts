@@ -293,21 +293,27 @@ async function main() {
         await navigateToTest(route);
 
         const printButton = page.getByRole('button', { name: 'Print' });
+        console.log('print button gotten');
 
         // Trigger the action async because window.print() is blocking the main thread
         // like window.alert() is.
-        setTimeout(() => {
-          printButton.click();
+        setTimeout(async () => {
+          await printButton.click();
+          console.log('print button clicked');
         });
 
+        console.log('before sleep');
         await sleep(4000);
+        console.log('slept 4s');
 
         return new Promise((resolve, reject) => {
           // See https://ffmpeg.org/ffmpeg-devices.html#x11grab
           const args = `-y -f x11grab -framerate 1 -video_size 460x400 -i :99.0+90,95 -vframes 1 ${screenshotPath}`;
+          console.log('spawning ffmpeg');
           const ffmpeg = childProcess.spawn('ffmpeg', args.split(' '));
 
           ffmpeg.on('close', (code) => {
+            console.log(`ffmpeg close: ${code}`);
             if (code === 0) {
               resolve();
             } else {
