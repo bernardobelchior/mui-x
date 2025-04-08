@@ -284,14 +284,16 @@ async function main() {
 
     describe('charts', () => {
       it('should take a screenshot of the print preview', async function test() {
+        console.log('test start');
         this.timeout(20000);
 
-        const route = '/docs-charts-export/PrintChart';
+        const route = '/docs-charts-export/PrintChartNoSnap';
         const screenshotPath = path.resolve(screenshotDir, `.${route}Print.png`);
         await fse.ensureDir(path.dirname(screenshotPath));
 
         await navigateToTest(route);
 
+        console.log('before print button');
         const printButton = page.getByRole('button', { name: 'Print' });
         console.log('print button gotten');
 

@@ -5,7 +5,7 @@ import { ScatterChartPro } from '@mui/x-charts-pro/ScatterChartPro';
 import { ChartProApi } from '@mui/x-charts-pro/ChartContainerPro';
 import { data } from './randomData';
 
-export default function PrintChart() {
+export default function PrintChartNoSnap() {
   const apiRef = React.useRef<ChartProApi>(undefined);
 
   return (
