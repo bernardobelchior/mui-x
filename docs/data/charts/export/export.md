@@ -16,4 +16,4 @@ The `apiRef` prop on exposes a `print` method that can be used to open the brows
 
 The print dialog allows you to print the chart or save it as a PDF, as well as configuring other settings.
 
-{{"demo": "PrintChartNoSnap.js"}}
+{{"demo": "PrintChart.js"}}

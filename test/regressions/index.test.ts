@@ -288,7 +288,7 @@ async function main() {
         this.timeout(20000);
 
         console.log('after timeout');
-        const route = '/docs-charts-export/PrintChartNoSnap';
+        const route = '/docs-charts-export/PrintChart';
         const screenshotPath = path.resolve(screenshotDir, `.${route}Print.png`);
         console.log('before ensure dir');
         await fse.ensureDir(path.dirname(screenshotPath));
