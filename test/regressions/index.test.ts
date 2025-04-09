@@ -290,7 +290,8 @@ async function main() {
         const screenshotPath = path.resolve(screenshotDir, `.${route}Print.png`);
         await fse.ensureDir(path.dirname(screenshotPath));
 
-        await navigateToTest(route);
+        // await navigateToTest(route);
+        await page.goto(`${baseUrl}${route}#no-dev`);
 
         const printButton = page.getByRole('button', { name: 'Print' });
 
