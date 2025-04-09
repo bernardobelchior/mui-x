@@ -47,7 +47,7 @@ export interface ChartImageExportOptions {
   /**
    * The quality of the image to be exported between 0 and 1. This is only applicable for lossy formats, such as
    * 'image/jpeg' and 'image/webp'. 'image/png' does not support this option.
-   * @default the default quality of the browser
+   * @default 0.9
    */
   quality?: number;
 }

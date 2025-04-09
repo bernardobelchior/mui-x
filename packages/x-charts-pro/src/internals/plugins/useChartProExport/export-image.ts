@@ -10,7 +10,7 @@ export const getDrawDocument = async () => {
 
 export async function exportImage(
   element: HTMLElement | SVGElement,
-  { fileName, type, quality }: ChartImageExportOptions = {},
+  { fileName, type, quality }: ChartImageExportOptions = { type: 'image/png', quality: 0.9 },
 ) {
   const drawDocumentPromise = getDrawDocument();
   const { width, height } = element.getBoundingClientRect();

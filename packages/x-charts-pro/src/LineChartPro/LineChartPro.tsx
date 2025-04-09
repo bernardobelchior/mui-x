@@ -113,6 +113,7 @@ LineChartPro.propTypes = {
   // ----------------------------------------------------------------------
   apiRef: PropTypes.shape({
     current: PropTypes.shape({
+      exportAsImage: PropTypes.func.isRequired,
       print: PropTypes.func.isRequired,
       setZoomData: PropTypes.func.isRequired,
     }),

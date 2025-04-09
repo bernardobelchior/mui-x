@@ -12,4 +12,4 @@
     },
   ]}
 />
-<Button onClick={() => apiRef.current?.exportAsImage()}>Export Image</Button>
+<ExportParamsSelector apiRef={apiRef} />
