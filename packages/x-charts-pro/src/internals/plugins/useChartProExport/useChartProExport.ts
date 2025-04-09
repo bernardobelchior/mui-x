@@ -47,6 +47,8 @@ export const useChartProExport: ChartPlugin<UseChartProExportSignature> = ({
       const enableAnimation = instance.disableAnimation();
 
       try {
+        // Wait for animation frame to ensure the animation finished
+        await waitForAnimationFrame();
         await exportImage(chartRoot, options);
       } finally {
         enableAnimation();
