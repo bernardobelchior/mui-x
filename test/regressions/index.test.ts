@@ -294,7 +294,8 @@ async function main() {
         await fse.ensureDir(path.dirname(screenshotPath));
         console.log('before navigate to test');
 
-        await navigateToTest(route);
+        // await navigateToTest(route);
+        await page.goto(`${baseUrl}${route}#no-dev`);
 
         console.log('before print button');
         const printButton = page.getByRole('button', { name: 'Print' });
