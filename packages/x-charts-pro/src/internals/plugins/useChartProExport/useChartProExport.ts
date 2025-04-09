@@ -40,11 +40,17 @@ export const useChartProExport: ChartPlugin<UseChartProExportSignature> = ({
     }
   };
 
-  const exportAsImage = (options?: ChartImageExportOptions) => {
+  const exportAsImage = async (options?: ChartImageExportOptions) => {
     const chartRoot = chartRootRef.current;
 
     if (chartRoot) {
-      exportImage(chartRoot, options);
+      const enableAnimation = instance.disableAnimation();
+
+      try {
+        await exportImage(chartRoot, options);
+      } finally {
+        enableAnimation();
+      }
     }
   };
 

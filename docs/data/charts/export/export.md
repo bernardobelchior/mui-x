@@ -18,7 +18,7 @@ The print dialog allows you to print the chart or save it as a PDF, as well as c
 
 {{"demo": "PrintChart.js"}}
 
-## Export as Image
+## Export as image
 
 The `apiRef` prop also exposes a `exportAsImage` function that can be used to export the chart as an image.
 
