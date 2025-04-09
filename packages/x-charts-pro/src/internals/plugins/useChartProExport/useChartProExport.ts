@@ -41,10 +41,10 @@ export const useChartProExport: ChartPlugin<UseChartProExportSignature> = ({
   };
 
   const exportAsImage = (options?: ChartImageExportOptions) => {
-    const svg = svgRef.current;
+    const chartRoot = chartRootRef.current;
 
-    if (svg) {
-      exportImage(svg, options);
+    if (chartRoot) {
+      exportImage(chartRoot, options);
     }
   };
 
