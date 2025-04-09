@@ -2,12 +2,12 @@ import { ChartPlugin } from '@mui/x-charts/internals';
 import { printChart } from './print';
 import { ChartPrintExportOptions, UseChartProExportSignature } from './useChartProExport.types';
 
-export const useChartProExport: ChartPlugin<UseChartProExportSignature> = ({ svgRef }) => {
+export const useChartProExport: ChartPlugin<UseChartProExportSignature> = ({ chartRootRef }) => {
   const print = (options?: ChartPrintExportOptions) => {
-    const svg = svgRef.current;
+    const chartRoot = chartRootRef.current;
 
-    if (svg) {
-      printChart(svg, options);
+    if (chartRoot) {
+      printChart(chartRoot, options);
     }
   };
 
