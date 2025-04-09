@@ -32,4 +32,4 @@ If you provide a format that your browser does not support, `exportAsImage` will
 Additionally, for lossy formats such as `image/jpeg` and `image/webp`, the options object also accepts the `quality` property, which is a number between 0 and 1.
 The default value is 0.9.
 
-{{"demo": "ExportChartAsImageNoSnap.js"}}
+{{"demo": "ExportChartAsImage.js"}}

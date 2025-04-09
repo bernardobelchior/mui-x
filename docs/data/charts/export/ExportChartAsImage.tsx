@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import { ScatterChartPro } from '@mui/x-charts-pro/ScatterChartPro';
 import { ChartProApi } from '@mui/x-charts-pro/ChartContainerPro';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
@@ -9,7 +8,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import TextField from '@mui/material/TextField';
-import { data } from './randomData';
+import { LineChartPro } from '@mui/x-charts-pro/LineChartPro';
 
 function ExportParamsSelector({
   apiRef,
@@ -73,24 +72,24 @@ function ExportParamsSelector({
   );
 }
 
-export default function ExportChartAsImageNoSnap() {
+export default function ExportChartAsImage() {
   const apiRef = React.useRef<ChartProApi>(undefined);
 
   return (
     <Stack width="100%" gap={2}>
-      <ScatterChartPro
+      <LineChartPro
         apiRef={apiRef}
-        height={300}
+        xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
         series={[
+          { data: [4, 9, 1, 4, 9, 6], label: 'Series A' },
           {
-            label: 'Series A',
-            data: data.map((v) => ({ x: v.x1, y: v.y1, id: v.id })),
-          },
-          {
+            data: [2, 5.5, 2, 8.5, 1.5, 5],
+            area: true,
             label: 'Series B',
-            data: data.map((v) => ({ x: v.x1, y: v.y2, id: v.id })),
           },
         ]}
+        height={300}
+        grid={{ vertical: true, horizontal: true }}
       />
       <ExportParamsSelector apiRef={apiRef} />
     </Stack>
