@@ -23,7 +23,7 @@ function ExportParamsSelector({ apiRef }) {
       gap={2}
       sx={{ width: '100%' }}
     >
-      <FormControl>
+      <FormControl fullWidth>
         <FormLabel id="image-format-radio-buttons-group-label">
           Image Format
         </FormLabel>
