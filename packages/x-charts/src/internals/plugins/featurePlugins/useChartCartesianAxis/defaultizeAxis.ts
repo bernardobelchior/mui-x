@@ -5,6 +5,7 @@ import {
   DEFAULT_AXIS_SIZE_HEIGHT,
   DEFAULT_AXIS_SIZE_WIDTH,
   AXIS_LABEL_DEFAULT_HEIGHT,
+  DEFAULT_ZOOM_BRUSH_SIZE,
 } from '../../../../constants';
 import { AxisConfig, ScaleName } from '../../../../models';
 import { ChartsXAxisProps, ChartsYAxisProps } from '../../../../models/axis';
@@ -45,6 +46,12 @@ export function defaultizeXAxis(
     // Increment the offset for the next axis
     if (position !== 'none') {
       offsets[position] += sharedConfig.height;
+
+      const hasOverview = axisConfig?.zoom?.overview?.enabled;
+
+      if (hasOverview) {
+        offsets[position] += axisConfig?.zoom?.overview?.size ?? DEFAULT_ZOOM_BRUSH_SIZE;
+      }
     }
 
     // If `dataKey` is NOT provided
