@@ -58,9 +58,10 @@ export type UseChartCartesianAxisDefaultizedParameters<S extends ScaleName = Sca
     defaultizedYAxis: AxisConfig<S, any, ChartsYAxisProps>[];
   };
 
-export interface DefaultizedZoomOptions extends Required<ZoomOptions> {
+export interface DefaultizedZoomOptions extends Required<Omit<ZoomOptions, 'overview'>> {
   axisId: AxisId;
   axisDirection: 'x' | 'y';
+  overview: Required<ZoomOptions['overview']>;
 }
 
 export interface UseChartCartesianAxisState {
