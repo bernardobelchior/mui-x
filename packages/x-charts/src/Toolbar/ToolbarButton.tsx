@@ -1,16 +1,8 @@
-import { IconButton } from '@mui/material';
-import { createSvgIcon } from '@mui/x-data-grid/material/icons/createSvgIcon';
+import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import * as React from 'react';
 
-export const GridDownloadIcon = createSvgIcon(
-  <path d="M5 20h14v-2H5zM19 9h-4V3H9v6H5l7 7z" />,
-  'Download',
+export const ToolbarButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
+  function ToolbarButton(props, ref) {
+    return <IconButton ref={ref} {...props} />;
+  },
 );
-
-export function ToolbarButton() {
-  return (
-    <IconButton>
-      <GridDownloadIcon />
-    </IconButton>
-  );
-}
