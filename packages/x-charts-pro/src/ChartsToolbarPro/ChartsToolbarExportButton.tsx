@@ -1,32 +1,45 @@
 'use client';
 
 import * as React from 'react';
-import { createSvgIcon } from '@mui/x-data-grid/material/icons/createSvgIcon';
 import { ToolbarButton } from '@mui/x-charts/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import { useChartContext } from '@mui/x-charts/context/ChartProvider';
 import { useIsHydrated } from '@mui/x-charts/hooks/useIsHydrated';
+import materialSlots from '@mui/x-charts/material';
+import { ChartsIconSlots } from '@mui/x-charts/models/chartsIconSlots';
 import { UseChartProExportSignature } from '../internals/plugins/useChartProExport';
 
-export const GridDownloadIcon = createSvgIcon(
-  <path d="M5 20h14v-2H5zM19 9h-4V3H9v6H5l7 7z" />,
-  'Download',
-);
+type ChartsToolbarExportButtonSlots = Partial<Pick<ChartsIconSlots, 'exportIcon'>>;
 
-export function ChartsToolbarExportButton() {
+type ChartsToolbarExportButtonSlotProp = Partial<
+  Record<
+    keyof ChartsToolbarExportButtonSlots,
+    React.ComponentProps<
+      NonNullable<ChartsToolbarExportButtonSlots[keyof ChartsToolbarExportButtonSlots]>
+    >
+  >
+>;
+
+interface ChartsToolbarExportButtonProps {
+  slots?: ChartsToolbarExportButtonSlots;
+  slotProps?: ChartsToolbarExportButtonSlotProp;
+}
+
+export function ChartsToolbarExportButton({ slots, slotProps }: ChartsToolbarExportButtonProps) {
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const [menuOpen, setMenuOpen] = React.useState(false);
   const handleClose = () => setMenuOpen(false);
   const { publicAPI } = useChartContext<[UseChartProExportSignature]>();
   const isHydrated = useIsHydrated();
+  const ExportIcon = slots?.exportIcon ?? materialSlots.exportIcon;
 
   return (
     <React.Fragment>
       <Tooltip title="Export">
         <ToolbarButton ref={buttonRef} onClick={() => setMenuOpen(true)}>
-          <GridDownloadIcon />
+          <ExportIcon {...slotProps?.exportIcon} />
         </ToolbarButton>
       </Tooltip>
       {isHydrated && (
