@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IconProps } from './chartsBaseSlots';
+import { IconProps } from './chartsBaseSlotProps';
 
 export interface ChartsIconSlots {
   /**
