@@ -34,6 +34,11 @@ export function ChartsToolbarExportButton({ slots, slotProps }: ChartsToolbarExp
   const Menu = slots?.baseMenu ?? materialSlots.baseMenu;
   const MenuItem = slots?.baseMenuItem ?? materialSlots.baseMenuItem;
   const { localeText } = useChartsLocalization();
+  const canExport = publicAPI.exportAsPrint || publicAPI.exportAsImage;
+
+  if (!canExport) {
+    return null;
+  }
 
   return (
     <React.Fragment>
@@ -44,22 +49,26 @@ export function ChartsToolbarExportButton({ slots, slotProps }: ChartsToolbarExp
       </Tooltip>
       {isHydrated && (
         <Menu anchorEl={() => buttonRef.current} open={menuOpen} onClose={handleClose}>
-          <MenuItem
-            onClick={() => {
-              publicAPI.exportAsPrint();
-              handleClose();
-            }}
-          >
-            {localeText.print}
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              publicAPI.exportAsImage();
-              handleClose();
-            }}
-          >
-            {localeText.exportAsImage}
-          </MenuItem>
+          {publicAPI.exportAsPrint ? (
+            <MenuItem
+              onClick={() => {
+                publicAPI.exportAsPrint();
+                handleClose();
+              }}
+            >
+              {localeText.print}
+            </MenuItem>
+          ) : null}
+          {publicAPI.exportAsImage ? (
+            <MenuItem
+              onClick={() => {
+                publicAPI.exportAsImage();
+                handleClose();
+              }}
+            >
+              {localeText.exportAsImage}
+            </MenuItem>
+          ) : null}
         </Menu>
       )}
     </React.Fragment>
