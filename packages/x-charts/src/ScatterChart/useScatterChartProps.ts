@@ -43,6 +43,7 @@ export const useScatterChartProps = (props: ScatterChartProps) => {
     highlightedItem,
     onHighlightChange,
     className,
+    showToolbar,
     ...other
   } = props;
 

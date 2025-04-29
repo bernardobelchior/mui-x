@@ -11,6 +11,7 @@ import { ChartsClipPath } from '@mui/x-charts/ChartsClipPath';
 import { ChartsSurface } from '@mui/x-charts/ChartsSurface';
 import { ChartsAxisHighlight, ChartsAxisHighlightProps } from '@mui/x-charts/ChartsAxisHighlight';
 import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
+import { ChartsToolbarPro } from '@mui/x-charts-pro/ChartsToolbarPro/ChartsToolbarPro';
 import { FunnelPlot, FunnelPlotProps } from './FunnelPlot';
 import { FunnelSeriesType } from './funnel.types';
 import { useFunnelChartProps } from './useFunnelChartProps';
@@ -94,6 +95,7 @@ const FunnelChart = React.forwardRef(function FunnelChart(
   return (
     <ChartDataProviderPro {...chartDataProviderProProps} seriesConfig={seriesConfig}>
       <ChartsWrapper {...chartsWrapperProps}>
+        {props.showToolbar ? <ChartsToolbarPro /> : null}
         {!themedProps.hideLegend && <ChartsLegend {...legendProps} />}
         <ChartsSurface {...chartsSurfaceProps}>
           <g {...clipPathGroupProps}>
