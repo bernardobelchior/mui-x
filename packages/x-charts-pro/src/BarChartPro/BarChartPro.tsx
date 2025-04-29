@@ -23,7 +23,13 @@ export interface BarChartProProps
     Omit<
       ChartContainerProProps<'bar', BarChartProPluginsSignatures>,
       'series' | 'plugins' | 'seriesConfig'
-    > {}
+    > {
+  /**
+   * If true, shows the default chart toolbar.
+   * @default false
+   */
+  showToolbar?: boolean;
+}
 
 /**
  * Demos:
@@ -41,7 +47,7 @@ const BarChartPro = React.forwardRef(function BarChartPro(
   ref: React.Ref<SVGSVGElement>,
 ) {
   const props = useThemeProps({ props: inProps, name: 'MuiBarChartPro' });
-  const { initialZoom, zoomData, onZoomChange, apiRef, ...other } = props;
+  const { initialZoom, zoomData, onZoomChange, apiRef, showToolbar, ...other } = props;
   const {
     chartsWrapperProps,
     chartContainerProps,
@@ -76,7 +82,7 @@ const BarChartPro = React.forwardRef(function BarChartPro(
   return (
     <ChartDataProviderPro {...chartDataProviderProProps}>
       <ChartsWrapper {...chartsWrapperProps}>
-        {props.showToolbar ? <ChartsToolbarPro /> : null}
+        {showToolbar ? <ChartsToolbarPro /> : null}
         {!props.hideLegend && <ChartsLegend {...legendProps} />}
         <ChartsSurface {...chartsSurfaceProps}>
           <ChartsGrid {...gridProps} />

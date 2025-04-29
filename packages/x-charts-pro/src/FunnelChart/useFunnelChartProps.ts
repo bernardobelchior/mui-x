@@ -125,8 +125,6 @@ export const useFunnelChartProps = (props: FunnelChartProps) => {
     hideLegend,
     axisHighlight,
     apiRef,
-    // FIXME: Can't export funnel chart, so this shouldn't be here.
-    showToolbar,
     ...rest
   } = props;
   const margin = defaultizeMargin(marginProps, DEFAULT_MARGINS);
