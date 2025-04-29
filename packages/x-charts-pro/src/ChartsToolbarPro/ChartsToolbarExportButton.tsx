@@ -5,6 +5,7 @@ import { ToolbarButton } from '@mui/x-charts/Toolbar';
 import { useChartContext } from '@mui/x-charts/context/ChartProvider';
 import { useIsHydrated } from '@mui/x-charts/hooks/useIsHydrated';
 import materialSlots, { type ChartsSlots } from '@mui/x-charts/material';
+import { useChartsLocalization } from '@mui/x-charts/hooks';
 import { UseChartProExportSignature } from '../internals/plugins/useChartProExport';
 
 type ChartsToolbarExportButtonSlots = Partial<
@@ -32,13 +33,11 @@ export function ChartsToolbarExportButton({ slots, slotProps }: ChartsToolbarExp
   const Tooltip = slots?.baseTooltip ?? materialSlots.baseTooltip;
   const Menu = slots?.baseMenu ?? materialSlots.baseMenu;
   const MenuItem = slots?.baseMenuItem ?? materialSlots.baseMenuItem;
+  const { localeText } = useChartsLocalization();
 
   return (
     <React.Fragment>
-      <Tooltip
-        // TODO: How to handle localization?
-        title="Export"
-      >
+      <Tooltip title={localeText.export}>
         <ToolbarButton ref={buttonRef} onClick={() => setMenuOpen(true)}>
           <ExportIcon {...slotProps?.exportIcon} />
         </ToolbarButton>

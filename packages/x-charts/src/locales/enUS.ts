@@ -7,6 +7,7 @@ export const enUSLocaleText: ChartsLocaleText = {
   // Overlay
   loading: 'Loading data…',
   noData: 'No data to display',
+  export: 'Export',
 };
 
 export const DEFAULT_LOCALE = enUSLocaleText;
