@@ -11,6 +11,14 @@ export interface ChartsLocaleText {
    * Tooltip text shown when hovering over the export button.
    */
   export: string;
+  /**
+   * Text displayed in a menu item with the print action.
+   */
+  print: string;
+  /**
+   * Text displayed in a menu item with the export as image action.
+   */
+  exportAsImage: string;
 }
 
 export type ChartsTranslationKeys = keyof ChartsLocaleText;

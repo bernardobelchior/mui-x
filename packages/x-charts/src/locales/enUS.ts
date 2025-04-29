@@ -8,6 +8,8 @@ export const enUSLocaleText: ChartsLocaleText = {
   loading: 'Loading data…',
   noData: 'No data to display',
   export: 'Export',
+  print: 'Print',
+  exportAsImage: 'Export as image',
 };
 
 export const DEFAULT_LOCALE = enUSLocaleText;

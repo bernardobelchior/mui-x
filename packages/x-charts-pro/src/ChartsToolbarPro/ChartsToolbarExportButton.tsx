@@ -50,7 +50,7 @@ export function ChartsToolbarExportButton({ slots, slotProps }: ChartsToolbarExp
               handleClose();
             }}
           >
-            Print
+            {localeText.print}
           </MenuItem>
           <MenuItem
             onClick={() => {
@@ -58,7 +58,7 @@ export function ChartsToolbarExportButton({ slots, slotProps }: ChartsToolbarExp
               handleClose();
             }}
           >
-            Export as Image
+            {localeText.exportAsImage}
           </MenuItem>
         </Menu>
       )}

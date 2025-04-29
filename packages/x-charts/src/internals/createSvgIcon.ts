@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createSvgIcon as createSvgIconMaterial } from '@mui/material/utils';
-import { IconProps } from '../models/slots/chartsBaseSlots';
+import { IconProps } from '../models/slots/chartsBaseSlotProps';
 
 export const createSvgIcon = createSvgIconMaterial as (
   path: React.ReactNode,
