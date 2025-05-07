@@ -118,13 +118,16 @@ export function ChartAxisZoomSlider({ axisDirection, axisId }: ChartZoomSliderPr
 
   return (
     <g transform={`translate(${x} ${y})`}>
-      <BackgroundRect
+      <ChartAxisZoomSliderBackgroundRect
         x={axisDirection === 'x' ? 0 : backgroundRectOffset}
         y={axisDirection === 'x' ? backgroundRectOffset : 0}
         height={axisDirection === 'x' ? ZOOM_SLIDER_BACKGROUND_SIZE : drawingArea.height}
         width={axisDirection === 'x' ? drawingArea.width : ZOOM_SLIDER_BACKGROUND_SIZE}
         rx={ZOOM_SLIDER_BACKGROUND_SIZE / 2}
         ry={ZOOM_SLIDER_BACKGROUND_SIZE / 2}
+        axisId={axisId}
+        axisDirection={axisDirection}
+        reverse={reverse}
       />
       <ChartAxisZoomSliderSpan
         zoomData={zoomData}
@@ -134,6 +137,120 @@ export function ChartAxisZoomSlider({ axisDirection, axisId }: ChartZoomSliderPr
       />
     </g>
   );
+}
+
+interface ChartAxisZoomSliderBackgroundRectProps extends React.ComponentProps<'rect'> {
+  axisId: AxisId;
+  axisDirection: 'x' | 'y';
+  reverse: boolean;
+}
+
+function ChartAxisZoomSliderBackgroundRect({
+  axisId,
+  axisDirection,
+  reverse,
+  ...other
+}: ChartAxisZoomSliderBackgroundRectProps) {
+  const ref = React.useRef<SVGRectElement>(null);
+  const { instance, svgRef } = useChartContext<[UseChartProZoomSignature]>();
+  const store = useStore<[UseChartProZoomSignature]>();
+  const firstMoveRef = React.useRef(false);
+  const startingPointRef = React.useRef<number | null>(null);
+
+  const onPointerMove = React.useMemo(
+    () =>
+      rafThrottle((event: PointerEvent) => {
+        const { left, top, height, width } = selectorChartDrawingArea(store.getSnapshot());
+        const axisZoomData = selectorChartAxisZoomData(store.getSnapshot(), axisId);
+        const element = svgRef.current;
+        const startingPoint = startingPointRef.current;
+
+        if (!axisZoomData || !element || startingPoint === null) {
+          return;
+        }
+
+        const point = getSVGPoint(element, event);
+
+        let pointerZoom: number;
+        if (axisDirection === 'x') {
+          pointerZoom = ((point.x - left) / width) * 100;
+        } else {
+          pointerZoom = ((top + height - point.y) / height) * 100;
+        }
+
+        if (reverse) {
+          pointerZoom = 100 - pointerZoom;
+        }
+
+        // pointerZoom = Math.max(pointerZoomMin, Math.min(pointerZoomMax, pointerZoom));
+        pointerZoom = Math.max(0, Math.min(100, pointerZoom));
+
+        instance.setAxisZoomData(axisId, (prevZoomData) => {
+          return {
+            ...prevZoomData,
+            start: pointerZoom > startingPoint ? prevZoomData.start : pointerZoom,
+            end: pointerZoom > startingPoint ? pointerZoom : prevZoomData.end,
+          };
+        });
+        firstMoveRef.current = false;
+      }),
+    [axisDirection, axisId, instance, reverse, store, svgRef],
+  );
+
+  const onPointerUp = () => {
+    firstMoveRef.current = false;
+    const rect = ref.current;
+
+    if (!rect) {
+      return;
+    }
+
+    rect.removeEventListener('pointermove', onPointerMove);
+    rect.removeEventListener('pointerup', onPointerUp);
+  };
+
+  const onPointerDown = (event: React.PointerEvent<SVGRectElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const rect = ref.current;
+
+    if (!rect) {
+      return;
+    }
+
+    firstMoveRef.current = true;
+    rect.setPointerCapture(event.pointerId);
+    rect.addEventListener('pointerup', onPointerUp);
+    rect.addEventListener('pointermove', onPointerMove);
+
+    const { left, top, height, width } = selectorChartDrawingArea(store.getSnapshot());
+    const axisZoomData = selectorChartAxisZoomData(store.getSnapshot(), axisId);
+    const element = svgRef.current;
+
+    if (!axisZoomData || !element) {
+      return;
+    }
+
+    const point = getSVGPoint(element, event);
+
+    let pointerZoom: number;
+    if (axisDirection === 'x') {
+      pointerZoom = ((point.x - left) / width) * 100;
+    } else {
+      pointerZoom = ((top + height - point.y) / height) * 100;
+    }
+
+    if (reverse) {
+      pointerZoom = 100 - pointerZoom;
+    }
+
+    startingPointRef.current = pointerZoom;
+
+    instance.setAxisZoomData(axisId, (prev) => ({ ...prev, start: pointerZoom, end: pointerZoom }));
+  };
+
+  return <BackgroundRect ref={ref} onPointerDown={onPointerDown} {...other} />;
 }
 
 function ChartAxisZoomSliderSpan({
