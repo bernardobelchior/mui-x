@@ -1,0 +1,12 @@
+<ScatterChart
+  height={300}
+  series={[
+    {
+      data: data.map((d) => ({
+        x: d.gdpPerCapita,
+        y: d.lifeExpectancy,
+        id: d.country,
+      })),
+    },
+  ]}
+/>

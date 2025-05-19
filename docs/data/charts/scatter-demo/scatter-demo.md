@@ -15,3 +15,7 @@ components: Scatter, ScatterChart, ScatterPlot
 ## MultipleYAxesScatterChart
 
 {{"demo": "MultipleYAxesScatterChart.js"}}
+
+## Bubble Chart
+
+{{"demo": "BubbleScatterChart.js"}}
