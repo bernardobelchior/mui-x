@@ -35,6 +35,7 @@ export const useChartVoronoi: ChartPlugin<UseChartVoronoiSignature> = ({
   const voronoiRef = React.useRef<Record<string, VoronoiSeries>>({});
   const delauneyRef = React.useRef<Delaunay<any> | undefined>(undefined);
   const lastFind = React.useRef<number | undefined>(undefined);
+  const lastPointFound = React.useRef<{ seriesId: SeriesId; dataIndex: number } | string>(null);
 
   const defaultXAxisId = xAxisIds[0];
   const defaultYAxisId = yAxisIds[0];
@@ -167,8 +168,21 @@ export const useChartVoronoi: ChartPlugin<UseChartVoronoiSignature> = ({
       instance.clearHighlight?.();
     };
 
-    const handleMouseMove = (event: MouseEvent) => {
+    const handlePointerEnterOrMove = (event: PointerEvent) => {
       const closestPoint = getClosestPoint(event);
+
+      if (
+        closestPoint === lastPointFound.current ||
+        (typeof closestPoint === 'object' &&
+          typeof lastPointFound.current === 'object' &&
+          lastPointFound.current !== null &&
+          closestPoint.seriesId === lastPointFound.current.seriesId &&
+          closestPoint.dataIndex === lastPointFound.current.dataIndex)
+      ) {
+        return;
+      }
+
+      lastPointFound.current = closestPoint;
 
       if (closestPoint === 'outside-chart') {
         instance.cleanInteraction?.();
@@ -207,11 +221,14 @@ export const useChartVoronoi: ChartPlugin<UseChartVoronoiSignature> = ({
     };
 
     element.addEventListener('pointerleave', handleMouseLeave);
-    element.addEventListener('pointermove', handleMouseMove);
+    element.addEventListener('pointermove', handlePointerEnterOrMove);
+    /* Use pointerenter  */
+    element.addEventListener('pointerdown', handlePointerEnterOrMove);
     element.addEventListener('click', handleMouseClick);
     return () => {
       element.removeEventListener('pointerleave', handleMouseLeave);
-      element.removeEventListener('pointermove', handleMouseMove);
+      element.removeEventListener('pointermove', handlePointerEnterOrMove);
+      element.removeEventListener('pointerdown', handlePointerEnterOrMove);
       element.removeEventListener('click', handleMouseClick);
     };
   }, [svgRef, yAxis, xAxis, voronoiMaxRadius, onItemClick, disableVoronoi, drawingArea, instance]);
