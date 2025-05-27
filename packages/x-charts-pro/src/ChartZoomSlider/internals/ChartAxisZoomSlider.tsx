@@ -8,7 +8,8 @@ import {
   ZOOM_SLIDER_MARGIN,
 } from '@mui/x-charts/internals';
 import { useXAxes, useYAxes } from '@mui/x-charts/hooks';
-import { ZOOM_SLIDER_SIZE, ZOOM_SLIDER_TRACK_SIZE } from './constants';
+import { ChartAxisZoomSliderPreview } from '@mui/x-charts-pro/ChartZoomSlider/internals/ChartAxisZoomSliderPreview';
+import { ZOOM_SLIDER_PREVIEW_SIZE, ZOOM_SLIDER_SIZE, ZOOM_SLIDER_TRACK_SIZE } from './constants';
 import { selectorChartAxisZoomData } from '../../internals/plugins/useChartProZoom';
 import { ChartAxisZoomSliderTrack } from './ChartAxisZoomSliderTrack';
 import { ChartAxisZoomSliderActiveTrack } from './ChartAxisZoomSliderActiveTrack';
@@ -81,9 +82,21 @@ export function ChartAxisZoomSlider({ axisDirection, axisId }: ChartZoomSliderPr
 
   const backgroundRectOffset = (ZOOM_SLIDER_SIZE - ZOOM_SLIDER_TRACK_SIZE) / 2;
 
-  return (
-    <g transform={`translate(${x} ${y})`}>
-      <ChartAxisZoomSliderTrack
+  const ZoomSliderTrack = ChartAxisZoomSliderTrack;
+
+  const track =
+    axisPosition === 'bottom' ? (
+      <ChartAxisZoomSliderPreview
+        axisId={axisId}
+        axisDirection={axisDirection}
+        reverse={reverse}
+        x={axisDirection === 'x' ? 0 : backgroundRectOffset}
+        y={axisDirection === 'x' ? backgroundRectOffset : 0}
+        height={axisDirection === 'x' ? ZOOM_SLIDER_PREVIEW_SIZE : drawingArea.height}
+        width={axisDirection === 'x' ? drawingArea.width : ZOOM_SLIDER_TRACK_SIZE}
+      />
+    ) : (
+      <ZoomSliderTrack
         x={axisDirection === 'x' ? 0 : backgroundRectOffset}
         y={axisDirection === 'x' ? backgroundRectOffset : 0}
         height={axisDirection === 'x' ? ZOOM_SLIDER_TRACK_SIZE : drawingArea.height}
@@ -96,6 +109,11 @@ export function ChartAxisZoomSlider({ axisDirection, axisId }: ChartZoomSliderPr
         onSelectStart={() => setShowTooltip(true)}
         onSelectEnd={() => setShowTooltip(false)}
       />
+    );
+
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      {track}
       <ChartAxisZoomSliderActiveTrack
         zoomData={zoomData}
         axisId={axisId}
