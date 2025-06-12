@@ -80,6 +80,12 @@ You can configure the tooltip by setting the `zoom.slider.showTooltip` property 
 
 {{"demo": "ZoomSliderTooltip.js"}}
 
+### Preview
+
+When the zoom slider is enabled, you can preview the zoomed area by enabling the `zoom.slider.preview` property on the axis config.
+
+{{"demo": "ZoomSliderPreview.js"}}
+
 ### Composition
 
 When using composition, you can render the axes' sliders by rendering the `ChartZoomSlider` component.
