@@ -81,6 +81,18 @@ Additionally, the name of the exported file has been customized to resemble the 
 Bear in mind that adding image formats that are not supported by the browser will result in the export defaulting to PNG.
 :::
 
+### Remove elements when exporting
+
+You can remove specific elements from the chart export by adding the `data-mui-x-export-remove` attribute to the elements you want to exclude.
+
+This is useful for elements that are not relevant in the exported chart, such as toolbars or tooltips.
+
+Element with the `data-mui-x-export-remove` attribute will be removed from the export, so it can affect the layout of the chart.
+
+If you prefer to make the element invisible instead, you can the `@media print` CSS rule
+
+{{"demo": "ExportRemoveElements.js"}}
+
 ## Composition
 
 As detailed in the [Composition](/x/react-charts/composition/) section, charts can alternatively be composed of more specific components to create custom visualizations.

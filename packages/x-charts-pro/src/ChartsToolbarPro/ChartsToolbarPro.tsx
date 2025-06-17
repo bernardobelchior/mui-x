@@ -150,7 +150,11 @@ function ChartsToolbarPro({
     return null;
   }
 
-  return <Toolbar {...other}>{children}</Toolbar>;
+  return (
+    <Toolbar data-mui-x-export-remove {...other}>
+      {children}
+    </Toolbar>
+  );
 }
 
 ChartsToolbarPro.propTypes = {

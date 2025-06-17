@@ -1,6 +1,6 @@
 import ownerDocument from '@mui/utils/ownerDocument';
 import { loadStyleSheets } from '@mui/x-internals/export';
-import { createExportIframe } from './common';
+import { createExportIframe, exportClasses, removeHiddenElements } from './common';
 import { ChartPrintExportOptions } from './useChartProExport.types';
 
 export function printChart(
@@ -22,6 +22,10 @@ export function printChart(
       rootCandidate.constructor.name === 'ShadowRoot' ? (rootCandidate as ShadowRoot) : doc;
 
     await Promise.all(loadStyleSheets(printDoc, root));
+
+    removeHiddenElements(printDoc);
+
+    printDoc.body.classList.add(exportClasses.root);
 
     printWindow.contentWindow!.print();
 

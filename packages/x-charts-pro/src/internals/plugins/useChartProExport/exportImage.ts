@@ -1,6 +1,6 @@
 import ownerDocument from '@mui/utils/ownerDocument';
 import { loadStyleSheets } from '@mui/x-internals/export';
-import { createExportIframe } from './common';
+import { createExportIframe, exportClasses, removeHiddenElements } from './common';
 import { ChartImageExportOptions } from './useChartProExport.types';
 
 export const getDrawDocument = async () => {
@@ -51,6 +51,10 @@ export async function exportImage(
       rootCandidate.constructor.name === 'ShadowRoot' ? (rootCandidate as ShadowRoot) : doc;
 
     await Promise.all(loadStyleSheets(exportDoc, root));
+
+    removeHiddenElements(exportDoc);
+
+    exportDoc.body.classList.add(exportClasses.root);
 
     resolve();
   };
