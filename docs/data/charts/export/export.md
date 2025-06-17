@@ -83,13 +83,22 @@ Bear in mind that adding image formats that are not supported by the browser wil
 
 ### Remove elements when exporting
 
-You can remove specific elements from the chart export by adding the `data-mui-x-export-remove` attribute to the elements you want to exclude.
+You can remove or hide specific elements from the chart export by selecting elements when the `exportClasses.root` class is applied to the chart's wrapper.
 
 This is useful for elements that are not relevant in the exported chart, such as toolbars or tooltips.
 
-Element with the `data-mui-x-export-remove` attribute will be removed from the export, so it can affect the layout of the chart.
+```tsx
+<LineChartPro
+  {...settings}
+  sx={{
+    [`&.${exportClasses.root} .${legendClasses.root}`]: {
+      display: 'none', // Hide the legend in the export
+    },
+  }}
+/>
+```
 
-If you prefer to make the element invisible instead, you can the `@media print` CSS rule
+The example below lets the user select which series will be displayed when exporting, but it does not affect the displayed chart.
 
 {{"demo": "ExportRemoveElements.js"}}
 

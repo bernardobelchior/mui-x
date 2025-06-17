@@ -63,6 +63,7 @@ const settings = {
     },
   ],
   grid: { horizontal: true },
+  showToolbar: true,
 };
 
 export default function ExportRemoveElements() {
@@ -117,7 +118,6 @@ export default function ExportRemoveElements() {
       </FormControl>
       <LineChartPro
         {...settings}
-        showToolbar
         sx={{
           [`&.${exportClasses.root}`]: {
             ...enabledSeries.reduce(
