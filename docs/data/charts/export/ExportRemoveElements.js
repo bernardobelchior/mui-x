@@ -7,8 +7,9 @@ import FormLabel from '@mui/material/FormLabel';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import { exportClasses } from '@mui/x-charts-pro/internals/plugins/useChartProExport/common';
-import { legendClasses } from '@mui/x-charts';
+import { exportClasses } from '@mui/x-charts-pro/models';
+import { lineElementClasses } from '@mui/x-charts/LineChart';
+import { legendClasses } from '@mui/x-charts/ChartsLegend';
 import { inflationData } from '../dataset/inflationRates';
 
 const yAxisFormatter = new Intl.NumberFormat('en-US', {
@@ -34,41 +35,45 @@ const xAxis = [
 
 const yAxis = [{ valueFormatter: (value) => yAxisFormatter.format(value / 100) }];
 
-const series = [
-  {
-    label: 'Germany',
-    data: inflationData.map((p) => p.rateDE),
-    valueFormatter: seriesValueFormatter,
-    showMark: false,
-  },
-  {
-    label: 'United Kingdom',
-    data: inflationData.map((p) => p.rateUK),
-    valueFormatter: seriesValueFormatter,
-    showMark: false,
-  },
-  {
-    label: 'France',
-    data: inflationData.map((p) => p.rateFR),
-    valueFormatter: seriesValueFormatter,
-    showMark: false,
-  },
-];
-
 const settings = {
   height: 300,
   xAxis,
   yAxis,
-  series,
+  series: [
+    {
+      id: 'germany',
+      label: 'Germany',
+      data: inflationData.map((p) => p.rateDE),
+      valueFormatter: seriesValueFormatter,
+      showMark: false,
+    },
+    {
+      id: 'uk',
+      label: 'United Kingdom',
+      data: inflationData.map((p) => p.rateUK),
+      valueFormatter: seriesValueFormatter,
+      showMark: false,
+    },
+    {
+      id: 'france',
+      label: 'France',
+      data: inflationData.map((p) => p.rateFR),
+      valueFormatter: seriesValueFormatter,
+      showMark: false,
+    },
+  ],
   grid: { horizontal: true },
 };
 
-export default function ExportChartToolbar() {
+export default function ExportRemoveElements() {
   const [series, setSeries] = React.useState({
     germany: true,
     france: true,
     uk: true,
   });
+  const enabledSeries = Object.entries(series)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
 
   const handleChange = (event) => {
     setSeries((prev) => ({
@@ -114,8 +119,17 @@ export default function ExportChartToolbar() {
         {...settings}
         showToolbar
         sx={{
-          [`.${exportClasses.root}`]: {
-            [`.${legendClasses.series}`]: {},
+          [`&.${exportClasses.root}`]: {
+            ...enabledSeries.reduce(
+              (acc, seriesId) => ({
+                ...acc,
+                [`.${lineElementClasses.root}[data-series="${seriesId}"], .${legendClasses.series}[data-series="${seriesId}"]`]:
+                  {
+                    display: 'none',
+                  },
+              }),
+              {},
+            ),
           },
         }}
       />

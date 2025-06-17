@@ -15,10 +15,3 @@ export function createExportIframe(title?: string): HTMLIFrameElement {
   iframeEl.title = title || document.title;
   return iframeEl;
 }
-
-export function removeHiddenElements(document: Document) {
-  const hiddenElements = document.querySelectorAll('[data-mui-x-export-remove]');
-  hiddenElements.forEach((el) => {
-    el.parentNode?.removeChild(el);
-  });
-}

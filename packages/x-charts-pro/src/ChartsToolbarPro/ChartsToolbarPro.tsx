@@ -6,6 +6,7 @@ import { Toolbar, ChartsToolbarProps, ToolbarButton } from '@mui/x-charts/Toolba
 import { useChartContext, useSelector, useChartsSlots } from '@mui/x-charts/internals';
 import { useChartsLocalization } from '@mui/x-charts/hooks';
 import useId from '@mui/utils/useId';
+import { styled } from '@mui/material/styles';
 import { ChartsToolbarDivider } from './internals/ChartsToolbarDivider';
 import { ChartsMenu } from './internals/ChartsMenu';
 import { selectorChartZoomIsEnabled } from '../internals/plugins/useChartProZoom';
@@ -20,6 +21,7 @@ import {
   ChartsToolbarImageExportOptions,
   ChartsToolbarImageExportTrigger,
 } from './ChartsToolbarImageExportTrigger';
+import { exportClasses } from '../internals/plugins/useChartProExport/common';
 
 export interface ChartsToolbarProProps extends ChartsToolbarProps {
   printOptions?: ChartsToolbarPrintExportOptions;
@@ -27,6 +29,13 @@ export interface ChartsToolbarProProps extends ChartsToolbarProps {
 }
 
 const DEFAULT_IMAGE_EXPORT_OPTIONS: ChartsToolbarImageExportOptions[] = [{ type: 'image/png' }];
+
+const StyledToolbar = styled(Toolbar)({
+  [`.${exportClasses.root} &`]: {
+    /* Hide toolbar when exporting */
+    display: 'none',
+  },
+});
 
 /**
  * The chart toolbar component for the pro package.
@@ -150,11 +159,7 @@ function ChartsToolbarPro({
     return null;
   }
 
-  return (
-    <Toolbar data-mui-x-export-remove {...other}>
-      {children}
-    </Toolbar>
-  );
+  return <StyledToolbar {...other}>{children}</StyledToolbar>;
 }
 
 ChartsToolbarPro.propTypes = {

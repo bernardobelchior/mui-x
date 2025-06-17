@@ -6,3 +6,4 @@ export type {
   ZoomSliderShowTooltip,
 } from '@mui/x-charts/internals';
 export * from './seriesType';
+export { exportClasses } from '../internals/plugins/useChartProExport/common';

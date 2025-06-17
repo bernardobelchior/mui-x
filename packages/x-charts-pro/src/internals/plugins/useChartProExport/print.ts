@@ -1,6 +1,6 @@
 import ownerDocument from '@mui/utils/ownerDocument';
 import { loadStyleSheets } from '@mui/x-internals/export';
-import { createExportIframe, exportClasses, removeHiddenElements } from './common';
+import { createExportIframe, exportClasses } from './common';
 import { ChartPrintExportOptions } from './useChartProExport.types';
 
 export function printChart(
@@ -23,9 +23,8 @@ export function printChart(
 
     await Promise.all(loadStyleSheets(printDoc, root));
 
-    removeHiddenElements(printDoc);
-
-    printDoc.body.classList.add(exportClasses.root);
+    // Add the class to the charts wrapper
+    printDoc.body.firstElementChild?.classList.add(exportClasses.root);
 
     printWindow.contentWindow!.print();
 

@@ -1,6 +1,6 @@
 import ownerDocument from '@mui/utils/ownerDocument';
 import { loadStyleSheets } from '@mui/x-internals/export';
-import { createExportIframe, exportClasses, removeHiddenElements } from './common';
+import { createExportIframe, exportClasses } from './common';
 import { ChartImageExportOptions } from './useChartProExport.types';
 
 export const getDrawDocument = async () => {
@@ -52,9 +52,8 @@ export async function exportImage(
 
     await Promise.all(loadStyleSheets(exportDoc, root));
 
-    removeHiddenElements(exportDoc);
-
-    exportDoc.body.classList.add(exportClasses.root);
+    // Add the class to the charts wrapper
+    exportDoc.body.firstElementChild?.classList.add(exportClasses.root);
 
     resolve();
   };
