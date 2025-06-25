@@ -1,5 +1,4 @@
 import { bench as vitestBench, BenchOptions } from 'vitest';
-import { endBenchmark, startBenchmark } from './benchmark-utils';
 import { getTaskMode } from './options';
 import { isTrace } from './env';
 
@@ -8,7 +7,10 @@ export function bench(name: string, fn: () => Promise<void>, options?: BenchOpti
 }
 
 function wrapFnWithTrace(name: string, fn: () => Promise<void>): () => Promise<void> {
+  const benchmarkUtils = import('./benchmark-utils');
+
   return async function tracedFn() {
+    const { startBenchmark, endBenchmark } = await benchmarkUtils;
     const taskMode = getTaskMode(name);
 
     if (taskMode === 'run') {
