@@ -1,12 +1,10 @@
 import { defineConfig } from 'vitest/config';
-import codspeedPlugin from '@codspeed/vitest-plugin';
 import react from '@vitejs/plugin-react';
 
-const isCI = process.env.CI === 'true';
 const isTrace = process.env.TRACE === 'true';
 
 export default defineConfig({
-  plugins: [...(isCI ? [codspeedPlugin()] : []), react()],
+  plugins: [react()],
   test: {
     setupFiles: ['./setup.ts'],
     // @ts-expect-error
