@@ -1,5 +1,4 @@
 import { BenchOptions } from 'vitest';
-import { endBenchmark, startBenchmark } from './benchmark-utils';
 
 const iterations = import.meta.env.BENCHMARK_ITERATIONS
   ? parseInt(import.meta.env.BENCHMARK_ITERATIONS, 10)
@@ -7,26 +6,16 @@ const iterations = import.meta.env.BENCHMARK_ITERATIONS
 
 const isTrace = import.meta.env.TRACE === 'true';
 
+const taskModes = new Map<string, 'run' | 'warmup'>();
+export function getTaskMode(taskName: string): 'run' | 'warmup' {
+  return taskModes.get(taskName) || 'warmup';
+}
+
 const traceOptions: BenchOptions = {
   time: 0,
   iterations,
-  async setup(task, mode) {
-    if (mode === 'run') {
-      await startBenchmark(task.name);
-    }
-  },
-  async teardown(task, mode) {
-    console.log('teardown start');
-    if (mode === 'run') {
-      console.log('before end benchmark');
-      try {
-        await endBenchmark(task.name);
-      } catch (e) {
-        console.error(e);
-      }
-
-      console.log('teardown finished');
-    }
+  setup(task, mode) {
+    taskModes.set(task.name, mode);
   },
 };
 
