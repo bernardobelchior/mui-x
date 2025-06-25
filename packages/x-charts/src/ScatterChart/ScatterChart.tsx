@@ -88,6 +88,12 @@ export interface ScatterChartProps
    */
   showToolbar?: boolean;
   /**
+   * Callback fired when clicking on a scatter item.
+   * @param {MouseEvent} event The mouse event recorded on the `<svg/>` element if using Voronoi cells. Or the Mouse event from the scatter element, when `disableVoronoi=true`.
+   * @param {ScatterItemIdentifier} scatterItemIdentifier The scatter item identifier.
+   */
+  onItemClick?: ScatterPlotProps['onItemClick'] | UseChartVoronoiSignature['params']['onItemClick'];
+  /**
    * Overridable component slots.
    * @default {}
    */
@@ -97,12 +103,6 @@ export interface ScatterChartProps
    * @default {}
    */
   slotProps?: ScatterChartSlotProps;
-  /**
-   * Callback fired when clicking on a scatter item.
-   * @param {MouseEvent} event The mouse event recorded on the `<svg/>` element if using Voronoi cells. Or the Mouse event from the scatter element, when `disableVoronoi=true`.
-   * @param {ScatterItemIdentifier} scatterItemIdentifier The scatter item identifier.
-   */
-  onItemClick?: ScatterPlotProps['onItemClick'] | UseChartVoronoiSignature['params']['onItemClick'];
 }
 
 /**
