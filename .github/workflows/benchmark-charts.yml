@@ -42,13 +42,13 @@ jobs:
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
-          name: charts-benchmarks/results-master.json
+          name: charts-benchmarks-results-master.json
           path: ./test/performance-charts/results.json
           if-no-files-found: error
 
       - uses: actions/download-artifact@v4
         with:
-          name: charts-benchmarks/results-master.json
+          name: charts-benchmarks-results-master.json
           path: ./test/performance-charts/results-master.json
 
       - name: Run performance tests
