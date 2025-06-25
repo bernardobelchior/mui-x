@@ -47,16 +47,7 @@ export async function startBenchmark(name: string) {
   });
 
   // Start Chrome DevTools performance profiling
-  await cdp().send('Performance.enable');
   await cdp().send('Runtime.enable');
-  await cdp().send('HeapProfiler.enable');
-
-  // Start CPU profiling
-  await cdp().send('Profiler.enable');
-  await cdp().send('Profiler.start');
-
-  // Start heap profiling
-  await cdp().send('HeapProfiler.startSampling');
 
   // Mark the start of benchmark
   await cdp().send('Runtime.evaluate', {
@@ -74,11 +65,6 @@ export async function endBenchmark(name: string) {
       performance.measure('${name}', '${name}-start', '${name}-end');
       `,
   });
-
-  // Stop profiling and collect data
-  const cpuProfile = await cdp().send('Profiler.stop');
-  const heapProfile = await cdp().send('HeapProfiler.stopSampling');
-  const metrics = await cdp().send('Performance.getMetrics');
 
   // Stop tracing and save
   const { promise: tracingCompletePromise, resolve } = Promise.withResolvers<void>();
@@ -98,21 +84,6 @@ export async function endBenchmark(name: string) {
   };
   cdp().on('Tracing.tracingComplete', onTracingComplete);
   await cdp().send('Tracing.end');
-
-  // Save all performance data
-  const cpuPath = `${baseDir}/${name}-cpu-${timestamp}.json`;
-  const heapPath = `${baseDir}/${name}-heap-${timestamp}.json`;
-  const metricsPath = `${baseDir}/${name}-metrics-${timestamp}.json`;
-
-  await Promise.all([
-    // writeFile(tracePath, traceBuffer),
-    server.commands.writeFile(cpuPath, JSON.stringify(cpuProfile, null, 2)),
-    server.commands.writeFile(heapPath, JSON.stringify(heapProfile, null, 2)),
-    server.commands.writeFile(
-      metricsPath,
-      JSON.stringify({ metrics: metrics.metrics, timestamp }, null, 2),
-    ),
-  ]);
 
   await tracingCompletePromise;
 }
