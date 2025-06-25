@@ -3,8 +3,6 @@ import { cdp, server } from '@vitest/browser/context';
 const baseDir = './traces';
 
 export async function startBenchmark(name: string) {
-  console.log('Starting performance trace...');
-
   await cdp().send('Tracing.start', {
     transferMode: 'ReturnAsStream',
     traceConfig: {
@@ -64,13 +62,11 @@ export async function startBenchmark(name: string) {
   await cdp().send('Runtime.evaluate', {
     expression: `performance.mark('${name}-start');`,
   });
-  console.log('Started performance trace...');
 }
 
 export async function endBenchmark(name: string) {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
-  console.log('Ending performance trace...');
   // Mark the end of benchmark
   await cdp().send('Runtime.evaluate', {
     expression: `
@@ -78,7 +74,6 @@ export async function endBenchmark(name: string) {
       performance.measure('${name}', '${name}-start', '${name}-end');
       `,
   });
-  console.log('evaluated');
 
   // Stop profiling and collect data
   const cpuProfile = await cdp().send('Profiler.stop');
@@ -88,7 +83,6 @@ export async function endBenchmark(name: string) {
   // Stop tracing and save
   const { promise: tracingCompletePromise, resolve } = Promise.withResolvers<void>();
   const onTracingComplete = async (event: Protocol.Tracing.tracingCompletePayload) => {
-    console.log('Tracing complete...', timestamp);
     const tracePath = `${baseDir}/${name}-${timestamp}.json`;
 
     if (event.stream !== undefined) {
@@ -120,9 +114,5 @@ export async function endBenchmark(name: string) {
     ),
   ]);
 
-  console.log('Ended performance trace...');
-
   await tracingCompletePromise;
-
-  console.log('Awaited performance trace...');
 }

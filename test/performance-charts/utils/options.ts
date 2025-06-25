@@ -1,10 +1,9 @@
 import { BenchOptions } from 'vitest';
+import { isTrace } from './env';
 
 const iterations = import.meta.env.BENCHMARK_ITERATIONS
   ? parseInt(import.meta.env.BENCHMARK_ITERATIONS, 10)
   : 1;
-
-const isTrace = import.meta.env.TRACE === 'true';
 
 const taskModes = new Map<string, 'run' | 'warmup'>();
 export function getTaskMode(taskName: string): 'run' | 'warmup' {

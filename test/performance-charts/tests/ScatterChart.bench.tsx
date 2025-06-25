@@ -18,7 +18,6 @@ describe('ScatterChart', () => {
   bench(
     'ScatterChart with big data amount',
     async function run() {
-      console.log('Rendering scatter chart');
       const { findByText } = render(
         <ScatterChart
           xAxis={[{ data: xData, valueFormatter: (v: number) => v.toLocaleString('en-US') }]}
@@ -35,7 +34,6 @@ describe('ScatterChart', () => {
       await findByText(dataLength.toLocaleString('en-US'), { ignore: 'span' });
 
       cleanup();
-      console.log('cleanup after scatter chart render');
     },
     options,
   );

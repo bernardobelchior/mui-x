@@ -1,8 +1,7 @@
 import { bench as vitestBench, BenchOptions } from 'vitest';
 import { endBenchmark, startBenchmark } from './benchmark-utils';
 import { getTaskMode } from './options';
-
-const isTrace = import.meta.env.TRACE === 'true';
+import { isTrace } from './env';
 
 export function bench(name: string, fn: () => Promise<void>, options?: BenchOptions) {
   vitestBench(name, isTrace ? wrapFnWithTrace(name, fn) : fn, options);
