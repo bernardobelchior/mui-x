@@ -11,7 +11,7 @@ export default defineConfig({
     setupFiles: ['./setup.ts'],
     // @ts-expect-error
     env: process.env,
-    environment: isTrace ? undefined : 'jsdom',
+    environment: isTrace ? 'node' : 'jsdom',
     browser: {
       enabled: isTrace,
       headless: true,
