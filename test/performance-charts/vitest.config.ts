@@ -3,6 +3,7 @@ import codspeedPlugin from '@codspeed/vitest-plugin';
 import react from '@vitejs/plugin-react';
 
 const isCI = process.env.CI === 'true';
+const isTrace = process.env.TRACE === 'true';
 
 export default defineConfig({
   plugins: [...(isCI ? [codspeedPlugin()] : []), react()],
@@ -10,9 +11,9 @@ export default defineConfig({
     setupFiles: ['./setup.ts'],
     // @ts-expect-error
     env: process.env,
-    // environment: 'jsdom',
+    environment: isTrace ? undefined : 'jsdom',
     browser: {
-      enabled: true,
+      enabled: isTrace,
       headless: true,
       instances: [
         {
