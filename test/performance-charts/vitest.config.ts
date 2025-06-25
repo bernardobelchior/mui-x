@@ -8,11 +8,23 @@ export default defineConfig({
   plugins: [...(isCI ? [codspeedPlugin()] : []), react()],
   test: {
     setupFiles: ['./setup.ts'],
-    environment: 'jsdom',
+    // environment: 'jsdom',
     browser: {
-      enabled: false,
+      enabled: true,
       headless: true,
-      instances: [{ browser: 'chromium', testTimeout: 60_000 }],
+      instances: [
+        {
+          browser: 'chromium',
+          testTimeout: 60_000,
+          launch: {
+            args: [
+              '--enable-precise-memory-info',
+              '--enable-devtools-experiments',
+              '--disable-web-security',
+            ],
+          },
+        },
+      ],
       provider: 'playwright',
     },
   },
