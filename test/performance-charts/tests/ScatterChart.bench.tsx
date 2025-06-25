@@ -17,7 +17,7 @@ describe('ScatterChart', () => {
 
   bench(
     'ScatterChart with big data amount',
-    async () => {
+    async function run() {
       const { findByText } = render(
         <ScatterChart
           xAxis={[{ data: xData, valueFormatter: (v: number) => v.toLocaleString('en-US') }]}
