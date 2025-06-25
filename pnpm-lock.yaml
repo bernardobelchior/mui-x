@@ -2164,9 +2164,6 @@ importers:
 
   test/performance-charts:
     devDependencies:
-      '@codspeed/vitest-plugin':
-        specifier: ^4.0.1
-        version: 4.0.1(vite@6.3.5(@types/node@24.0.7)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.20.3)(yaml@2.7.0))(vitest@3.2.4)
       '@emotion/react':
         specifier: 'catalog:'
         version: 11.14.0(@types/react@19.1.8)(react@19.1.0)
@@ -3211,15 +3208,6 @@ packages:
 
   '@bundled-es-modules/tough-cookie@0.1.6':
     resolution: {integrity: sha512-dvMHbL464C0zI+Yqxbz6kZ5TOEp7GLW+pry/RWndAR8MJQAXZ2rPmIs8tziTZjeIyhSNZgZbCePtfSbdWqStJw==}
-
-  '@codspeed/core@4.0.1':
-    resolution: {integrity: sha512-fJ53arfgtzCDZa8DuGJhpTZ3Ll9A1uW5nQ2jSJnfO4Hl5MRD2cP8P4vPvIUAGbdbjwCxR1jat6cW8OloMJkJXw==}
-
-  '@codspeed/vitest-plugin@4.0.1':
-    resolution: {integrity: sha512-aqmrPJzX9cD50UWDsOyih5L5WcEYlNQg3u84sJJ9ZuuLApA51w+LGxk6Xbyb8LJF9n/CwM94HKHV/qArfnvDoQ==}
-    peerDependencies:
-      vite: ^4.2.0 || ^5.0.0 || ^6.0.0
-      vitest: '>=1.2.2'
 
   '@colors/colors@1.6.0':
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
@@ -8025,10 +8013,6 @@ packages:
   find-up@5.0.0:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
     engines: {node: '>=10'}
-
-  find-up@6.3.0:
-    resolution: {integrity: sha512-v2ZsoEuVHYy8ZIlYqwPe/39Cy+cFDzp4dXPaxNvkEuouymu+2Jbz0PxpKarJHYJTmv2HWT3O382qY8l4jMWthw==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   find-up@7.0.0:
     resolution: {integrity: sha512-YyZM99iHrqLKjmt4LJDj58KI+fYyufRLBSYcqycxf//KpBk9FoewoGX0450m9nB44qrZnovzC2oeP5hUibxc/g==}
@@ -13955,23 +13939,6 @@ snapshots:
       tough-cookie: 4.1.4
     optional: true
 
-  '@codspeed/core@4.0.1':
-    dependencies:
-      axios: 1.8.4(debug@4.4.1)
-      find-up: 6.3.0
-      form-data: 4.0.2
-      node-gyp-build: 4.8.4
-    transitivePeerDependencies:
-      - debug
-
-  '@codspeed/vitest-plugin@4.0.1(vite@6.3.5(@types/node@24.0.7)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.20.3)(yaml@2.7.0))(vitest@3.2.4)':
-    dependencies:
-      '@codspeed/core': 4.0.1
-      vite: 6.3.5(@types/node@24.0.7)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.20.3)(yaml@2.7.0)
-      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@24.0.7)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jsdom@26.1.0)(lightningcss@1.29.3)(msw@2.7.3(@types/node@24.0.7)(typescript@5.8.3))(terser@5.39.0)(tsx@4.20.3)(yaml@2.7.0)
-    transitivePeerDependencies:
-      - debug
-
   '@colors/colors@1.6.0': {}
 
   '@csstools/color-helpers@5.0.2': {}
@@ -19511,11 +19478,6 @@ snapshots:
     dependencies:
       locate-path: 6.0.0
       path-exists: 4.0.0
-
-  find-up@6.3.0:
-    dependencies:
-      locate-path: 7.2.0
-      path-exists: 5.0.0
 
   find-up@7.0.0:
     dependencies:
