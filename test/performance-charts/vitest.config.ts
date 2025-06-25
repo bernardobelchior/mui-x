@@ -8,6 +8,8 @@ export default defineConfig({
   plugins: [...(isCI ? [codspeedPlugin()] : []), react()],
   test: {
     setupFiles: ['./setup.ts'],
+    // @ts-expect-error
+    env: process.env,
     // environment: 'jsdom',
     browser: {
       enabled: true,

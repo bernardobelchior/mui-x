@@ -1,130 +1,128 @@
-import { cdp, CDPSession, server } from '@vitest/browser/context';
+import { cdp, server } from '@vitest/browser/context';
 
 const baseDir = './traces';
 
-export class PerformanceTracer {
-  client: CDPSession | null = null;
+export async function startBenchmark(name: string) {
+  console.log('Starting performance trace...');
 
-  timestamp: string | null = null;
+  await cdp().send('Tracing.start', {
+    transferMode: 'ReturnAsStream',
+    traceConfig: {
+      includedCategories: [
+        // JavaScript execution traces
+        'v8.execute',
+        'v8.compile',
+        'v8.parse',
+        'v8.gc',
+        'v8.gc_stats',
+        'v8.runtime_stats',
+        'v8.wasm',
 
-  async startBenchmark(name: string) {
-    console.log('Starting performance trace...');
-    this.client = cdp();
-    this.timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        // Browser events
+        'blink.console',
+        'blink.user_timing',
+        'benchmark',
+        'devtools.timeline',
+        'disabled-by-default-devtools.timeline',
+        'disabled-by-default-devtools.timeline.frame',
+        'disabled-by-default-devtools.timeline.stack',
 
-    await this.client.send('Tracing.start', {
-      transferMode: 'ReturnAsStream',
-      traceConfig: {
-        includedCategories: [
-          // JavaScript execution traces
-          'v8.execute',
-          'v8.compile',
-          'v8.parse',
-          'v8.gc',
-          'v8.gc_stats',
-          'v8.runtime_stats',
-          'v8.wasm',
+        // Network and loading
+        'netlog',
+        'loading',
+        'navigation',
 
-          // Browser events
-          'blink.console',
-          'blink.user_timing',
-          'benchmark',
-          'devtools.timeline',
-          'disabled-by-default-devtools.timeline',
-          'disabled-by-default-devtools.timeline.frame',
-          'disabled-by-default-devtools.timeline.stack',
+        // Rendering
+        'cc',
+        'gpu',
+        'viz',
+        'blink',
+        'renderer.scheduler',
 
-          // Network and loading
-          'netlog',
-          'loading',
-          'navigation',
+        // JavaScript-specific categories that show in Performance tab
+        'disabled-by-default-v8.cpu_profiler',
+        'disabled-by-default-v8.runtime_stats',
+        'disabled-by-default-devtools.timeline.invalidationTracking',
+      ],
+      recordMode: 'recordContinuously',
+    },
+  });
 
-          // Rendering
-          'cc',
-          'gpu',
-          'viz',
-          'blink',
-          'renderer.scheduler',
+  // Start Chrome DevTools performance profiling
+  await cdp().send('Performance.enable');
+  await cdp().send('Runtime.enable');
+  await cdp().send('HeapProfiler.enable');
 
-          // JavaScript-specific categories that show in Performance tab
-          'disabled-by-default-v8.cpu_profiler',
-          'disabled-by-default-v8.runtime_stats',
-          'disabled-by-default-devtools.timeline.invalidationTracking',
-        ],
-        recordMode: 'recordContinuously',
-      },
-    });
+  // Start CPU profiling
+  await cdp().send('Profiler.enable');
+  await cdp().send('Profiler.start');
 
-    // Start Chrome DevTools performance profiling
-    await this.client.send('Performance.enable');
-    await this.client.send('Runtime.enable');
-    await this.client.send('HeapProfiler.enable');
+  // Start heap profiling
+  await cdp().send('HeapProfiler.startSampling');
 
-    // Start CPU profiling
-    await this.client.send('Profiler.enable');
-    await this.client.send('Profiler.start');
+  // Mark the start of benchmark
+  await cdp().send('Runtime.evaluate', {
+    expression: `performance.mark('${name}-start');`,
+  });
+  console.log('Started performance trace...');
+}
 
-    // Start heap profiling
-    await this.client.send('HeapProfiler.startSampling');
+export async function endBenchmark(name: string) {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
-    // Mark the start of benchmark
-    await this.client.send('Runtime.evaluate', {
-      expression: `performance.mark('${name}-start');`,
-    });
-  }
-
-  async endBenchmark(name: string) {
-    console.log('Ending performance trace...');
-    // Mark the end of benchmark
-    await this.client.send('Runtime.evaluate', {
-      expression: `
+  console.log('Ending performance trace...');
+  // Mark the end of benchmark
+  await cdp().send('Runtime.evaluate', {
+    expression: `
       performance.mark('${name}-end');
       performance.measure('${name}', '${name}-start', '${name}-end');
       `,
-    });
+  });
+  console.log('evaluated');
 
-    // Stop profiling and collect data
-    const cpuProfile = await this.client.send('Profiler.stop');
-    const heapProfile = await this.client.send('HeapProfiler.stopSampling');
-    const metrics = await this.client.send('Performance.getMetrics');
+  // Stop profiling and collect data
+  const cpuProfile = await cdp().send('Profiler.stop');
+  const heapProfile = await cdp().send('HeapProfiler.stopSampling');
+  const metrics = await cdp().send('Performance.getMetrics');
 
-    // Stop tracing and save
-    const { promise: tracingCompletePromise, resolve } = Promise.withResolvers<void>();
-    this.client.once('Tracing.tracingComplete', async (event) => {
-      console.log('Tracing complete...');
-      const tracePath = `${baseDir}/${name}-${this.timestamp}.json`;
+  // Stop tracing and save
+  const { promise: tracingCompletePromise, resolve } = Promise.withResolvers<void>();
+  const onTracingComplete = async (event: Protocol.Tracing.tracingCompletePayload) => {
+    console.log('Tracing complete...', timestamp);
+    const tracePath = `${baseDir}/${name}-${timestamp}.json`;
 
-      if (event.stream !== undefined) {
-        const { data } = await this.client!.send('IO.read', { handle: event.stream });
-        await this.client.send('IO.close', { handle: event.stream });
-        await server.commands.writeFile(tracePath, data);
-      } else {
-        console.warn(`No trace stream available for ${name}.`);
-      }
+    if (event.stream !== undefined) {
+      const { data } = await cdp().send('IO.read', { handle: event.stream });
+      await cdp().send('IO.close', { handle: event.stream });
+      await server.commands.writeFile(tracePath, data);
+    } else {
+      console.warn(`No trace stream available for ${name}.`);
+    }
 
-      resolve();
-    });
-    await this.client.send('Tracing.end');
+    cdp().off('Tracing.tracingComplete', onTracingComplete);
+    resolve();
+  };
+  cdp().on('Tracing.tracingComplete', onTracingComplete);
+  await cdp().send('Tracing.end');
 
-    // Save all performance data
-    const cpuPath = `${baseDir}/${name}-cpu-${this.timestamp}.json`;
-    const heapPath = `${baseDir}/${name}-heap-${this.timestamp}.json`;
-    const metricsPath = `${baseDir}/${name}-metrics-${this.timestamp}.json`;
+  // Save all performance data
+  const cpuPath = `${baseDir}/${name}-cpu-${timestamp}.json`;
+  const heapPath = `${baseDir}/${name}-heap-${timestamp}.json`;
+  const metricsPath = `${baseDir}/${name}-metrics-${timestamp}.json`;
 
-    await Promise.all([
-      // writeFile(tracePath, traceBuffer),
-      server.commands.writeFile(cpuPath, JSON.stringify(cpuProfile, null, 2)),
-      server.commands.writeFile(heapPath, JSON.stringify(heapProfile, null, 2)),
-      server.commands.writeFile(
-        metricsPath,
-        JSON.stringify({ metrics: metrics.metrics, timestamp: this.timestamp }, null, 2),
-      ),
-    ]);
+  await Promise.all([
+    // writeFile(tracePath, traceBuffer),
+    server.commands.writeFile(cpuPath, JSON.stringify(cpuProfile, null, 2)),
+    server.commands.writeFile(heapPath, JSON.stringify(heapProfile, null, 2)),
+    server.commands.writeFile(
+      metricsPath,
+      JSON.stringify({ metrics: metrics.metrics, timestamp }, null, 2),
+    ),
+  ]);
 
-    console.log('Ended performance trace...');
+  console.log('Ended performance trace...');
 
-    await tracingCompletePromise;
+  await tracingCompletePromise;
 
-    console.log('Awaited performance trace...');
-  }
+  console.log('Awaited performance trace...');
 }

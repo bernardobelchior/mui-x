@@ -4,7 +4,6 @@ import { render, cleanup } from '@testing-library/react';
 import { bench, describe } from 'vitest';
 import { ScatterChart } from '@mui/x-charts/ScatterChart';
 import { options } from '../utils/options';
-import { PerformanceTracer } from '../utils/benchmark-utils';
 
 describe('ScatterChart', () => {
   const dataLength = 800;
@@ -15,12 +14,10 @@ describe('ScatterChart', () => {
 
   const xData = data.map((d) => d.x);
 
-  const performanceTracer = new PerformanceTracer();
-
   bench(
     'ScatterChart with big data amount',
     async () => {
-      await performanceTracer.startBenchmark('ScatterChart with big data amount');
+      console.log('Rendering scatter chart');
       const { findByText } = render(
         <ScatterChart
           xAxis={[{ data: xData, valueFormatter: (v: number) => v.toLocaleString('en-US') }]}
@@ -35,9 +32,9 @@ describe('ScatterChart', () => {
       );
 
       await findByText(dataLength.toLocaleString('en-US'), { ignore: 'span' });
-      await performanceTracer.endBenchmark('ScatterChart with big data amount');
 
       cleanup();
+      console.log('cleanup after scatter chart render');
     },
     options,
   );
