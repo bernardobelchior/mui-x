@@ -57,12 +57,12 @@ jobs:
 
       - name: Run performance tests
         run: |
-          RESULT=$(pnpm --filter @mui-x-internal/performance-charts test:performance:ci)
-          gh pr comment ${{ github.event.pull_request.number }} --body "## Performance Report
+          echo "## Performance Report" > comment.md
+          echo "" >> comment.md
+          echo '```' >> comment.md
+          pnpm --filter @mui-x-internal/performance-charts test:performance:ci >> comment.md 2>&1
+          echo '```' >> comment.md
           
-          ```
-          $RESULT
-          ```
-          "
+          gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
