@@ -50,8 +50,12 @@ jobs:
         with:
           name: charts-benchmarks-results-master.json
           path: ./results-master
-      - run: ls -l ./results-master
       - run: mv ./results-master/results.json ./test/performance-charts/results-master.json
 
       - name: Run performance tests
-        run: pnpm --filter @mui-x-internal/performance-charts test:performance:ci
+        run: gh pr comment ${{ github.event.pull_request.number }} --body "## Performance Report
+          
+          ```
+          $(pnpm --filter @mui-x-internal/performance-charts test:performance:ci)
+          ```
+          "
