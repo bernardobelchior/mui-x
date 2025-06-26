@@ -56,13 +56,64 @@ jobs:
       - run: mv ./results-master/results.json ./test/performance-charts/results-master.json
 
       - name: Run performance tests
-        run: |
-          echo "## Performance Report" > comment.md
-          echo "" >> comment.md
-          echo '```' >> comment.md
-          pnpm --filter @mui-x-internal/performance-charts test:performance:ci >> comment.md 2>&1
-          echo '```' >> comment.md
-          
-          gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const exec = require('child_process').execSync;
+            const marker = '<!-- performance-test-results -->';
+
+            // Read results file
+            let results = '{}';
+            try {
+              results = execSync('pnpm --filter @mui-x-internal/performance-charts test:performance:ci', 'utf8');
+            } catch (error) {
+              console.error('Error running performance benchmarks.', error);
+            }
+
+            const body = `${marker}
+            ## 📊 Performance Test Results
+
+            **Status:** ✅ Tests completed  
+            **Commit:** ${context.sha}
+            **Run:** [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+
+            <details>
+            <summary>View Results</summary>
+
+            \`\`\`json
+            ${results}
+            \`\`\`
+            </details>`;
+
+            // Get existing comments
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            // Find existing comment
+            const existingComment = comments.data.find(comment => 
+              comment.body.includes(marker)
+            );
+
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body
+              });
+              console.log('Updated existing comment');
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+              console.log('Created new comment');
+            }
