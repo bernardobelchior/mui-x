@@ -3,6 +3,9 @@ name: Performance Test
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+permissions:
+  pull-requests: write
+  
 on:
   push:
     branches:
