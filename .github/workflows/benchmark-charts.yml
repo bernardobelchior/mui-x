@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      issues: write
       contents: read
 
     steps:
@@ -65,7 +66,7 @@ jobs:
             // Read results file
             let results = '{}';
             try {
-              results = execSync('pnpm --filter @mui-x-internal/performance-charts test:performance:ci', 'utf8');
+              results = exec('pnpm --filter @mui-x-internal/performance-charts test:performance:ci', 'utf8');
             } catch (error) {
               console.error('Error running performance benchmarks.', error);
             }
