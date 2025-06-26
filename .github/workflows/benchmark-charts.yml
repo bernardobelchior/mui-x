@@ -51,5 +51,7 @@ jobs:
           name: charts-benchmarks-results-master.json
           path: ./test/performance-charts/results-master.json
 
+      - run: ls -l ./test/performance-charts
+
       - name: Run performance tests
         run: pnpm --filter @mui-x-internal/performance-charts test:performance:ci
