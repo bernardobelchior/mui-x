@@ -1,8 +1,5 @@
 name: Performance Test
 
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 on:
   push:
     branches:
@@ -20,14 +17,13 @@ on:
       - 'master'
       - 'next'
 
-permissions:
-  pull-requests: write
-  contents: read
-
 jobs:
   performance-test:
     name: Benchmark Charts
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -60,9 +56,13 @@ jobs:
       - run: mv ./results-master/results.json ./test/performance-charts/results-master.json
 
       - name: Run performance tests
-        run: gh pr comment ${{ github.event.pull_request.number }} --body "## Performance Report
+        run: |
+          RESULT=$(pnpm --filter @mui-x-internal/performance-charts test:performance:ci)
+          gh pr comment ${{ github.event.pull_request.number }} --body "## Performance Report
           
           ```
-          $(pnpm --filter @mui-x-internal/performance-charts test:performance:ci)
+          $RESULT
           ```
           "
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
