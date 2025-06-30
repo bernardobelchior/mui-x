@@ -60,23 +60,19 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const exec = require('@actions/exec');
             const fs = require('fs');
             const marker = '<!-- performance-test-results -->';
 
             // Read results file
-            let results = '';
+            let stdout = '';
             try {
-              results = exec('pnpm', ['--filter @mui-x-internal/performance-charts', 'test:performance:ci'], {
-                listeners: {
-                  stdout: (data) => {
-                    results += data.toString();
-                  },
-                  stderr: (data) => {
-                    console.error(data.toString());
-                  }
-                }
-              });
+              const results = await exec.getExecOutput('pnpm', ['--filter @mui-x-internal/performance-charts', 'test:performance:ci']);
+              stdout = results.stdout;
+              console.log('Performance test results:', stdout);
+              console.error(results.stderr);
+              if (results.exitCode !== 0) {
+                throw new Error(`Performance tests failed with exit code ${results.exitCode}.`);
+              }
             } catch (error) {
               console.error('Error running performance benchmarks.', error);
             }
@@ -92,7 +88,7 @@ jobs:
             <summary>View Results</summary>
 
             \`\`\`json
-            ${results}
+            ${stdout}
             \`\`\`
             </details>`;
 
