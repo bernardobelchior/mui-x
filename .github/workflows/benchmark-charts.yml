@@ -66,10 +66,10 @@ jobs:
             // Read results file
             let stdout = '';
             try {
-              const results = await exec.getExecOutput('pnpm', ['--filter @mui-x-internal/performance-charts', 'test:performance:ci']);
+              const results = await exec.getExecOutput('pnpm --filter @mui-x-internal/performance-charts test:performance:ci');
               stdout = results.stdout;
               console.log('Performance test results:', stdout);
-              console.error(results.stderr);
+              console.error(results.stderr ?? '');
               if (results.exitCode !== 0) {
                 throw new Error(`Performance tests failed with exit code ${results.exitCode}.`);
               }
