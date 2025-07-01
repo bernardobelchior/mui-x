@@ -1,5 +1,5 @@
 // @ts-check
-import { compareResults } from './compare-benchmark-results';
+import { compareResults } from './compare-benchmark-results.js';
 
 const COMMENT_MARKER = '<!-- performance-test-results -->';
 
