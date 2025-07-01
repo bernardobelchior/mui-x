@@ -33,13 +33,13 @@ export default async function ciBenchmark({ github, context, core }) {
     }
 
     const body = `${COMMENT_MARKER}
-    
-    ## 📊 Performance Test Results
 
-    **Commit:** [${context.sha}](${context.payload.repository.html_url}/commit/${context.sha})
-    **Run:** [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+## 📊 Performance Test Results
 
-    ${markdown}`;
+**Commit:** [${context.sha}](${context.payload.repository.html_url}/commit/${context.sha})
+**Run:** [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+
+${markdown}`;
 
     const comments = await github.rest.issues.listComments({
       owner: context.repo.owner,
