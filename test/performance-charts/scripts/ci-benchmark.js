@@ -1,11 +1,10 @@
 // @ts-check
+import { compareResults } from './compare-benchmark-results';
 
 const COMMENT_MARKER = '<!-- performance-test-results -->';
 
 /** @param {import('@actions/github-script').AsyncFunctionArguments} AsyncFunctionArguments */
 export default async function ciBenchmark({ github, context, core }) {
-  console.log(import.meta.dirname);
-  const { benchmark } = await import(`${import.meta.dirname}/compare-benchmark-results`);
   try {
     const {
       BASELINE_PATH: baselinePath,
@@ -19,7 +18,7 @@ export default async function ciBenchmark({ github, context, core }) {
       }\nThreshold: ${threshold}`,
     );
 
-    const { result, markdown } = await benchmark(baselinePath, comparePath, threshold);
+    const { result, markdown } = await compareResults(baselinePath, comparePath, threshold);
 
     if (result === 'fail') {
       core.setFailed('Benchmarks changed above threshold.');

@@ -67,5 +67,5 @@ jobs:
           THRESHOLD: 0.05
         with:
           script: |
-            const { default: ciBenchmark } = await import('${{ github.workspace }}/test/performance-charts/ci-benchmark.js');
+            const { default: ciBenchmark } = await import('${{ github.workspace }}/test/performance-charts/scripts/ci-benchmark.js');
             await ciBenchmark({github, context, core});
