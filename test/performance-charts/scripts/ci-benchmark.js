@@ -21,7 +21,7 @@ export default async function ciBenchmark({ github, context, core }) {
       return;
     }
 
-    if (isNaN(threshold) || threshold < 0) {
+    if (!Number.isFinite(threshold) || threshold < 0) {
       core.setFailed('Invalid THRESHOLD value. It must be a non-negative number.');
       return;
     }
@@ -33,6 +33,7 @@ export default async function ciBenchmark({ github, context, core }) {
     }
 
     const body = `${COMMENT_MARKER}
+    
     ## 📊 Performance Test Results
 
     **Commit:** [${context.sha}](${context.payload.repository.html_url}/commit/${context.sha})
