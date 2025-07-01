@@ -1,58 +1,37 @@
+// @ts-check
 /* eslint-disable no-console */
 import fs from 'node:fs/promises';
 
-const THRESHOLD = 0.05; // 5% threshold for performance change
-
-interface BenchmarkResult {
-  id: string;
-  name: string;
-  rank: number;
-  rme: number;
-  samples: [];
-  totalTime: number;
-  min: number;
-  max: number;
-  hz: number;
-  period: number;
-  mean: number;
-  variance: number;
-  sd: number;
-  sem: number;
-  df: number;
-  critical: number;
-  moe: number;
-  p75: number;
-  p99: number;
-  p995: number;
-  p999: number;
-  sampleCount: number;
-  median: number;
-}
-
-function parseBenchmarkResults(data: any) {
-  const benchmarks: BenchmarkResult[] = data.files
-    ?.flatMap((file: any) => file?.groups?.flatMap((g: any) => g?.benchmarks))
-    .filter((bench: any) => bench !== undefined);
+/**
+ * @param {any} data
+ * @returns {Array<import('./compare-benchmark-results.types.js').BenchmarkResult>}
+ */
+function parseBenchmarkResults(data) {
+  const benchmarks = data.files
+    ?.flatMap((/** @type {{ groups: any[]; }} */ file) =>
+      file?.groups?.flatMap((g) => g?.benchmarks),
+    )
+    .filter(
+      (
+        /** @type {import('./compare-benchmark-results.types.js').BenchmarkResult | undefined} */ bench,
+      ) => bench !== undefined,
+    );
 
   return benchmarks;
 }
 
-interface BenchmarkComparison {
-  name: string;
-  baseline: BenchmarkResult;
-  compare: BenchmarkResult;
-  diff: number; // Percentage difference between the median of compare and baseline
-}
-
-function processResults(
-  compareBenchmarks: BenchmarkResult[],
-  baselineBenchmarks: BenchmarkResult[] | null,
-  threshold: number,
-) {
-  const added: BenchmarkResult[] = [];
-  const removed: BenchmarkResult[] = [];
-  const unchanged: BenchmarkComparison[] = [];
-  const changed: BenchmarkComparison[] = [];
+/**
+ *
+ * @param {Array<import('./compare-benchmark-results.types.js').BenchmarkResult>} compareBenchmarks
+ * @param {Array<import('./compare-benchmark-results.types.js').BenchmarkResult> | null} baselineBenchmarks
+ * @param {number} threshold
+ * @returns {{added: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, removed: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, changed: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, unchanged: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, result: 'pass' | 'fail'}}
+ */
+function processResults(compareBenchmarks, baselineBenchmarks, threshold) {
+  const added = [];
+  const removed = [];
+  const unchanged = [];
+  const changed = [];
 
   const compareMap = new Map(compareBenchmarks.map((b) => [b.name, b]));
   const baselineMap = new Map(baselineBenchmarks?.map((b) => [b.name, b]) ?? []);
@@ -64,7 +43,7 @@ function processResults(
       removed.push(baselineBench);
     } else {
       const diff = (compareBench.median - baselineBench.median) / baselineBench.median;
-      const benchmark: BenchmarkComparison = {
+      const benchmark = {
         name: baselineBench.name,
         baseline: baselineBench,
         compare: compareBench,
@@ -94,7 +73,10 @@ function processResults(
   };
 }
 
-function printResults(results: ReturnType<typeof processResults>) {
+/**
+ * @param {{added: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, removed: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, changed: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, unchanged: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, result: 'pass' | 'fail'}} results
+ */
+function printResults(results) {
   console.log(`Overall result: ${results.result}`);
 
   console.log(`Changed benchmarks: ${results.changed.length}`);
@@ -131,7 +113,10 @@ function printResults(results: ReturnType<typeof processResults>) {
   results.removed.forEach((b) => console.log(`- ${b.name}`));
 }
 
-function generateResultMarkdown(results: ReturnType<typeof processResults>) {
+/**
+ * @param {{added: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, removed: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, changed: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, unchanged: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, result: 'pass' | 'fail'}} results
+ */
+function generateResultMarkdown(results) {
   let markdown = '';
 
   markdown += `## Benchmark Report\n`;
@@ -183,7 +168,14 @@ function generateResultMarkdown(results: ReturnType<typeof processResults>) {
   return markdown;
 }
 
-async function main(baselinePath: string, comparePath: string, exportPath: string) {
+/**
+ *
+ * @param {string} baselinePath
+ * @param {string} comparePath
+ * @param {number} threshold
+ * @returns {Promise<{ result: 'pass' | 'fail', markdown: string }>}
+ */
+export async function benchmark(baselinePath, comparePath, threshold) {
   const [baselinePromise, comparePromise] = await Promise.allSettled([
     fs.readFile(baselinePath),
     fs.readFile(comparePath),
@@ -210,12 +202,8 @@ async function main(baselinePath: string, comparePath: string, exportPath: strin
   const compareBenchmarks = parseBenchmarkResults(compareJson);
   const baselineBenchmarks = baselineJson ? parseBenchmarkResults(baselineJson) : null;
 
-  const results = processResults(compareBenchmarks, baselineBenchmarks, THRESHOLD);
+  const results = processResults(compareBenchmarks, baselineBenchmarks, threshold);
 
   printResults(results);
-  const markdown = generateResultMarkdown(results);
-
-  await fs.writeFile(exportPath, markdown);
+  return { result: results.result, markdown: generateResultMarkdown(results) };
 }
-
-await main('../baseline.json', '../compare.json', '../benchmark-results.md');
