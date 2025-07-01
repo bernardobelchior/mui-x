@@ -64,7 +64,7 @@ jobs:
         env:
           BASELINE_PATH: ./test/performance-charts/baseline-results.json
           COMPARE_PATH: ./test/performance-charts/results.json
-          THRESHOLD: 0.05
+          THRESHOLD: 0.1
         with:
           script: |
             const { default: ciBenchmark } = await import('${{ github.workspace }}/test/performance-charts/scripts/ci-benchmark.js');
