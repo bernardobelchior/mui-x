@@ -4,11 +4,12 @@ import { compareResults } from './compare-benchmark-results.js';
 
 const COMMENT_MARKER = '<!-- performance-test-results -->';
 
-/** @param {import('@actions/github-script').AsyncFunctionArguments} AsyncFunctionArguments */
+/** @param {any} AsyncFunctionArguments */
 export default async function ciBenchmark({ github, context, core }) {
   try {
-    const { BASELINE_PATH: baselinePath, COMPARE_PATH: comparePath } = process.env;
-    const threshold = Number.parseFloat(process.env.THRESHOLD);
+    const { BASELINE_PATH: baselinePath, COMPARE_PATH: comparePath } =
+      /** @type {any} */ process.env;
+    const threshold = Number.parseFloat(/** @type {any} */ process.env.THRESHOLD);
 
     core.info(
       `Running performance benchmarks.\nBaseline Path: ${baselinePath}\nCompare Path: ${
@@ -66,8 +67,8 @@ ${markdown}`;
         body,
       });
     }
-  } catch (/** @type {any} */ e) {
-    console.error(e);
-    core.setFailed(`Error running performance benchmarks: ${e.message}`);
+  } catch (/** @type {any} */ error) {
+    console.error(error);
+    core.setFailed(`Error running performance benchmarks: ${error.message}`);
   }
 }
