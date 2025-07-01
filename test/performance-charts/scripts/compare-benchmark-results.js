@@ -119,51 +119,54 @@ function printResults(results) {
 function generateResultMarkdown(results) {
   let markdown = '';
 
-  markdown += `## Benchmark Report\n`;
+  markdown += `**Result**: ${results.result === 'pass' ? 'Pass ✅' : 'Fail ❌'}\n`;
 
-  markdown += `\nResult: ${results.result === 'pass' ? 'Pass ✅' : 'Fail ❌'}\n`;
-
-  markdown += `\nChanged benchmarks: ${results.changed.length}\n`;
+  const fMs = (/** @type {number} */ number) => `${number.toFixed(2)}ms`;
+  const fPerc = (/** @type {number} */ number) => `${number.toFixed(2)}%`;
 
   if (results.changed.length > 0) {
-    markdown += `| Name | Median Baseline | Median Compare | Diff | Sample Count | Mean | P75 | P99 | Margin of Error |\n`;
-    markdown += `| ---- | --------------- | -------------- | ---- | ------------ | ---- | --- | --- | --------------- |\n`;
+    markdown += `\n**Changed benchmarks**: ${results.changed.length}\n`;
 
-    results.changed.forEach((c) => {
-      markdown += `| ${c.name} | ${c.baseline.median.toFixed(2)} | ${c.compare.median.toFixed(2)} | ${(c.diff * 100).toFixed(2)}% | ${c.compare.sampleCount} | ${c.compare.mean.toFixed(2)} | ${c.compare.p75.toFixed(2)} | ${c.compare.p99.toFixed(2)} | ${c.compare.moe.toFixed(2)} |\n`;
+    markdown += `| Name | Median (Baseline) | Median (This run) | Diff | Sample Count | Min | Mean | P75 | P99 | Max | Margin of Error |\n`;
+    markdown += `| ---- | ----------------- | ----------------- | ---- | ------------ | --- | ---- | --- | --- | --- | --------------- |\n`;
+
+    results.changed.forEach((r) => {
+      markdown += `| ${r.name} | ${fMs(r.baseline.median)} | ${fMs(r.compare.median)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fMs(r.compare.mean)} | ${fMs(r.compare.p75)} | ${fMs(r.compare.p99)} | ${fPerc(r.compare.moe)} |\n`;
     });
   }
 
-  markdown += `\nUnchanged benchmarks: ${results.unchanged.length}\n`;
-
   if (results.unchanged.length > 0) {
+    markdown += `\n**Unchanged benchmarks**: ${results.unchanged.length}\n`;
+
     markdown += `<details>\n`;
     markdown += `<summary>Click to expand</summary>\n\n`;
 
-    markdown += `| Name | Median Baseline | Median Compare | Diff | Sample Count | Mean | P75 | P99 | Margin of Error |\n`;
-    markdown += `| ---- | --------------- | -------------- | ---- | ------------ | ---- | --- | --- | --------------- |\n`;
+    markdown += `| Name | Median (Baseline) | Median (This run) | Diff | Sample Count | Min | Mean | P75 | P99 | Max | Margin of Error |\n`;
+    markdown += `| ---- | ----------------- | ----------------- | ---- | ------------ | --- | ---- | --- | --- | --- | --------------- |\n`;
 
-    results.unchanged.forEach((c) => {
-      markdown += `| ${c.name} | ${c.baseline.median.toFixed(2)} | ${c.compare.median.toFixed(2)} | ${(c.diff * 100).toFixed(2)}% | ${c.compare.sampleCount} | ${c.compare.mean.toFixed(2)} | ${c.compare.p75.toFixed(2)} | ${c.compare.p99.toFixed(2)} | ${c.compare.moe.toFixed(2)} |\n`;
+    results.unchanged.forEach((r) => {
+      markdown += `| ${r.name} | ${fMs(r.baseline.median)} | ${fMs(r.compare.median)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fMs(r.compare.mean)} | ${fMs(r.compare.p75)} | ${fMs(r.compare.p99)} | ${fPerc(r.compare.moe)} |\n`;
     });
 
     markdown += `</details>\n`;
   }
 
-  markdown += `\nAdded benchmarks: ${results.added.length}\n`;
   if (results.added.length > 0) {
-    markdown += `| Name | Median | Sample Count | Mean | P75 | P99 | Margin of Error |\n`;
-    markdown += `| ---- | ------ | ------------ | ---- | --- | --- | --------------- |\n`;
+    markdown += `\n**Added benchmarks**: ${results.added.length}\n`;
+    markdown += `| Name | Median | Sample Count | Min | Mean | P75 | P99 | Max | Margin of Error |\n`;
+    markdown += `| ---- | ------ | ------------ | --- | ---- | --- | --- | --- | --------------- |\n`;
 
-    results.added.forEach((c) => {
-      markdown += `| ${c.name} | ${c.median.toFixed(2)} | ${c.sampleCount} | ${c.mean.toFixed(2)} | ${c.p75.toFixed(2)} | ${c.p99.toFixed(2)} | ${c.moe.toFixed(2)} |\n`;
+    results.added.forEach((r) => {
+      markdown += `| ${r.name} | ${fMs(r.median)} | ${r.sampleCount} | ${fMs(r.min)} | ${fMs(r.mean)} | ${fMs(r.p75)} | ${fMs(r.p99)} | ${fMs(r.max)} | ${fPerc(r.moe)} |\n`;
     });
   }
 
-  markdown += `\nRemoved benchmarks: ${results.removed.length}\n`;
-  results.removed.forEach((b) => {
-    markdown += `- ${b.name}`;
-  });
+  if (results.removed.length > 0) {
+    markdown += `\n**Removed benchmarks**: ${results.removed.length}\n`;
+    results.removed.forEach((r) => {
+      markdown += `- ${r.name}`;
+    });
+  }
 
   return markdown;
 }
