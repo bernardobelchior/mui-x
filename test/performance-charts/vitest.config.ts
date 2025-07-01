@@ -7,8 +7,10 @@ const isCI = process.env.CI === 'true';
 const isTrace = !isCI && process.env.TRACE === 'true';
 
 const ciReporter: Reporter = {
-  onTestSuiteResult: (testSuite) => {
-    const benchmarks: RunnerTask[] = testSuite.task.tasks.filter((t) => t.meta.benchmark);
+  onTestRunEnd(testRun) {
+    const benchmarks: RunnerTask[] = testRun
+      .flatMap((module) => module.task.tasks.flatMap((suite) => suite.tasks))
+      .filter((t) => t.meta.benchmark);
     const benchmarkResults = benchmarks
       .map((b) => b.result?.benchmark)
       .filter((b) => b !== undefined);

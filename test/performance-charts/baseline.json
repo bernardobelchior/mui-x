@@ -1,0 +1,309 @@
+{
+  "files": [
+    {
+      "filepath": "/Users/belchior/Documents/mui/mui-x/test/performance-charts/tests/BarChart.bench.tsx",
+      "groups": [
+        {
+          "fullName": "tests/BarChart.bench.tsx > BarChart",
+          "benchmarks": [
+            {
+              "id": "-1302099642_0_0",
+              "name": "BarChart with big data amount",
+              "rank": 1,
+              "rme": 8.01894300346968,
+              "samples": [],
+              "totalTime": 501.7308750000004,
+              "min": 17.69216700000004,
+              "max": 32.55224999999996,
+              "hz": 47.83440923383473,
+              "period": 20.90545312500002,
+              "mean": 20.90545312500002,
+              "variance": 15.755916997369864,
+              "sd": 3.9693723681924657,
+              "sem": 0.8102447417645349,
+              "df": 23,
+              "critical": 2.069,
+              "moe": 1.6763963707108227,
+              "p75": 22.209625000000074,
+              "p99": 32.55224999999996,
+              "p995": 32.55224999999996,
+              "p999": 32.55224999999996,
+              "sampleCount": 24,
+              "median": 18.809874999999977
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "filepath": "/Users/belchior/Documents/mui/mui-x/test/performance-charts/tests/BarChartPro.bench.tsx",
+      "groups": [
+        {
+          "fullName": "tests/BarChartPro.bench.tsx > BarChartPro",
+          "benchmarks": [
+            {
+              "id": "-2078202943_0_0",
+              "name": "BarChartPro with big data amount",
+              "rank": 1,
+              "rme": 10.445407864575666,
+              "samples": [],
+              "totalTime": 512.038873,
+              "min": 26.309957999999824,
+              "max": 47.167790999999966,
+              "hz": 31.247627560495786,
+              "period": 32.0024295625,
+              "mean": 32.0024295625,
+              "variance": 39.370396561518206,
+              "sd": 6.274583377525412,
+              "sem": 1.568645844381353,
+              "df": 15,
+              "critical": 2.131,
+              "moe": 3.3427842943766626,
+              "p75": 33.62412499999982,
+              "p99": 47.167790999999966,
+              "p995": 47.167790999999966,
+              "p999": 47.167790999999966,
+              "sampleCount": 16,
+              "median": 29.692958499999975
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "filepath": "/Users/belchior/Documents/mui/mui-x/test/performance-charts/tests/FunnelChart.bench.tsx",
+      "groups": [
+        {
+          "fullName": "tests/FunnelChart.bench.tsx > FunnelChart",
+          "benchmarks": [
+            {
+              "id": "96801511_0_0",
+              "name": "FunnelChart with big data amount",
+              "rank": 1,
+              "rme": 2.455945872936632,
+              "samples": [],
+              "totalTime": 500.118744,
+              "min": 2.018957999999998,
+              "max": 6.22195899999997,
+              "hz": 349.9168989355056,
+              "period": 2.8578213942857142,
+              "mean": 2.8578213942857142,
+              "variance": 0.22440558136252878,
+              "sd": 0.4737146623892159,
+              "sem": 0.0358094625453368,
+              "df": 174,
+              "critical": 1.96,
+              "moe": 0.07018654658886012,
+              "p75": 3.1855829999999514,
+              "p99": 3.894333000000074,
+              "p995": 6.22195899999997,
+              "p999": 6.22195899999997,
+              "sampleCount": 175,
+              "median": 2.9211250000000746
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "filepath": "/Users/belchior/Documents/mui/mui-x/test/performance-charts/tests/LineChart.bench.tsx",
+      "groups": [
+        {
+          "fullName": "tests/LineChart.bench.tsx > LineChart",
+          "benchmarks": [
+            {
+              "id": "-1198273687_0_0",
+              "name": "LineChart with big data amount",
+              "rank": 1,
+              "rme": 6.175688419572962,
+              "samples": [],
+              "totalTime": 514.1324589999995,
+              "min": 8.409999999999968,
+              "max": 16.069375000000036,
+              "hz": 93.36115462027276,
+              "period": 10.711092895833323,
+              "mean": 10.711092895833323,
+              "variance": 5.185189411940117,
+              "sd": 2.2771010983134055,
+              "sem": 0.3286712330208093,
+              "df": 47,
+              "critical": 2.0126,
+              "moe": 0.6614837235776808,
+              "p75": 10.664874999999938,
+              "p99": 16.069375000000036,
+              "p995": 16.069375000000036,
+              "p999": 16.069375000000036,
+              "sampleCount": 48,
+              "median": 9.627875000000017
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "filepath": "/Users/belchior/Documents/mui/mui-x/test/performance-charts/tests/LineChartPro.bench.tsx",
+      "groups": [
+        {
+          "fullName": "tests/LineChartPro.bench.tsx > LineChartPro",
+          "benchmarks": [
+            {
+              "id": "-1375630658_0_0",
+              "name": "LineChartPro with big data amount",
+              "rank": 1,
+              "rme": 5.218788405003978,
+              "samples": [],
+              "totalTime": 500.1754189999998,
+              "min": 4.5662079999999605,
+              "max": 12.036417000000029,
+              "hz": 157.94458703697316,
+              "period": 6.331334417721517,
+              "mean": 6.331334417721517,
+              "variance": 2.175777370576952,
+              "sd": 1.475051650138717,
+              "sem": 0.1659562764812037,
+              "df": 78,
+              "critical": 1.991,
+              "moe": 0.3304189464740766,
+              "p75": 7.256750000000011,
+              "p99": 12.036417000000029,
+              "p995": 12.036417000000029,
+              "p999": 12.036417000000029,
+              "sampleCount": 79,
+              "median": 6.020875000000046
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "filepath": "/Users/belchior/Documents/mui/mui-x/test/performance-charts/tests/PieChart.bench.tsx",
+      "groups": [
+        {
+          "fullName": "tests/PieChart.bench.tsx > PieChart",
+          "benchmarks": [
+            {
+              "id": "-2092658003_0_0",
+              "name": "PieChart with big data amount",
+              "rank": 1,
+              "rme": 5.574112391602159,
+              "samples": [],
+              "totalTime": 504.6450780000006,
+              "min": 3.3110000000000355,
+              "max": 12.644957999999974,
+              "hz": 182.30634560949764,
+              "period": 5.485272586956528,
+              "mean": 5.485272586956528,
+              "variance": 2.1790696657444015,
+              "sd": 1.4761672214706576,
+              "sem": 0.15390107161760716,
+              "df": 91,
+              "critical": 1.9867,
+              "moe": 0.3057552589827001,
+              "p75": 5.51929199999995,
+              "p99": 12.644957999999974,
+              "p995": 12.644957999999974,
+              "p999": 12.644957999999974,
+              "sampleCount": 92,
+              "median": 5.029728999999975
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "filepath": "/Users/belchior/Documents/mui/mui-x/test/performance-charts/tests/ScatterChart.bench.tsx",
+      "groups": [
+        {
+          "fullName": "tests/ScatterChart.bench.tsx > ScatterChart",
+          "benchmarks": [
+            {
+              "id": "-1410130885_0_0",
+              "name": "ScatterChart with big data amount",
+              "rank": 1,
+              "rme": 9.127873366073235,
+              "samples": [],
+              "totalTime": 521.2300819999999,
+              "min": 15.679541000000086,
+              "max": 36.69158399999992,
+              "hz": 51.800540552837866,
+              "period": 19.304817851851848,
+              "mean": 19.304817851851848,
+              "variance": 19.83298907731633,
+              "sd": 4.453424421421826,
+              "sem": 0.8570619295078482,
+              "df": 26,
+              "critical": 2.056,
+              "moe": 1.762119327068136,
+              "p75": 20.74770799999999,
+              "p99": 36.69158399999992,
+              "p995": 36.69158399999992,
+              "p999": 36.69158399999992,
+              "sampleCount": 27,
+              "median": 17.27083300000004
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "filepath": "/Users/belchior/Documents/mui/mui-x/test/performance-charts/tests/ScatterChartPro.bench.tsx",
+      "groups": [
+        {
+          "fullName": "tests/ScatterChartPro.bench.tsx > ScatterChartPro",
+          "benchmarks": [
+            {
+              "id": "788508844_0_0",
+              "name": "ScatterChartPro with big data amount",
+              "rank": 2,
+              "rme": 4.141326374811185,
+              "samples": [],
+              "totalTime": 502.3415879999984,
+              "min": 3.1785840000000007,
+              "max": 9.367958999999928,
+              "hz": 226.93721309015004,
+              "period": 4.406505157894723,
+              "mean": 4.406505157894723,
+              "variance": 0.9670034336468356,
+              "sd": 0.9833633273855781,
+              "sem": 0.09210041400590967,
+              "df": 113,
+              "critical": 1.9814,
+              "moe": 0.18248776031130942,
+              "p75": 4.87558399999989,
+              "p99": 8.433166999999912,
+              "p995": 9.367958999999928,
+              "p999": 9.367958999999928,
+              "sampleCount": 114,
+              "median": 4.019228999999882
+            },
+            {
+              "id": "788508844_0_1",
+              "name": "ScatterChartPro with big data amount and zoomed in",
+              "rank": 1,
+              "rme": 3.031370958639799,
+              "samples": [],
+              "totalTime": 503.3490000000006,
+              "min": 2.6622910000000957,
+              "max": 6.8474999999998545,
+              "hz": 268.203572471585,
+              "period": 3.7285111111111156,
+              "mean": 3.7285111111111156,
+              "variance": 0.4489217842273542,
+              "sd": 0.6700162566888613,
+              "sem": 0.05766581786320431,
+              "df": 134,
+              "critical": 1.96,
+              "moe": 0.11302500301188044,
+              "p75": 4.188708000000133,
+              "p99": 6.173415999999634,
+              "p995": 6.8474999999998545,
+              "p999": 6.8474999999998545,
+              "sampleCount": 135,
+              "median": 3.5722920000000613
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
