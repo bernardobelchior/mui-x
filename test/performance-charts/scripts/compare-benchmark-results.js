@@ -175,7 +175,7 @@ function generateResultMarkdown(results) {
  * @param {number} threshold
  * @returns {Promise<{ result: 'pass' | 'fail', markdown: string }>}
  */
-export async function benchmark(baselinePath, comparePath, threshold) {
+export async function compareResults(baselinePath, comparePath, threshold) {
   const [baselinePromise, comparePromise] = await Promise.allSettled([
     fs.readFile(baselinePath),
     fs.readFile(comparePath),
