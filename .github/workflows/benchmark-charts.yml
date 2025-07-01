@@ -41,7 +41,7 @@ jobs:
       - run: pnpm --filter "@mui/x-charts-premium..." build
 
       - name: Run performance tests
-        run: pnpm --filter @mui-x-internal/performance-charts test:performance:ci:output
+        run: pnpm --filter @mui-x-internal/performance-charts test:performance:ci
 
       - name: Upload results
         uses: actions/upload-artifact@v4
@@ -54,72 +54,18 @@ jobs:
         with:
           name: charts-benchmarks-results-master.json
           path: ./results-master
-      - run: mv ./results-master/results.json ./test/performance-charts/results-master.json
+      - run: mv ./results-master/results.json ./test/performance-charts/baseline-results.json
 
       - name: Run performance tests
+        run: pnpm --filter @mui-x-internal/performance-charts test:performance:ci
+
+      - name: Compare performance results
         uses: actions/github-script@v7
+        env:
+          BASELINE_PATH: ./test/performance-charts/baseline-results.json
+          COMPARE_PATH: ./test/performance-charts/results.json
+          THRESHOLD: 0.05
         with:
           script: |
-            const fs = require('fs');
-            const marker = '<!-- performance-test-results -->';
-
-            // Read results file
-            let stdout = '';
-            try {
-              const results = await exec.getExecOutput('pnpm --filter @mui-x-internal/performance-charts test:performance:ci');
-              stdout = results.stdout;
-              console.log('Performance test results:', stdout);
-              console.error(results.stderr ?? '');
-              if (results.exitCode !== 0) {
-                throw new Error(`Performance tests failed with exit code ${results.exitCode}.`);
-              }
-            } catch (error) {
-              console.error('Error running performance benchmarks.', error);
-            }
-
-            const body = `${marker}
-            ## 📊 Performance Test Results
-
-            **Status:** ✅ Tests completed  
-            **Commit:** ${context.sha}
-            **Run:** [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
-
-            <details>
-            <summary>View Results</summary>
-
-            \`\`\`json
-            ${stdout}
-            \`\`\`
-            </details>`;
-
-            // Get existing comments
-            const comments = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-
-            // Find existing comment
-            const existingComment = comments.data.find(comment => 
-              comment.body.includes(marker)
-            );
-
-            if (existingComment) {
-              // Update existing comment
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existingComment.id,
-                body: body
-              });
-              console.log('Updated existing comment');
-            } else {
-              // Create new comment
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: body
-              });
-              console.log('Created new comment');
-            }
+            const { default: ciBenchmark } = await import('${{ github.workspace }}/test/performance-charts/ci-benchmark.js');
+            await ciBenchmark({github, context, core});
