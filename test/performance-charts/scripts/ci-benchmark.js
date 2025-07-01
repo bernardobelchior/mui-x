@@ -1,4 +1,5 @@
 // @ts-check
+// eslint-disable-next-line import/extensions
 import { compareResults } from './compare-benchmark-results.js';
 
 const COMMENT_MARKER = '<!-- performance-test-results -->';
@@ -6,17 +7,24 @@ const COMMENT_MARKER = '<!-- performance-test-results -->';
 /** @param {import('@actions/github-script').AsyncFunctionArguments} AsyncFunctionArguments */
 export default async function ciBenchmark({ github, context, core }) {
   try {
-    const {
-      BASELINE_PATH: baselinePath,
-      COMPARE_PATH: comparePath,
-      THRESHOLD: threshold,
-    } = process.env;
+    const { BASELINE_PATH: baselinePath, COMPARE_PATH: comparePath } = process.env;
+    const threshold = Number.parseFloat(process.env.THRESHOLD);
 
     core.info(
       `Running performance benchmarks.\nBaseline Path: ${baselinePath}\nCompare Path: ${
         comparePath
       }\nThreshold: ${threshold}`,
     );
+
+    if (!baselinePath || !comparePath) {
+      core.setFailed('Missing required environment variables: BASELINE_PATH, COMPARE_PATH');
+      return;
+    }
+
+    if (isNaN(threshold) || threshold < 0) {
+      core.setFailed('Invalid THRESHOLD value. It must be a non-negative number.');
+      return;
+    }
 
     const { result, markdown } = await compareResults(baselinePath, comparePath, threshold);
 
@@ -25,13 +33,12 @@ export default async function ciBenchmark({ github, context, core }) {
     }
 
     const body = `${COMMENT_MARKER}
-            ## 📊 Performance Test Results
+      ## 📊 Performance Test Results
 
-            **Status:** ✅ Tests completed  
-            **Commit:** ${context.sha}
-            **Run:** [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+      **Commit:** [${context.sha}](${context.payload.repository.html_url}/commit/${context.sha})
+      **Run:** [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
 
-            ${markdown}`;
+      ${markdown}`;
 
     const comments = await github.rest.issues.listComments({
       owner: context.repo.owner,
