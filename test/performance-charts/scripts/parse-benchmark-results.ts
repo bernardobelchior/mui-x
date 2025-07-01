@@ -37,7 +37,7 @@ function parseBenchmarkResults(data: any) {
   return benchmarks;
 }
 
-interface ChangedBenchmark {
+interface BenchmarkComparison {
   name: string;
   baseline: BenchmarkResult;
   compare: BenchmarkResult;
@@ -51,8 +51,8 @@ function processResults(
 ) {
   const added: BenchmarkResult[] = [];
   const removed: BenchmarkResult[] = [];
-  const changed = [];
-  let perfChangeExceedsThreshold = false;
+  const unchanged: BenchmarkComparison[] = [];
+  const changed: BenchmarkComparison[] = [];
 
   const compareMap = new Map(compareBenchmarks.map((b) => [b.name, b]));
   const baselineMap = new Map(baselineBenchmarks?.map((b) => [b.name, b]) ?? []);
@@ -64,16 +64,19 @@ function processResults(
       removed.push(baselineBench);
     } else {
       const diff = (compareBench.median - baselineBench.median) / baselineBench.median;
-      if (diff > 1 + threshold) {
-        perfChangeExceedsThreshold = true;
-      }
-
-      changed.push({
+      const benchmark: BenchmarkComparison = {
         name: baselineBench.name,
         baseline: baselineBench,
         compare: compareBench,
         diff,
-      });
+      };
+
+      if (diff > threshold) {
+        changed.push(benchmark);
+      } else {
+        unchanged.push(benchmark);
+      }
+
       compareMap.delete(baselineBench.name);
     }
   }
@@ -86,34 +89,101 @@ function processResults(
     added,
     removed,
     changed,
-    result: perfChangeExceedsThreshold ? 'fail' : 'pass',
+    unchanged,
+    result: changed.length > 0 ? 'fail' : 'pass',
   };
 }
 
 function printResults(results: ReturnType<typeof processResults>) {
   console.log(`Overall result: ${results.result}`);
 
-  console.log(`Benchmarks: ${results.changed.length}`);
+  console.log(`Changed benchmarks: ${results.changed.length}`);
   const changedTable = results.changed.map((c) => ({
     name: c.name,
     medianBaseline: c.baseline.median.toFixed(2),
     medianCompare: c.compare.median.toFixed(2),
     diff: `${(c.diff * 100).toFixed(2)}%`,
+    sampleCount: c.compare.sampleCount,
+    mean: c.compare.mean.toFixed(2),
+    p75: c.compare.p75.toFixed(2),
+    p99: c.compare.p99.toFixed(2),
+    marginOfError: c.compare.moe.toFixed(2),
   }));
   console.table(changedTable, ['name', 'medianBaseline', 'medianCompare', 'diff']);
+  console.log(`Unchanged benchmarks: ${results.unchanged.length}`);
+  const unchangedTable = results.unchanged.map((c) => ({
+    name: c.name,
+    medianBaseline: c.baseline.median.toFixed(2),
+    medianCompare: c.compare.median.toFixed(2),
+    diff: `${(c.diff * 100).toFixed(2)}%`,
+    sampleCount: c.compare.sampleCount,
+    mean: c.compare.mean.toFixed(2),
+    p75: c.compare.p75.toFixed(2),
+    p99: c.compare.p99.toFixed(2),
+    marginOfError: c.compare.moe.toFixed(2),
+  }));
+  console.table(unchangedTable, ['name', 'medianBaseline', 'medianCompare', 'diff']);
 
-  if (results.added.length > 0) {
-    console.log(`Added benchmarks: ${results.added.length}`);
-    results.added.forEach((b) => console.log(`- ${b.name}`));
-  }
+  console.log(`Added benchmarks: ${results.added.length}`);
+  results.added.forEach((b) => console.log(`- ${b.name}`));
 
-  if (results.removed.length > 0) {
-    console.log(`Removed benchmarks: ${results.removed.length}`);
-    results.removed.forEach((b) => console.log(`- ${b.name}`));
-  }
+  console.log(`Removed benchmarks: ${results.removed.length}`);
+  results.removed.forEach((b) => console.log(`- ${b.name}`));
 }
 
-async function main(baselinePath: string, comparePath: string) {
+function generateResultMarkdown(results: ReturnType<typeof processResults>) {
+  let markdown = '';
+
+  markdown += `## Benchmark Report\n`;
+
+  markdown += `\nResult: ${results.result === 'pass' ? 'Pass ✅' : 'Fail ❌'}\n`;
+
+  markdown += `\nChanged benchmarks: ${results.changed.length}\n`;
+
+  if (results.changed.length > 0) {
+    markdown += `| Name | Median Baseline | Median Compare | Diff | Sample Count | Mean | P75 | P99 | Margin of Error |\n`;
+    markdown += `| ---- | --------------- | -------------- | ---- | ------------ | ---- | --- | --- | --------------- |\n`;
+
+    results.changed.forEach((c) => {
+      markdown += `| ${c.name} | ${c.baseline.median.toFixed(2)} | ${c.compare.median.toFixed(2)} | ${(c.diff * 100).toFixed(2)}% | ${c.compare.sampleCount} | ${c.compare.mean.toFixed(2)} | ${c.compare.p75.toFixed(2)} | ${c.compare.p99.toFixed(2)} | ${c.compare.moe.toFixed(2)} |\n`;
+    });
+  }
+
+  markdown += `\nUnchanged benchmarks: ${results.unchanged.length}\n`;
+
+  if (results.unchanged.length > 0) {
+    markdown += `<details>\n`;
+    markdown += `<summary>Click to expand</summary>\n\n`;
+
+    markdown += `| Name | Median Baseline | Median Compare | Diff | Sample Count | Mean | P75 | P99 | Margin of Error |\n`;
+    markdown += `| ---- | --------------- | -------------- | ---- | ------------ | ---- | --- | --- | --------------- |\n`;
+
+    results.unchanged.forEach((c) => {
+      markdown += `| ${c.name} | ${c.baseline.median.toFixed(2)} | ${c.compare.median.toFixed(2)} | ${(c.diff * 100).toFixed(2)}% | ${c.compare.sampleCount} | ${c.compare.mean.toFixed(2)} | ${c.compare.p75.toFixed(2)} | ${c.compare.p99.toFixed(2)} | ${c.compare.moe.toFixed(2)} |\n`;
+    });
+
+    markdown += `</details>\n`;
+  }
+
+  markdown += `\nAdded benchmarks: ${results.added.length}\n`;
+  if (results.added.length > 0) {
+    markdown += `| Name | Median | Sample Count | Mean | P75 | P99 | Margin of Error |\n`;
+    markdown += `| ---- | ------ | ------------ | ---- | --- | --- | --------------- |\n`;
+
+    results.added.forEach((c) => {
+      markdown += `| ${c.name} | ${c.median.toFixed(2)} | ${c.sampleCount} | ${c.mean.toFixed(2)} | ${c.p75.toFixed(2)} | ${c.p99.toFixed(2)} | ${c.moe.toFixed(2)} |\n`;
+    });
+  }
+
+  markdown += `\nRemoved benchmarks: ${results.removed.length}\n`;
+  results.removed.forEach((b) => {
+    markdown += `- ${b.name}`;
+  });
+
+  return markdown;
+}
+
+async function main(baselinePath: string, comparePath: string, exportPath: string) {
   const [baselinePromise, comparePromise] = await Promise.allSettled([
     fs.readFile(baselinePath),
     fs.readFile(comparePath),
@@ -143,6 +213,9 @@ async function main(baselinePath: string, comparePath: string) {
   const results = processResults(compareBenchmarks, baselineBenchmarks, THRESHOLD);
 
   printResults(results);
+  const markdown = generateResultMarkdown(results);
+
+  await fs.writeFile(exportPath, markdown);
 }
 
-await main('../baseline.json', '../compare.json');
+await main('../baseline.json', '../compare.json', '../benchmark-results.md');
