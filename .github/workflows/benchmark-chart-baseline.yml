@@ -37,6 +37,6 @@ jobs:
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
-          name: charts-benchmarks-results-master.json
+          name: charts-benchmarks-results-${{ github.ref_name }}.json
           path: ./test/performance-charts/baseline-results.json
           if-no-files-found: error

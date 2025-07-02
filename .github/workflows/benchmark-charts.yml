@@ -1,12 +1,6 @@
 name: Performance Test
 
 on:
-  push:
-    branches:
-      - 'master'
-      - 'next'
-    paths:
-      - 'packages/x-charts*/**'
   pull_request:
     types:
       - labeled
@@ -15,7 +9,6 @@ on:
       - reopened
     branches:
       - 'master'
-      - 'next'
 
 jobs:
   performance-test:
@@ -42,7 +35,8 @@ jobs:
 
       - name: Download baseline results, if available
         run: |
-          gh run download --name "charts-benchmarks-results-master.json" || true
+          echo "Downloading baseline results from branch '${{ github.base_ref }}' for performance tests"
+          gh run download --name "charts-benchmarks-results-${{ github.base_ref }}.json" || true
           mv ./baseline-results.json ./test/performance-charts/baseline-results.json || true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
