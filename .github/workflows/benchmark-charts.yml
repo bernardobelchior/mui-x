@@ -43,7 +43,7 @@ jobs:
       - name: Run performance tests
         run: pnpm --filter @mui-x-internal/performance-charts test:performance:ci
 
-      - run: jq '.commit = "{{ github.sha }}"' test/performance-charts/results.json > test/performance-charts/baseline-results.json
+      - run: jq '.commit = "${{ github.sha }}"' test/performance-charts/results.json > test/performance-charts/baseline-results.json
 
 
       - name: Upload results
