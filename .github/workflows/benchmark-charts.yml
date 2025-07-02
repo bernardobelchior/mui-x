@@ -40,19 +40,6 @@ jobs:
       # Ensure we are running on the prod version of our libs
       - run: pnpm --filter "@mui/x-charts-premium..." build
 
-      - name: Run performance tests
-        run: pnpm --filter @mui-x-internal/performance-charts test:performance:ci
-
-      - run: jq '.commit = "${{ github.sha }}"' test/performance-charts/results.json > test/performance-charts/baseline-results.json
-
-
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        with:
-          name: charts-benchmarks-results-master.json
-          path: ./test/performance-charts/baseline-results.json
-          if-no-files-found: error
-
       - uses: actions/download-artifact@v4
         with:
           name: charts-benchmarks-results-master.json
