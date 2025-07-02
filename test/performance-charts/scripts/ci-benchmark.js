@@ -1,4 +1,5 @@
 // @ts-check
+import fs from 'node:fs/promises';
 // eslint-disable-next-line import/extensions
 import { compareResults } from './compare-benchmark-results.js';
 
@@ -27,7 +28,17 @@ export default async function ciBenchmark({ github, context, core }) {
       return;
     }
 
-    const { result, markdown } = await compareResults(baselinePath, comparePath, threshold);
+    let /** @type {string} */ compareJson;
+    try {
+      compareJson = await readCompareJson(comparePath);
+    } catch (/** @type {any} */ error) {
+      core.setFailed(`Error reading compare file: ${error.message}`);
+      return;
+    }
+
+    const baselineJson = await readBaselineJson(baselinePath);
+
+    const { result, markdown } = await compareResults(baselineJson, compareJson, threshold);
 
     if (result === 'fail') {
       core.setFailed('Benchmarks changed above threshold.');
@@ -39,6 +50,8 @@ export default async function ciBenchmark({ github, context, core }) {
 
 **Commit:** [${context.sha}](${context.payload.repository.html_url}/commit/${context.sha})
 **Run:** [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+**Baseline:** ${baselineJson ? `[${baselineJson.commit}](${context.payload.repository.html_url}/commit/${baselineJson.commit})` : 'No baseline found'}
+
 
 ${markdown}`;
 
@@ -70,5 +83,35 @@ ${markdown}`;
   } catch (/** @type {any} */ error) {
     console.error(error);
     core.setFailed(`Error running performance benchmarks: ${error.message}`);
+  }
+}
+
+/**
+ * @param {string} path
+ * @returns {Promise<string | null>}
+ */
+async function readBaselineJson(path) {
+  try {
+    const baselineBuffer = await fs.readFile(path);
+
+    return JSON.parse(baselineBuffer.toString('utf-8'));
+  } catch (error) {
+    console.log('Could not read baseline file:', error);
+    return null;
+  }
+}
+
+/**
+ * @param {string} path
+ * @returns {Promise<string>}
+ */
+async function readCompareJson(path) {
+  try {
+    const compareBuffer = await fs.readFile(path);
+
+    return JSON.parse(compareBuffer.toString('utf-8'));
+  } catch (error) {
+    console.error(`Aborting comparison because compare file could not be read:`, error);
+    throw new Error('Compare file read error');
   }
 }

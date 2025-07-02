@@ -1,6 +1,5 @@
 // @ts-check
 /* eslint-disable no-console */
-import fs from 'node:fs/promises';
 
 /**
  * @param {any} data
@@ -127,19 +126,30 @@ function generateResultMarkdown(results) {
   if (results.changed.length > 0) {
     markdown += `\n**Changed benchmarks**: ${results.changed.length}\n`;
 
+    markdown += `| Name | Median (Baseline) | Median (This run) | Diff | Sample Count | Margin of Error |\n`;
+    markdown += `| ---- | ----------------- | ----------------- | ---- | ------------ | --------------- |\n`;
+
+    results.changed.forEach((r) => {
+      markdown += `| ${r.name} | ${fMs(r.baseline.median)} | ${fMs(r.compare.median)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fPerc(r.compare.moe)} |\n`;
+    });
+
+    markdown += `<details>\n`;
+    markdown += `<summary>Detailed Results</summary>\n\n`;
     markdown += `| Name | Median (Baseline) | Median (This run) | Diff | Sample Count | Min | Mean | P75 | P99 | Max | Margin of Error |\n`;
     markdown += `| ---- | ----------------- | ----------------- | ---- | ------------ | --- | ---- | --- | --- | --- | --------------- |\n`;
 
     results.changed.forEach((r) => {
       markdown += `| ${r.name} | ${fMs(r.baseline.median)} | ${fMs(r.compare.median)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fMs(r.compare.mean)} | ${fMs(r.compare.p75)} | ${fMs(r.compare.p99)} | ${fPerc(r.compare.moe)} |\n`;
     });
+
+    markdown += `</details>\n`;
   }
 
   if (results.unchanged.length > 0) {
     markdown += `\n**Unchanged benchmarks**: ${results.unchanged.length}\n`;
 
     markdown += `<details>\n`;
-    markdown += `<summary>Click to expand</summary>\n\n`;
+    markdown += `<summary>Detailed Results</summary>\n\n`;
 
     markdown += `| Name | Median (Baseline) | Median (This run) | Diff | Sample Count | Min | Mean | P75 | P99 | Max | Margin of Error |\n`;
     markdown += `| ---- | ----------------- | ----------------- | ---- | ------------ | --- | ---- | --- | --- | --- | --------------- |\n`;
@@ -172,36 +182,12 @@ function generateResultMarkdown(results) {
 }
 
 /**
- *
- * @param {string} baselinePath
- * @param {string} comparePath
+ * @param {string | null} baselineJson
+ * @param {string} compareJson
  * @param {number} threshold
  * @returns {Promise<{ result: 'pass' | 'fail', markdown: string }>}
  */
-export async function compareResults(baselinePath, comparePath, threshold) {
-  const [baselinePromise, comparePromise] = await Promise.allSettled([
-    fs.readFile(baselinePath),
-    fs.readFile(comparePath),
-  ]);
-
-  if (comparePromise.status === 'rejected') {
-    console.error(
-      `Aborting comparison because compare file could not be read:`,
-      comparePromise.reason,
-    );
-    throw new Error('Compare file read error');
-  }
-
-  if (baselinePromise.status === 'rejected') {
-    console.log('Could not read baseline file:', baselinePromise.reason);
-  }
-
-  const compareJson = JSON.parse(comparePromise.value.toString('utf-8'));
-  const baselineJson =
-    baselinePromise.status === 'fulfilled'
-      ? JSON.parse(baselinePromise.value.toString('utf-8'))
-      : null;
-
+export async function compareResults(baselineJson, compareJson, threshold) {
   const compareBenchmarks = parseBenchmarkResults(compareJson);
   const baselineBenchmarks = baselineJson ? parseBenchmarkResults(baselineJson) : null;
 
