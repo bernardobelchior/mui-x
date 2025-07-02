@@ -88,7 +88,7 @@ ${markdown}`;
 
 /**
  * @param {string} path
- * @returns {Promise<string | null>}
+ * @returns {Promise<any | null>}
  */
 async function readBaselineJson(path) {
   try {
@@ -103,7 +103,7 @@ async function readBaselineJson(path) {
 
 /**
  * @param {string} path
- * @returns {Promise<string>}
+ * @returns {Promise<any>}
  */
 async function readCompareJson(path) {
   try {
