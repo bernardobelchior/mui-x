@@ -79,34 +79,51 @@ function printResults(results) {
   console.log(`Overall result: ${results.result}`);
 
   console.log(`Changed benchmarks: ${results.changed.length}`);
-  const changedTable = results.changed.map((c) => ({
-    name: c.name,
-    medianBaseline: c.baseline.median.toFixed(2),
-    medianCompare: c.compare.median.toFixed(2),
-    diff: `${(c.diff * 100).toFixed(2)}%`,
-    sampleCount: c.compare.sampleCount,
-    mean: c.compare.mean.toFixed(2),
-    p75: c.compare.p75.toFixed(2),
-    p99: c.compare.p99.toFixed(2),
-    marginOfError: c.compare.moe.toFixed(2),
-  }));
-  console.table(changedTable, ['name', 'medianBaseline', 'medianCompare', 'diff']);
+  if (results.changed.length > 0) {
+    const changedTable = results.changed.map((c) => ({
+      name: c.name,
+      medianBaseline: c.baseline.median.toFixed(2),
+      medianCompare: c.compare.median.toFixed(2),
+      diff: `${(c.diff * 100).toFixed(2)}%`,
+      sampleCount: c.compare.sampleCount,
+      mean: c.compare.mean.toFixed(2),
+      p75: c.compare.p75.toFixed(2),
+      p99: c.compare.p99.toFixed(2),
+      marginOfError: c.compare.moe.toFixed(2),
+    }));
+    console.table(changedTable);
+  }
+
   console.log(`Unchanged benchmarks: ${results.unchanged.length}`);
-  const unchangedTable = results.unchanged.map((c) => ({
-    name: c.name,
-    medianBaseline: c.baseline.median.toFixed(2),
-    medianCompare: c.compare.median.toFixed(2),
-    diff: `${(c.diff * 100).toFixed(2)}%`,
-    sampleCount: c.compare.sampleCount,
-    mean: c.compare.mean.toFixed(2),
-    p75: c.compare.p75.toFixed(2),
-    p99: c.compare.p99.toFixed(2),
-    marginOfError: c.compare.moe.toFixed(2),
-  }));
-  console.table(unchangedTable, ['name', 'medianBaseline', 'medianCompare', 'diff']);
+  if (results.unchanged.length > 0) {
+    const unchangedTable = results.unchanged.map((c) => ({
+      name: c.name,
+      medianBaseline: c.baseline.median.toFixed(2),
+      medianCompare: c.compare.median.toFixed(2),
+      diff: `${(c.diff * 100).toFixed(2)}%`,
+      sampleCount: c.compare.sampleCount,
+      mean: c.compare.mean.toFixed(2),
+      p75: c.compare.p75.toFixed(2),
+      p99: c.compare.p99.toFixed(2),
+      marginOfError: c.compare.moe.toFixed(2),
+    }));
+    console.table(unchangedTable);
+  }
 
   console.log(`Added benchmarks: ${results.added.length}`);
   results.added.forEach((b) => console.log(`- ${b.name}`));
+  if (results.added.length > 0) {
+    const addedTable = results.added.map((c) => ({
+      name: c.name,
+      medianBaseline: c.median.toFixed(2),
+      sampleCount: c.sampleCount,
+      mean: c.mean.toFixed(2),
+      p75: c.p75.toFixed(2),
+      p99: c.p99.toFixed(2),
+      marginOfError: c.moe.toFixed(2),
+    }));
+    console.table(addedTable);
+  }
 
   console.log(`Removed benchmarks: ${results.removed.length}`);
   results.removed.forEach((b) => console.log(`- ${b.name}`));
