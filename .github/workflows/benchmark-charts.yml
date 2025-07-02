@@ -40,11 +40,12 @@ jobs:
       # Ensure we are running on the prod version of our libs
       - run: pnpm --filter "@mui/x-charts-premium..." build
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: charts-benchmarks-results-master.json
-          path: ./results-master
-      - run: mv ./results-master/baseline-results.json ./test/performance-charts/baseline-results.json
+      - name: Download baseline results, if available
+        run: |
+          gh run download --name "charts-benchmarks-results-master.json" || true
+          mv ./baseline-results.json ./test/performance-charts/baseline-results.json || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run performance tests
         run: pnpm --filter @mui-x-internal/performance-charts test:performance:ci
