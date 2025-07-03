@@ -38,11 +38,15 @@ export default async function ciBenchmark({ github, context, core }) {
 
     const baselineJson = await readBaselineJson(baselinePath);
 
-    const { result, markdown } = await compareResults(baselineJson, compareJson, threshold);
+    const { results, markdown } = await compareResults(baselineJson, compareJson, threshold);
 
-    if (result === 'fail') {
-      core.setFailed('Some benchmarks failed or changed above threshold.');
+    if (results.failed.length > 0) {
+      core.setFailed('Some benchmarks failed.');
+    } else if (results.changed.length > 0) {
+      core.setFailed('Benchmarks changed above threshold.');
     }
+
+    const result = results.failed.length > 0 || results.changed.length > 0 ? 'fail' : 'pass';
 
     const body = `${COMMENT_MARKER}
 

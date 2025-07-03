@@ -79,7 +79,6 @@ function processResults(compareBenchmarks, baselineBenchmarks, threshold) {
     changed,
     unchanged,
     failed,
-    result: failed.length > 0 || changed.length > 0 ? 'fail' : 'pass',
   };
 }
 
@@ -87,7 +86,9 @@ function processResults(compareBenchmarks, baselineBenchmarks, threshold) {
  * @param {import('./compare-benchmark-results.types.js').BenchmarkResults} results
  */
 function printResults(results) {
-  console.log(`Overall result: ${results.result}`);
+  console.log(
+    `Overall result: ${results.failed.length > 0 || results.changed.length > 0 ? 'fail' : 'pass'}`,
+  );
 
   console.log(`Changed benchmarks: ${results.changed.length}`);
   if (results.changed.length > 0) {
@@ -221,7 +222,7 @@ function generateResultMarkdown(results) {
  * @param {string | null} baselineJson
  * @param {string} compareJson
  * @param {number} threshold
- * @returns {Promise<{ result: 'pass' | 'fail', markdown: string }>}
+ * @returns {Promise<{ results: import('./compare-benchmark-results.types.js').BenchmarkResults, markdown: string }>}
  */
 export async function compareResults(baselineJson, compareJson, threshold) {
   const compareBenchmarks = parseBenchmarkResults(compareJson);
@@ -231,10 +232,10 @@ export async function compareResults(baselineJson, compareJson, threshold) {
 
   try {
     printResults(results);
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
     console.log(util.inspect(results, { depth: null }));
   }
 
-  return { result: results.result, markdown: generateResultMarkdown(results) };
+  return { results, markdown: generateResultMarkdown(results) };
 }

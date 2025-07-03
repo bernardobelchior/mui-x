@@ -45,5 +45,4 @@ export interface BenchmarkResults {
   removed: BenchmarkResult[];
   changed: BenchmarkComparison[];
   unchanged: BenchmarkComparison[];
-  result: 'pass' | 'fail';
 }
