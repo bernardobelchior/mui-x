@@ -210,6 +210,12 @@ export async function compareResults(baselineJson, compareJson, threshold) {
 
   const results = processResults(compareBenchmarks, baselineBenchmarks, threshold);
 
-  printResults(results);
+  try {
+    printResults(results);
+  } catch (e) {
+    console.error(e);
+    console.log(util.inspect(results));
+  }
+
   return { result: results.result, markdown: generateResultMarkdown(results) };
 }
