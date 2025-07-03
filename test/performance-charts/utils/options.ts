@@ -22,6 +22,7 @@ const benchOptions: BenchOptions = {
   warmupIterations: 5,
   warmupTime: 0,
   iterations,
+  throws: true,
   time: 0,
 };
 
