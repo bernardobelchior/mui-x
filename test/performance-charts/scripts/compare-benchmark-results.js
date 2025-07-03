@@ -1,5 +1,6 @@
 // @ts-check
 /* eslint-disable no-console */
+import util from 'node:util';
 
 /**
  * @param {any} data
@@ -214,7 +215,7 @@ export async function compareResults(baselineJson, compareJson, threshold) {
     printResults(results);
   } catch (e) {
     console.error(e);
-    console.log(util.inspect(results));
+    console.log(util.inspect(results, { depth: null }));
   }
 
   return { result: results.result, markdown: generateResultMarkdown(results) };
