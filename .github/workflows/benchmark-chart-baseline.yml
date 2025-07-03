@@ -28,6 +28,7 @@ jobs:
           node-version: 22
           cache: 'pnpm' # https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#caching-packages-dependencies
       - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install
       - run: pnpm --filter "@mui/x-charts-premium..." build
 
       - name: Run performance tests
