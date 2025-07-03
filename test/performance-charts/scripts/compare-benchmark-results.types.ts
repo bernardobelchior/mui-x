@@ -24,9 +24,26 @@ export interface BenchmarkResult {
   median: number;
 }
 
+export interface FailedBenchmarkResult {
+  id: string;
+  name: string;
+  rank: number;
+  rme: number;
+  samples: [];
+}
+
 export interface BenchmarkComparison {
   name: string;
   baseline: BenchmarkResult;
   compare: BenchmarkResult;
   diff: number; // Percentage difference between the median of compare and baseline
+}
+
+export interface BenchmarkResults {
+  failed: FailedBenchmarkResult[];
+  added: BenchmarkResult[];
+  removed: BenchmarkResult[];
+  changed: BenchmarkComparison[];
+  unchanged: BenchmarkComparison[];
+  result: 'pass' | 'fail';
 }

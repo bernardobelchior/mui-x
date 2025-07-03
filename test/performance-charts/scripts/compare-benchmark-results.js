@@ -25,13 +25,15 @@ function parseBenchmarkResults(data) {
  * @param {Array<import('./compare-benchmark-results.types.js').BenchmarkResult>} compareBenchmarks
  * @param {Array<import('./compare-benchmark-results.types.js').BenchmarkResult> | null} baselineBenchmarks
  * @param {number} threshold
- * @returns {{added: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, removed: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, changed: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, unchanged: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, result: 'pass' | 'fail'}}
+ * @returns {import('./compare-benchmark-results.types.js').BenchmarkResults}
  */
 function processResults(compareBenchmarks, baselineBenchmarks, threshold) {
   const added = [];
   const removed = [];
   const unchanged = [];
   const changed = [];
+  /** @type {Array<import('./compare-benchmark-results.types.js').FailedBenchmarkResult>} */
+  const failed = [];
 
   const compareMap = new Map(compareBenchmarks.map((b) => [b.name, b]));
   const baselineMap = new Map(baselineBenchmarks?.map((b) => [b.name, b]) ?? []);
@@ -61,7 +63,11 @@ function processResults(compareBenchmarks, baselineBenchmarks, threshold) {
   }
 
   for (const [_, compareBench] of compareMap) {
-    added.push(compareBench);
+    if ('median' in compareBench) {
+      added.push(compareBench);
+    } else {
+      failed.push(compareBench);
+    }
   }
 
   return {
@@ -69,12 +75,13 @@ function processResults(compareBenchmarks, baselineBenchmarks, threshold) {
     removed,
     changed,
     unchanged,
-    result: changed.length > 0 ? 'fail' : 'pass',
+    failed,
+    result: failed.length > 0 || changed.length > 0 ? 'fail' : 'pass',
   };
 }
 
 /**
- * @param {{added: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, removed: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, changed: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, unchanged: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, result: 'pass' | 'fail'}} results
+ * @param {import('./compare-benchmark-results.types.js').BenchmarkResults} results
  */
 function printResults(results) {
   console.log(`Overall result: ${results.result}`);
@@ -128,10 +135,13 @@ function printResults(results) {
 
   console.log(`Removed benchmarks: ${results.removed.length}`);
   results.removed.forEach((b) => console.log(`- ${b.name}`));
+
+  console.log(`Failed benchmarks: ${results.failed.length}`);
+  results.failed.forEach((b) => console.log(`- ${b.name}`));
 }
 
 /**
- * @param {{added: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, removed: Array<import('./compare-benchmark-results.types.js').BenchmarkResult>, changed: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, unchanged: Array<import('./compare-benchmark-results.types.js').BenchmarkComparison>, result: 'pass' | 'fail'}} results
+ * @param {import('./compare-benchmark-results.types.js').BenchmarkResults} results
  */
 function generateResultMarkdown(results) {
   let markdown = '';
@@ -192,6 +202,13 @@ function generateResultMarkdown(results) {
   if (results.removed.length > 0) {
     markdown += `\n**Removed benchmarks**: ${results.removed.length}\n`;
     results.removed.forEach((r) => {
+      markdown += `- ${r.name}`;
+    });
+  }
+
+  if (results.failed.length > 0) {
+    markdown += `\n**Failed benchmarks**: ${results.failed.length}\n`;
+    results.failed.forEach((r) => {
       markdown += `- ${r.name}`;
     });
   }
