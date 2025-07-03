@@ -149,8 +149,6 @@ function printResults(results) {
 function generateResultMarkdown(results) {
   let markdown = '';
 
-  markdown += `**Result**: ${results.result === 'pass' ? 'Pass ✅' : 'Fail ❌'}\n`;
-
   const fMs = (/** @type {number} */ number) => `${number.toFixed(2)}ms`;
   const fPerc = (/** @type {number} */ number) => `${number.toFixed(2)}%`;
 

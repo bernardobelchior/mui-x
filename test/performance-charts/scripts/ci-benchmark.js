@@ -52,6 +52,9 @@ export default async function ciBenchmark({ github, context, core }) {
 **Run:** [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
 **Baseline:** ${baselineJson ? `[${baselineJson.commit}](${context.payload.repository.html_url}/commit/${baselineJson.commit})` : 'No baseline found'}
 
+**Result**: ${result === 'pass' ? 'Pass ✅' : 'Fail ❌'}
+${result === 'pass' ? 'No significant changes detected.' : 'To acknowledge these changes, merge this PR.'}
+
 
 ${markdown}`;
 
