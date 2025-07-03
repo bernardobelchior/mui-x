@@ -94,7 +94,10 @@ async function readBaselineJson(path) {
   try {
     const baselineBuffer = await fs.readFile(path);
 
-    return JSON.parse(baselineBuffer.toString('utf-8'));
+    const json = JSON.parse(baselineBuffer.toString('utf-8'));
+    console.log('Baseline file read successfully:', path);
+
+    return json;
   } catch (error) {
     console.log('Could not read baseline file:', error);
     return null;
@@ -109,7 +112,10 @@ async function readCompareJson(path) {
   try {
     const compareBuffer = await fs.readFile(path);
 
-    return JSON.parse(compareBuffer.toString('utf-8'));
+    const json = JSON.parse(compareBuffer.toString('utf-8'));
+    console.log('Compare file read successfully:', path);
+
+    return json;
   } catch (error) {
     console.error(`Aborting comparison because compare file could not be read:`, error);
     throw new Error('Compare file read error');
