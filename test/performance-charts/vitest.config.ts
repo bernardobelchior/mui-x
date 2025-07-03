@@ -1,17 +1,14 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
-const isCI = process.env.CI === 'true';
-const isTrace = !isCI && process.env.TRACE === 'true';
-
 export default defineConfig({
   plugins: [react()],
   test: {
     setupFiles: ['./setup.ts'],
-    env: { TRACE: isTrace ? 'true' : 'false' },
-    environment: isTrace ? 'node' : 'jsdom',
+    env: { TRACE: process.env.TRACE },
+    environment: 'node',
     browser: {
-      enabled: isTrace,
+      enabled: true,
       headless: true,
       instances: [
         {
