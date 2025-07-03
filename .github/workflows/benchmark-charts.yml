@@ -38,7 +38,7 @@ jobs:
           echo "Downloading baseline results from branch '${{ github.base_ref }}' for performance tests"
           gh run download --name "charts-benchmarks-results-${{ github.base_ref }}.json" || true
           mv ./baseline-results.json ./test/performance-charts/baseline-results.json || true
-          [[ ls ./baseline-results.json ]] && echo "Found baseline, comparing results..." || echo "No baseline results found, skipping comparison"
+          [[ -e ./baseline-results.json ]] && echo "Found baseline, comparing results..." || echo "No baseline results found, skipping comparison"
 
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
