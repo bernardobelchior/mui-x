@@ -43,7 +43,7 @@ function processResults(compareBenchmarks, baselineBenchmarks, threshold) {
 
     if (!compareBench) {
       removed.push(baselineBench);
-    } else {
+    } else if ('median' in compareBench) {
       const diff = (compareBench.median - baselineBench.median) / baselineBench.median;
       const benchmark = {
         name: baselineBench.name,
@@ -58,6 +58,9 @@ function processResults(compareBenchmarks, baselineBenchmarks, threshold) {
         unchanged.push(benchmark);
       }
 
+      compareMap.delete(baselineBench.name);
+    } else {
+      failed.push(compareBench);
       compareMap.delete(baselineBench.name);
     }
   }
