@@ -7,6 +7,7 @@ on:
       - 'next'
     paths:
       - 'packages/x-charts*/**'
+      - 'test/performance-charts/**'
 
 jobs:
   performance-test:
