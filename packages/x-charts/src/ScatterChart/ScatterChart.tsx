@@ -111,6 +111,7 @@ export interface ScatterChartProps
  * - [Scatter](https://mui.com/x/react-charts/scatter/)
  * - [Scatter demonstration](https://mui.com/x/react-charts/scatter-demo/)
  *
+ *
  * API:
  *
  * - [ScatterChart API](https://mui.com/x/api/charts/scatter-chart/)
