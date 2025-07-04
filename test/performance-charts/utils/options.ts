@@ -19,7 +19,7 @@ const traceOptions: BenchOptions = {
 };
 
 const benchOptions: BenchOptions = {
-  warmupIterations: 5,
+  warmupIterations: 10,
   warmupTime: 0,
   iterations,
   throws: true,
