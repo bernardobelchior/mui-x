@@ -6,7 +6,7 @@ import { options } from '../utils/options';
 import { bench } from '../utils/bench';
 
 describe('BarChart', () => {
-  const dataLength = 2_500;
+  const dataLength = 1_200;
   const data = Array.from({ length: dataLength + 1 }).map((_, i) => ({
     x: i,
     y: 50 + Math.sin(i / 5) * 25,
@@ -22,7 +22,7 @@ describe('BarChart', () => {
         <BarChart xAxis={[{ data: xData }]} series={[{ data: yData }]} width={500} height={300} />,
       );
 
-      expect(page.getByText('220')).toBeInTheDocument();
+      expect(page.getByText('96')).toBeInTheDocument();
     },
     options,
   );

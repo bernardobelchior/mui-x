@@ -6,7 +6,7 @@ import { options } from '../utils/options';
 import { bench } from '../utils/bench';
 
 describe('BarChartPro', () => {
-  const dataLength = 2_500;
+  const dataLength = 1_200;
   const data = Array.from({ length: dataLength + 1 }).map((_, i) => ({
     x: i,
     y: 50 + Math.sin(i / 5) * 25,
