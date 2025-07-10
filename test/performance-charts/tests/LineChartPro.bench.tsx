@@ -28,7 +28,7 @@ describe('LineChartPro', () => {
         />,
       );
 
-      expect(page.getByText('60')).toBeInTheDocument();
+      expect(page.getByText('2,600')).toBeInTheDocument();
     },
     options,
   );
