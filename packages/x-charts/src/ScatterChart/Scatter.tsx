@@ -76,7 +76,7 @@ function Scatter(props: ScatterProps) {
   const skipInteractionHandlers = isVoronoiEnabled || series.disableHover;
   const { isFaded, isHighlighted } = useItemHighlightedGetter();
 
-  const scatterPlotData = useScatterPlotData(series, xScale, yScale, instance.isPointInside);
+  const scatterPlotData = useScatterPlotData(series, xScale, yScale, () => true);
 
   const Marker = slots?.marker ?? ScatterMarker;
   const { ownerState, ...markerProps } = useSlotProps({
