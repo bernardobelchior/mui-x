@@ -45,8 +45,8 @@ function processResults(compareBenchmarks, baselineBenchmarks, threshold) {
 
     if (!compareBench) {
       removed.push(baselineBench);
-    } else if ('median' in compareBench) {
-      const diff = (compareBench.median - baselineBench.median) / baselineBench.median;
+    } else if ('min' in compareBench) {
+      const diff = (compareBench.min - baselineBench.min) / baselineBench.min;
       const benchmark = {
         name: baselineBench.name,
         baseline: baselineBench,
@@ -100,11 +100,12 @@ function printResults(results) {
   if (results.regressed.length > 0) {
     const changedTable = results.regressed.map((c) => ({
       name: c.name,
-      medianBaseline: c.baseline.median.toFixed(2),
-      medianCompare: c.compare.median.toFixed(2),
+      minBaseline: c.baseline.min.toFixed(2),
+      minCompare: c.compare.min.toFixed(2),
       diff: `${(c.diff * 100).toFixed(2)}%`,
       sampleCount: c.compare.sampleCount,
       mean: c.compare.mean.toFixed(2),
+      median: c.compare.median.toFixed(2),
       p75: c.compare.p75.toFixed(2),
       p99: c.compare.p99.toFixed(2),
       marginOfError: c.compare.moe.toFixed(2),
@@ -116,11 +117,12 @@ function printResults(results) {
   if (results.improved.length > 0) {
     const changedTable = results.improved.map((c) => ({
       name: c.name,
-      medianBaseline: c.baseline.median.toFixed(2),
-      medianCompare: c.compare.median.toFixed(2),
+      minBaseline: c.baseline.min.toFixed(2),
+      minCompare: c.compare.min.toFixed(2),
       diff: `${(c.diff * 100).toFixed(2)}%`,
       sampleCount: c.compare.sampleCount,
       mean: c.compare.mean.toFixed(2),
+      median: c.compare.median.toFixed(2),
       p75: c.compare.p75.toFixed(2),
       p99: c.compare.p99.toFixed(2),
       marginOfError: c.compare.moe.toFixed(2),
@@ -132,11 +134,12 @@ function printResults(results) {
   if (results.unchanged.length > 0) {
     const unchangedTable = results.unchanged.map((c) => ({
       name: c.name,
-      medianBaseline: c.baseline.median.toFixed(2),
-      medianCompare: c.compare.median.toFixed(2),
+      minBaseline: c.baseline.min.toFixed(2),
+      minCompare: c.compare.min.toFixed(2),
       diff: `${(c.diff * 100).toFixed(2)}%`,
       sampleCount: c.compare.sampleCount,
       mean: c.compare.mean.toFixed(2),
+      median: c.compare.median.toFixed(2),
       p75: c.compare.p75.toFixed(2),
       p99: c.compare.p99.toFixed(2),
       marginOfError: c.compare.moe.toFixed(2),
@@ -149,9 +152,10 @@ function printResults(results) {
   if (results.added.length > 0) {
     const addedTable = results.added.map((c) => ({
       name: c.name,
-      median: c.median.toFixed(2),
+      min: c.min.toFixed(2),
       sampleCount: c.sampleCount,
       mean: c.mean.toFixed(2),
+      median: c.median.toFixed(2),
       p75: c.p75.toFixed(2),
       p99: c.p99.toFixed(2),
       marginOfError: c.moe.toFixed(2),
@@ -178,20 +182,20 @@ function generateResultMarkdown(results) {
   if (results.regressed.length > 0) {
     markdown += `\n**Regressed benchmarks**: ${results.regressed.length}\n`;
 
-    markdown += `| Name | Median (Baseline) | Median (This run) | Diff | Sample Count | Margin of Error |\n`;
-    markdown += `| ---- | ----------------- | ----------------- | ---- | ------------ | --------------- |\n`;
+    markdown += `| Name | Min (Baseline) | Min (This run) | Diff | Sample Count | Margin of Error |\n`;
+    markdown += `| ---- | -------------- | -------------- | ---- | ------------ | --------------- |\n`;
 
     results.regressed.forEach((r) => {
-      markdown += `| ${r.name} | ${fMs(r.baseline.median)} | ${fMs(r.compare.median)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fPerc(r.compare.moe)} |\n`;
+      markdown += `| ${r.name} | ${fMs(r.baseline.min)} | ${fMs(r.compare.min)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fPerc(r.compare.moe)} |\n`;
     });
 
     markdown += `<details>\n`;
     markdown += `<summary>Detailed Results</summary>\n\n`;
-    markdown += `| Name | Median (Baseline) | Median (This run) | Diff | Sample Count | Min | Mean | P75 | P99 | Max | Margin of Error |\n`;
-    markdown += `| ---- | ----------------- | ----------------- | ---- | ------------ | --- | ---- | --- | --- | --- | --------------- |\n`;
+    markdown += `| Name | Min (Baseline) | Min (This run) | Diff | Sample Count | Mean | Median | P75 | P99 | Max | Margin of Error |\n`;
+    markdown += `| ---- | -------------- | -------------- | ---- | ------------ | ---- | ------ | --- | --- | --- | --------------- |\n`;
 
     results.regressed.forEach((r) => {
-      markdown += `| ${r.name} | ${fMs(r.baseline.median)} | ${fMs(r.compare.median)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fMs(r.compare.min)} | ${fMs(r.compare.mean)} | ${fMs(r.compare.p75)} | ${fMs(r.compare.p99)} | ${fMs(r.compare.max)} | ${fPerc(r.compare.moe)} |\n`;
+      markdown += `| ${r.name} | ${fMs(r.baseline.min)} | ${fMs(r.compare.min)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fMs(r.compare.mean)} | ${fMs(r.compare.median)} | ${fMs(r.compare.p75)} | ${fMs(r.compare.p99)} | ${fMs(r.compare.max)} | ${fPerc(r.compare.moe)} |\n`;
     });
 
     markdown += `</details>\n`;
@@ -200,20 +204,20 @@ function generateResultMarkdown(results) {
   if (results.improved.length > 0) {
     markdown += `\n**Improved benchmarks**: ${results.improved.length}\n`;
 
-    markdown += `| Name | Median (Baseline) | Median (This run) | Diff | Sample Count | Margin of Error |\n`;
-    markdown += `| ---- | ----------------- | ----------------- | ---- | ------------ | --------------- |\n`;
+    markdown += `| Name | Min (Baseline) | Min (This run) | Diff | Sample Count | Margin of Error |\n`;
+    markdown += `| ---- | -------------- | -------------- | ---- | ------------ | --------------- |\n`;
 
     results.improved.forEach((r) => {
-      markdown += `| ${r.name} | ${fMs(r.baseline.median)} | ${fMs(r.compare.median)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fPerc(r.compare.moe)} |\n`;
+      markdown += `| ${r.name} | ${fMs(r.baseline.min)} | ${fMs(r.compare.min)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fPerc(r.compare.moe)} |\n`;
     });
 
     markdown += `<details>\n`;
     markdown += `<summary>Detailed Results</summary>\n\n`;
-    markdown += `| Name | Median (Baseline) | Median (This run) | Diff | Sample Count | Min | Mean | P75 | P99 | Max | Margin of Error |\n`;
-    markdown += `| ---- | ----------------- | ----------------- | ---- | ------------ | --- | ---- | --- | --- | --- | --------------- |\n`;
+    markdown += `| Name | Min (Baseline) | Min (This run) | Diff | Sample Count | Mean | Median | P75 | P99 | Max | Margin of Error |\n`;
+    markdown += `| ---- | -------------- | -------------- | ---- | ------------ | ---- | ------ | --- | --- | --- | --------------- |\n`;
 
     results.improved.forEach((r) => {
-      markdown += `| ${r.name} | ${fMs(r.baseline.median)} | ${fMs(r.compare.median)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fMs(r.compare.min)} | ${fMs(r.compare.mean)} | ${fMs(r.compare.p75)} | ${fMs(r.compare.p99)} | ${fMs(r.compare.max)} | ${fPerc(r.compare.moe)} |\n`;
+      markdown += `| ${r.name} | ${fMs(r.baseline.min)} | ${fMs(r.compare.min)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fMs(r.compare.mean)} | ${fMs(r.compare.median)} | ${fMs(r.compare.p75)} | ${fMs(r.compare.p99)} | ${fMs(r.compare.max)} | ${fPerc(r.compare.moe)} |\n`;
     });
 
     markdown += `</details>\n`;
@@ -225,11 +229,11 @@ function generateResultMarkdown(results) {
     markdown += `<details>\n`;
     markdown += `<summary>Detailed Results</summary>\n\n`;
 
-    markdown += `| Name | Median (Baseline) | Median (This run) | Diff | Sample Count | Min | Mean | P75 | P99 | Max | Margin of Error |\n`;
-    markdown += `| ---- | ----------------- | ----------------- | ---- | ------------ | --- | ---- | --- | --- | --- | --------------- |\n`;
+    markdown += `| Name | Min (Baseline) | Min (This run) | Diff | Sample Count | Mean | Median | P75 | P99 | Max | Margin of Error |\n`;
+    markdown += `| ---- | -------------- | -------------- | ---- | ------------ | ---- | ------ | --- | --- | --- | --------------- |\n`;
 
     results.unchanged.forEach((r) => {
-      markdown += `| ${r.name} | ${fMs(r.baseline.median)} | ${fMs(r.compare.median)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fMs(r.compare.min)} | ${fMs(r.compare.mean)} | ${fMs(r.compare.p75)} | ${fMs(r.compare.p99)} | ${fMs(r.compare.max)} | ${fPerc(r.compare.moe)} |\n`;
+      markdown += `| ${r.name} | ${fMs(r.baseline.min)} | ${fMs(r.compare.min)} | ${fPerc(r.diff * 100)} | ${r.compare.sampleCount} | ${fMs(r.compare.mean)} | ${fMs(r.compare.median)} | ${fMs(r.compare.p75)} | ${fMs(r.compare.p99)} | ${fMs(r.compare.max)} | ${fPerc(r.compare.moe)} |\n`;
     });
 
     markdown += `</details>\n`;
@@ -237,11 +241,11 @@ function generateResultMarkdown(results) {
 
   if (results.added.length > 0) {
     markdown += `\n**Added benchmarks**: ${results.added.length}\n`;
-    markdown += `| Name | Median | Sample Count | Min | Mean | P75 | P99 | Max | Margin of Error |\n`;
-    markdown += `| ---- | ------ | ------------ | --- | ---- | --- | --- | --- | --------------- |\n`;
+    markdown += `| Name | Min | Sample Count | Mean | Median | P75 | P99 | Max | Margin of Error |\n`;
+    markdown += `| ---- | --- | ------------ | ---- | ------ | --- | --- | --- | --------------- |\n`;
 
     results.added.forEach((r) => {
-      markdown += `| ${r.name} | ${fMs(r.median)} | ${r.sampleCount} | ${fMs(r.min)} | ${fMs(r.mean)} | ${fMs(r.p75)} | ${fMs(r.p99)} | ${fMs(r.max)} | ${fPerc(r.moe)} |\n`;
+      markdown += `| ${r.name} | ${fMs(r.min)} | ${r.sampleCount} | ${fMs(r.mean)} | ${fMs(r.median)} | ${fMs(r.p75)} | ${fMs(r.p99)} | ${fMs(r.max)} | ${fPerc(r.moe)} |\n`;
     });
   }
 
