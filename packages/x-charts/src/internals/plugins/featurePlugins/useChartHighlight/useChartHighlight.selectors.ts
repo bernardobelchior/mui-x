@@ -60,6 +60,17 @@ export const selectorChartsIsFadedCallback = createSelector(
   createIsFaded,
 );
 
+export const selectorChartsHighlightedState = createSelector(
+  [selectorChartsHighlightScope, selectorChartsHighlightedItem],
+  function selectorChartsHighlightedState(highlightScope, highlightedItem) {
+    if (!highlightScope || !highlightedItem) {
+      return null;
+    }
+
+    return highlightedItem;
+  },
+);
+
 export const selectorChartsIsHighlighted = createSelector(
   [
     selectorChartsHighlightScope,

@@ -12,7 +12,11 @@ import { ColorGetter } from '../internals/plugins/models/seriesConfig';
 import { ScatterClasses, useUtilityClasses } from './scatterClasses';
 import { useChartContext } from '../context/ChartProvider';
 import { UseChartInteractionSignature } from '../internals/plugins/featurePlugins/useChartInteraction';
-import { UseChartHighlightSignature } from '../internals/plugins/featurePlugins/useChartHighlight';
+import {
+  selectorChartsHighlightedItem,
+  selectorChartsHighlightedState,
+  UseChartHighlightSignature,
+} from '../internals/plugins/featurePlugins/useChartHighlight';
 import { getValueToPositionMapper } from '../hooks/useScale';
 import { useInteractionGroupProps } from '../hooks/useInteractionItemProps';
 
@@ -64,11 +68,21 @@ function FastScatter(props: FastScatterProps) {
     series.markerSize,
     skipInteractionHandlers,
   );
+  const highlightedItem = useSelector(store, selectorChartsHighlightedState);
 
   const MAX_POINTS_PER_PATH = 1000;
-  let points = 0;
-  const paths: string[] = [];
-  let path = '';
+  let fadedPoints = 0;
+  const fadedPaths: string[] = [];
+  let fadedPath = '';
+
+  let highlightedPoints = 0;
+  const highlightedPaths: string[] = [];
+  let highlightedPath = '';
+
+  let regularPoints = 0;
+  const regularPaths: string[] = [];
+  let regularPath = '';
+
   const radius = series.markerSize;
   for (let i = 0; i < series.data.length; i += 1) {
     const scatterPoint = series.data[i];
@@ -78,20 +92,51 @@ function FastScatter(props: FastScatterProps) {
 
     const isInRange = instance.isPointInside(x, y);
 
+    const isHighlighted =
+      highlightedItem && highlightedItem.seriesId === series.id && highlightedItem.dataIndex === i;
+    const isFaded = highlightedItem && !isHighlighted;
+
     if (isInRange) {
-      points += 1;
-      path += `M${x + radius} ${y + radius} A${radius} ${radius} 0 1 1 ${x + radius} ${y + radius - 0.01}`;
+      if (isHighlighted) {
+        highlightedPoints += 1;
+        highlightedPath += `M${x + radius * 1.2} ${y + radius * 1.2} A${radius * 1.2} ${radius * 1.2} 0 1 1 ${x + radius * 1.2} ${y + radius * 1.2 - 0.01}`;
+      } else if (isFaded) {
+        fadedPoints += 1;
+        fadedPath += `M${x + radius} ${y + radius} A${radius} ${radius} 0 1 1 ${x + radius} ${y + radius - 0.01}`;
+      } else {
+        regularPoints += 1;
+        regularPath += `M${x + radius} ${y + radius} A${radius} ${radius} 0 1 1 ${x + radius} ${y + radius - 0.01}`;
+      }
     }
 
+    const points = isHighlighted ? highlightedPoints : isFaded ? fadedPoints : regularPoints;
     if (points >= MAX_POINTS_PER_PATH) {
-      paths.push(path);
-      path = '';
-      points = 0;
+      if (isHighlighted) {
+        highlightedPaths.push(highlightedPath);
+        highlightedPath = '';
+        highlightedPoints = 0;
+      } else if (isFaded) {
+        fadedPaths.push(fadedPath);
+        fadedPath = '';
+        fadedPoints = 0;
+      } else {
+        regularPaths.push(regularPath);
+        regularPath = '';
+        regularPoints = 0;
+      }
     }
   }
 
-  if (path !== '') {
-    paths.push(path);
+  if (regularPath !== '') {
+    regularPaths.push(regularPath);
+  }
+
+  if (fadedPath !== '') {
+    fadedPaths.push(fadedPath);
+  }
+
+  if (highlightedPath !== '') {
+    highlightedPaths.push(highlightedPath);
   }
 
   const classes = useUtilityClasses(inClasses);
@@ -104,8 +149,14 @@ function FastScatter(props: FastScatterProps) {
       onPointerMove={eventHandlers?.onPointerMove}
       onPointerLeave={eventHandlers?.onPointerLeave}
     >
-      {paths.map((d, i) => (
+      {regularPaths.map((d, i) => (
         <path key={i} fill={color} d={d} />
+      ))}
+      {highlightedPaths.map((d, i) => (
+        <path key={`highlighted-${i}`} fill={color} d={d} />
+      ))}
+      {fadedPaths.map((d, i) => (
+        <path key={`faded-${i}`} fill={color} d={d} opacity={0.3} />
       ))}
     </g>
   );
