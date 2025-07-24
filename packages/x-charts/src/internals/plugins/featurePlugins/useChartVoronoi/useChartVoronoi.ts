@@ -4,6 +4,7 @@ import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 import useEventCallback from '@mui/utils/useEventCallback';
 import { Delaunay } from '@mui/x-charts-vendor/d3-delaunay';
 import { PointerGestureEventData } from '@mui/x-internal-gestures/core';
+import Flatbush from 'flatbush';
 import { ChartPlugin } from '../../models';
 import { getValueToPositionMapper } from '../../../../hooks/useScale';
 import { SeriesId } from '../../../../models/seriesType/common';
@@ -35,6 +36,7 @@ export const useChartVoronoi: ChartPlugin<UseChartVoronoiSignature> = ({
 
   const { series, seriesOrder } = useSelector(store, selectorChartSeriesProcessed)?.scatter ?? {};
   const voronoiRef = React.useRef<Record<string, VoronoiSeries>>({});
+  const flatbushRef = React.useRef<Flatbush | undefined>(undefined);
   const delauneyRef = React.useRef<Delaunay<any> | undefined>(undefined);
   const lastFind = React.useRef<number | undefined>(undefined);
 
@@ -62,9 +64,10 @@ export const useChartVoronoi: ChartPlugin<UseChartVoronoiSignature> = ({
       return;
     }
 
-    performance.mark('Delaunay-prepare-points-start');
     voronoiRef.current = {};
     const dataPoints = Object.values(series).reduce((acc, aSeries) => acc + aSeries.data.length, 0);
+
+    performance.mark('Delaunay-prepare-points-start');
     const points = new Float64Array(dataPoints * 2);
     let seriesStartIndex = 0;
     let currentIndex = 0;
@@ -115,6 +118,52 @@ export const useChartVoronoi: ChartPlugin<UseChartVoronoiSignature> = ({
     delauneyRef.current = new Delaunay(points);
     performance.mark('new Delaunay-end');
     performance.measure('new Delaunay()', 'new Delaunay-start', 'new Delaunay-end');
+
+    performance.mark('Flatbush-start');
+    const flatbush = new Flatbush(dataPoints);
+    flatbushRef.current = flatbush;
+    seriesStartIndex = 0;
+    currentIndex = 0;
+
+    seriesOrder.forEach((seriesId) => {
+      const { data, xAxisId, yAxisId } = series[seriesId];
+
+      const xScale = xAxis[xAxisId ?? defaultXAxisId].scale;
+      const yScale = yAxis[yAxisId ?? defaultYAxisId].scale;
+
+      const getXPosition = getValueToPositionMapper(xScale);
+      const getYPosition = getValueToPositionMapper(yScale);
+
+      seriesStartIndex = currentIndex;
+
+      for (const datum of data) {
+        const pointX = getXPosition(datum.x);
+        const pointY = getYPosition(datum.y);
+
+        if (!instance.isPointInside(pointX, pointY)) {
+          // If the point is not displayed we move them to a trash coordinate.
+          // This avoids managing index mapping before/after filtering.
+          // The trash point is far enough such that any point in the drawing area will be closer to the mouse than the trash coordinate.
+          flatbush.add(-drawingArea.width, -drawingArea.height);
+        } else {
+          flatbush.add(pointX, pointY);
+        }
+
+        currentIndex += 1;
+      }
+
+      voronoiRef.current[seriesId] = {
+        seriesId,
+        startIndex: seriesStartIndex,
+        endIndex: seriesStartIndex + currentIndex,
+      };
+    });
+
+    flatbush.finish();
+
+    performance.mark('Flatbush-end');
+    performance.measure('Flatbush', 'Flatbush-start', 'Flatbush-end');
+
     lastFind.current = undefined;
   }, [
     zoomIsInteracting,
@@ -158,6 +207,18 @@ export const useChartVoronoi: ChartPlugin<UseChartVoronoiSignature> = ({
       const closestPointIndex = delauneyRef.current.find(svgPoint.x, svgPoint.y, lastFind.current);
       const end = performance.now();
       performance.measure('Delaunay-find', { start, end });
+
+      if (!flatbushRef.current) {
+        return 'no-point-found';
+      }
+
+      const start1 = performance.now();
+      const closestFlatbushPointIndex = flatbushRef.current.neighbors(svgPoint.x, svgPoint.y, 1)[0];
+      const end1 = performance.now();
+      performance.measure('Flatbush-find', { start: start1, end: end1 });
+
+      console.log({ delaunay: closestPointIndex, flatbush: closestFlatbushPointIndex });
+
       if (closestPointIndex === undefined) {
         return 'no-point-found';
       }
