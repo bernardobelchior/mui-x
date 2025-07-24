@@ -64,7 +64,11 @@ export const useChartVoronoi: ChartPlugin<UseChartVoronoiSignature> = ({
 
     performance.mark('Delaunay-prepare-points-start');
     voronoiRef.current = {};
-    let points: number[] = [];
+    const dataPoints = Object.values(series).reduce((acc, aSeries) => acc + aSeries.data.length, 0);
+    const points = new Float64Array(dataPoints * 2);
+    let seriesStartIndex = 0;
+    let currentIndex = 0;
+
     seriesOrder.forEach((seriesId) => {
       const { data, xAxisId, yAxisId } = series[seriesId];
 
@@ -74,26 +78,31 @@ export const useChartVoronoi: ChartPlugin<UseChartVoronoiSignature> = ({
       const getXPosition = getValueToPositionMapper(xScale);
       const getYPosition = getValueToPositionMapper(yScale);
 
-      const seriesPoints = data.flatMap(({ x, y }) => {
-        const pointX = getXPosition(x);
-        const pointY = getYPosition(y);
+      seriesStartIndex = currentIndex;
+
+      for (const datum of data) {
+        const pointX = getXPosition(datum.x);
+        const pointY = getYPosition(datum.y);
 
         if (!instance.isPointInside(pointX, pointY)) {
           // If the point is not displayed we move them to a trash coordinate.
           // This avoids managing index mapping before/after filtering.
           // The trash point is far enough such that any point in the drawing area will be closer to the mouse than the trash coordinate.
-          return [-drawingArea.width, -drawingArea.height];
+          points[currentIndex * 2] = -drawingArea.width;
+          points[currentIndex * 2 + 1] = -drawingArea.height;
+        } else {
+          points[currentIndex * 2] = pointX;
+          points[currentIndex * 2 + 1] = pointY;
         }
 
-        return [pointX, pointY];
-      });
+        currentIndex += 1;
+      }
 
       voronoiRef.current[seriesId] = {
         seriesId,
-        startIndex: points.length,
-        endIndex: points.length + seriesPoints.length,
+        startIndex: seriesStartIndex,
+        endIndex: seriesStartIndex + currentIndex,
       };
-      points = points.concat(seriesPoints);
     });
     performance.mark('Delaunay-prepare-points-end');
     performance.measure(
