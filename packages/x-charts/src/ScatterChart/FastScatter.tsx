@@ -15,6 +15,11 @@ import { UseChartInteractionSignature } from '../internals/plugins/featurePlugin
 import { UseChartHighlightSignature } from '../internals/plugins/featurePlugins/useChartHighlight';
 import { getValueToPositionMapper } from '../hooks/useScale';
 import { useInteractionGroupProps } from '../hooks/useInteractionItemProps';
+import {
+  selectorChartAxisZoomData,
+  selectorChartDrawingArea,
+  selectorChartSeriesFlatbush,
+} from '../internals';
 
 export interface FastScatterProps {
   series: DefaultizedScatterSeriesType;
@@ -73,7 +78,65 @@ function useCreatePathsIteratively(
   return paths;
 }
 
+function useCreatePathsFlatbush(
+  series: DefaultizedScatterSeriesType,
+  xScale: D3Scale,
+  yScale: D3Scale,
+) {
+  performance.mark('useCreatePathsFlatbush-start');
+  const { store } = useChartContext<[UseChartInteractionSignature, UseChartHighlightSignature]>();
+  const flatbush = useSelector(store, selectorChartSeriesFlatbush, [series.id]);
+  const getXPosition = getValueToPositionMapper(xScale);
+  const getYPosition = getValueToPositionMapper(yScale);
+  const radius = series.markerSize;
+
+  const paths: string[] = [];
+  let temporaryPaths: string[] = [];
+
+  const xAxisZoom = selectorChartAxisZoomData(
+    store.getSnapshot(),
+    series.xAxisId ?? 'defaultized-x-axis-0',
+  );
+  const yAxisZoom = selectorChartAxisZoomData(
+    store.getSnapshot(),
+    series.yAxisId ?? 'defaultized-y-axis-0',
+  );
+  const xZoomStart = (xAxisZoom?.start ?? 0) / 100;
+  const xZoomEnd = (xAxisZoom?.end ?? 100) / 100;
+  const yZoomStart = (yAxisZoom?.start ?? 0) / 100;
+  const yZoomEnd = (yAxisZoom?.end ?? 100) / 100;
+
+  const indices = flatbush?.search(xZoomStart, yZoomStart, xZoomEnd, yZoomEnd);
+
+  for (const i of indices ?? []) {
+    const scatterPoint = series.data[i];
+
+    const x = getXPosition(scatterPoint.x);
+    const y = getYPosition(scatterPoint.y);
+
+    temporaryPaths.push(`M${x - radius} ${y} a${radius} ${radius} 0 1 1 0 ${ALMOST_ZERO}`);
+
+    if (temporaryPaths.length >= MAX_POINTS_PER_PATH) {
+      paths.push(temporaryPaths.join(''));
+      temporaryPaths = [];
+    }
+  }
+
+  if (temporaryPaths.length > 0) {
+    paths.push(temporaryPaths.join(''));
+  }
+  performance.mark('useCreatePathsFlatbush-end');
+  performance.measure(
+    'useCreatePathsFlatbush',
+    'useCreatePathsFlatbush-start',
+    'useCreatePathsFlatbush-end',
+  );
+
+  return paths;
+}
+
 function useCreatePaths(series: DefaultizedScatterSeriesType, xScale: D3Scale, yScale: D3Scale) {
+  useCreatePathsFlatbush(series, xScale, yScale);
   return useCreatePathsIteratively(series, xScale, yScale);
 }
 

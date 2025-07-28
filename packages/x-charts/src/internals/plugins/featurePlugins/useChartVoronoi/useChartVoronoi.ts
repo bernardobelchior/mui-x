@@ -118,7 +118,7 @@ export const useChartVoronoi: ChartPlugin<UseChartVoronoiSignature> = ({
         const pointY =
           yZoomStart +
           (1 - (svgPoint.y - drawingArea.top) / drawingArea.height) * (yZoomEnd - yZoomStart);
-        const closestPointIndex = flatbush.neighbors(
+        const closestPointIndex = (flatbush as any).neighbors(
           pointX,
           pointY,
           1,
