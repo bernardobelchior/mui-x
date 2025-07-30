@@ -4,7 +4,7 @@ import { CartesianChartSeriesType } from '../../../../models/seriesType/config';
 import { ProcessedSeries } from '../../corePlugins/useChartSeries';
 import { AxisConfig } from '../../../../models';
 import { ChartSeriesConfig } from '../../models/seriesConfig';
-import { getAxisExtremum } from './getAxisExtremum';
+import { getAxisExtrema } from './getAxisExtrema';
 import { DefaultizedZoomOptions, ExtremumFilter } from './useChartCartesianAxis.types';
 import { GetZoomAxisFilters, ZoomAxisFilters, ZoomData } from './zoom.types';
 import { getScale } from '../../../getScale';
@@ -63,7 +63,7 @@ export function createAxisFilterMapper({
     if (scaleType === 'point' || scaleType === 'band') {
       extremums = [0, (axis.data?.length ?? 1) - 1];
     } else {
-      extremums = getAxisExtremum(axis, direction, seriesConfig, axisIndex, formattedSeries);
+      extremums = getAxisExtrema(axis, direction, seriesConfig, axisIndex, formattedSeries);
     }
 
     let min: number | Date;

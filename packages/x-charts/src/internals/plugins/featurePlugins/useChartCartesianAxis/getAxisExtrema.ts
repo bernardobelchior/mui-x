@@ -7,7 +7,10 @@ import { GetZoomAxisFilters } from './zoom.types';
 import { isCartesianSeriesType } from '../../../isCartesian';
 import { findMinMax } from '../../../findMinMax';
 
-export function getAxisExtremum<T extends CartesianChartSeriesType>(
+/**
+ * Returns the minimum and maximum values for the given axis.
+ */
+export function getAxisExtrema<T extends CartesianChartSeriesType>(
   axis: AxisConfig,
   axisDirection: 'x' | 'y',
   seriesConfig: ChartSeriesConfig<T>,

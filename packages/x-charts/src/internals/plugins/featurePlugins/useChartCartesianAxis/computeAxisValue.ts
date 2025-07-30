@@ -20,7 +20,7 @@ import { getTickNumber, scaleTickNumberByRange } from '../../../ticks';
 import { getScale } from '../../../getScale';
 import { isDateData, createDateFormatter } from '../../../dateHelpers';
 import { zoomScaleRange } from './zoom';
-import { getAxisExtremum } from './getAxisExtremum';
+import { getAxisExtrema } from './getAxisExtrema';
 import type { ChartDrawingArea } from '../../../../hooks';
 import { ChartSeriesConfig } from '../../models/seriesConfig';
 import { ComputedAxisConfig, DefaultizedZoomOptions } from './useChartCartesianAxis.types';
@@ -111,7 +111,7 @@ export function computeAxisValue<T extends ChartSeriesType>({
     const zoomRange: [number, number] = zoom ? [zoom.start, zoom.end] : [0, 100];
     const range = getRange(drawingArea, axisDirection, axis);
 
-    const [minData, maxData] = getAxisExtremum(
+    const [minData, maxData] = getAxisExtrema(
       axis,
       axisDirection,
       seriesConfig as ChartSeriesConfig<CartesianChartSeriesType>,
