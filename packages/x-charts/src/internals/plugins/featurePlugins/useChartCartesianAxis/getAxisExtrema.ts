@@ -17,7 +17,7 @@ export function getAxisExtrema<T extends CartesianChartSeriesType>(
   axisIndex: number,
   formattedSeries: ProcessedSeries<T>,
   getFilters?: GetZoomAxisFilters,
-) {
+): [number, number] {
   let [min, max] = findMinMax(axis.data ?? []);
 
   for (const seriesType in formattedSeries) {
