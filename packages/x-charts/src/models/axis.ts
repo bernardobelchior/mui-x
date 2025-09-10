@@ -568,19 +568,19 @@ export type ComputedYAxis<S extends ScaleName = ScaleName, V = any> = ComputedAx
 >;
 
 export function isBandScaleConfig(
-  scaleConfig: AxisConfig<ScaleName>,
+  scaleConfig: Pick<AxisConfig, 'scaleType'>,
 ): scaleConfig is AxisConfig<'band'> & { scaleType: 'band' } {
   return scaleConfig.scaleType === 'band';
 }
 
 export function isPointScaleConfig(
-  scaleConfig: AxisConfig<ScaleName>,
+  scaleConfig: Pick<AxisConfig, 'scaleType'>,
 ): scaleConfig is AxisConfig<'point'> & { scaleType: 'point' } {
   return scaleConfig.scaleType === 'point';
 }
 
 export function isSymlogScaleConfig(
-  scaleConfig: AxisConfig<ScaleName>,
+  scaleConfig: Pick<AxisConfig, 'scaleType'>,
 ): scaleConfig is AxisConfig<'symlog'> & { scaleType: 'symlog' } {
   return scaleConfig.scaleType === 'symlog';
 }

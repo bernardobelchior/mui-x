@@ -105,7 +105,7 @@ export function computeAxisValue<T extends ChartSeriesType>({
 
   const completeAxis: ComputedAxisConfig<ChartsAxisProps> = {};
   allAxis.forEach((eachAxis, axisIndex) => {
-    const axis = eachAxis as Readonly<DefaultedAxis<ScaleName, any, Readonly<ChartsAxisProps>>>;
+    const axis = eachAxis;
     const zoomOption = zoomOptions?.[axis.id];
     const zoom = zoomMap?.get(axis.id);
     const zoomRange: [number, number] = zoom ? [zoom.start, zoom.end] : [0, 100];
@@ -125,8 +125,6 @@ export function computeAxisValue<T extends ChartSeriesType>({
     const data = axis.data ?? [];
 
     if (isBandScaleConfig(axis)) {
-      const categoryGapRatio = axis.categoryGapRatio ?? DEFAULT_CATEGORY_GAP_RATIO;
-      const barGapRatio = axis.barGapRatio ?? DEFAULT_BAR_GAP_RATIO;
       // Reverse range because ordinal scales are presented from top to bottom on y-axis
       const scaleRange = axisDirection === 'y' ? [range[1], range[0]] : range;
       const zoomedRange = zoomScaleRange(scaleRange, zoomRange);
@@ -134,14 +132,12 @@ export function computeAxisValue<T extends ChartSeriesType>({
       completeAxis[axis.id] = {
         offset: 0,
         height: 0,
-        categoryGapRatio,
-        barGapRatio,
         triggerTooltip,
         ...axis,
         data,
         scale: scaleBand(axis.data!, zoomedRange)
-          .paddingInner(categoryGapRatio)
-          .paddingOuter(categoryGapRatio / 2),
+          .paddingInner(axis.categoryGapRatio)
+          .paddingOuter(axis.categoryGapRatio / 2),
         tickNumber: axis.data!.length,
         colorScale:
           axis.colorMap &&

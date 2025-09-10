@@ -8,7 +8,7 @@ import {
   AXIS_LABEL_DEFAULT_HEIGHT,
 } from '../../../../constants';
 import { XAxis, YAxis } from '../../../../models';
-import { DefaultedXAxis, DefaultedYAxis } from '../../../../models/axis';
+import { DefaultedXAxis, DefaultedYAxis, isBandScaleConfig } from '../../../../models/axis';
 import { DatasetType } from '../../../../models/seriesType/config';
 
 type InXAxis = XAxis & { zoom?: boolean | ZoomOptions };
@@ -45,6 +45,7 @@ export function defaultizeXAxis(
       position,
       height: axisConfig.height ?? defaultHeight,
       zoom: defaultizeZoom(axisConfig.zoom, id, 'x'),
+      ...getDefaults(axisConfig),
     };
 
     // Increment the offset for the next axis
@@ -105,6 +106,7 @@ export function defaultizeYAxis(
       position,
       width: axisConfig.width ?? defaultWidth,
       zoom: defaultizeZoom(axisConfig.zoom, id, 'y'),
+      ...getDefaults(axisConfig),
     } satisfies DefaultedYAxis;
 
     // Increment the offset for the next axis
@@ -133,4 +135,21 @@ export function defaultizeYAxis(
   });
 
   return parsedAxes;
+}
+
+const DEFAULT_CATEGORY_GAP_RATIO = 0.2;
+const DEFAULT_BAR_GAP_RATIO = 0.1;
+
+function getDefaults(axis: InXAxis | InYAxis) {
+  if (isBandScaleConfig(axis)) {
+    const categoryGapRatio = axis.categoryGapRatio ?? DEFAULT_CATEGORY_GAP_RATIO;
+    const barGapRatio = axis.barGapRatio ?? DEFAULT_BAR_GAP_RATIO;
+
+    return {
+      categoryGapRatio,
+      barGapRatio,
+    };
+  }
+
+  return {};
 }
