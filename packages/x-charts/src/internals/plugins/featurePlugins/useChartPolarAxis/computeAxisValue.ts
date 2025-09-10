@@ -124,19 +124,14 @@ export function computeAxisValue<T extends ChartSeriesType>({
     const data = axis.data ?? [];
 
     if (isBandScaleConfig(axis)) {
-      const categoryGapRatio = axis.categoryGapRatio ?? DEFAULT_CATEGORY_GAP_RATIO;
-      const barGapRatio = axis.barGapRatio ?? DEFAULT_BAR_GAP_RATIO;
-
       completeAxis[axis.id] = {
         offset: 0,
-        categoryGapRatio,
-        barGapRatio,
         triggerTooltip,
         ...axis,
         data,
         scale: scaleBand(axis.data!, range)
-          .paddingInner(categoryGapRatio)
-          .paddingOuter(categoryGapRatio / 2),
+          .paddingInner(axis.categoryGapRatio)
+          .paddingOuter(axis.categoryGapRatio / 2),
         tickNumber: axis.data!.length,
         colorScale:
           axis.colorMap &&
@@ -146,7 +141,7 @@ export function computeAxisValue<T extends ChartSeriesType>({
       };
 
       if (isDateData(axis.data)) {
-        const dateFormatter = createDateFormatter(axis, range);
+        const dateFormatter = createDateFormatter(axis.data!, range, axis.tickNumber);
         completeAxis[axis.id].valueFormatter = axis.valueFormatter ?? dateFormatter;
       }
     }
@@ -166,7 +161,7 @@ export function computeAxisValue<T extends ChartSeriesType>({
       };
 
       if (isDateData(axis.data)) {
-        const dateFormatter = createDateFormatter(axis, range);
+        const dateFormatter = createDateFormatter(axis.data!, range, axis.tickNumber);
         completeAxis[axis.id].valueFormatter = axis.valueFormatter ?? dateFormatter;
       }
     }

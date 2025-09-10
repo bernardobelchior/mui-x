@@ -12,7 +12,12 @@ import { ChartsAxisProps } from '../ChartsAxis';
 import { ChartsAxisHighlightProps } from '../ChartsAxisHighlight';
 import { ChartsLegendSlotExtension } from '../ChartsLegend';
 import type { ChartsWrapperProps } from '../ChartsWrapper';
-import type { AxisConfig, ChartsXAxisProps, ChartsYAxisProps } from '../models/axis';
+import type {
+  AxisConfig,
+  AxisConfigInput,
+  ChartsXAxisProps,
+  ChartsYAxisProps,
+} from '../models/axis';
 import { BAR_CHART_PLUGINS, BarChartPluginsSignatures } from './BarChart.plugins';
 
 /**
@@ -59,7 +64,7 @@ export const useBarChartProps = (props: BarChartProps) => {
     layout === 'horizontal' ||
     (layout === undefined && series.some((item) => item.layout === 'horizontal'));
 
-  const defaultBandXAxis: AxisConfig<'band', number, ChartsXAxisProps>[] = React.useMemo(
+  const defaultBandXAxis: AxisConfigInput<'band', number, ChartsXAxisProps>[] = React.useMemo(
     () => [
       {
         id: DEFAULT_X_AXIS_KEY,
@@ -73,7 +78,7 @@ export const useBarChartProps = (props: BarChartProps) => {
     [dataset, series],
   );
 
-  const defaultBandYAxis: AxisConfig<'band', number, ChartsYAxisProps>[] = React.useMemo(
+  const defaultBandYAxis: AxisConfigInput<'band', number, ChartsYAxisProps>[] = React.useMemo(
     () => [
       {
         id: DEFAULT_Y_AXIS_KEY,

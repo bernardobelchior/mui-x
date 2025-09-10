@@ -324,6 +324,8 @@ export interface AxisScaleConfig {
   };
 }
 
+export type ScaleTypes = AxisScaleConfig[keyof AxisScaleConfig]['scaleType'];
+
 /**
  * Use this type instead of `AxisScaleConfig` when the values
  * shouldn't be provided by the user.
@@ -482,7 +484,7 @@ type CommonAxisConfig<S extends ScaleName = ScaleName, V = any> = {
   ignoreTooltip?: boolean;
 };
 
-export type PolarAxisConfig<
+export type PolarAxisConfigInput<
   S extends ScaleName = ScaleName,
   V = any,
   AxisProps extends ChartsAxisProps = ChartsRotationAxisProps | ChartsRadiusAxisProps,
@@ -497,6 +499,44 @@ export type PolarAxisConfig<
 } & CommonAxisConfig<S, V> &
   Omit<Partial<AxisProps>, 'axisId'> &
   Partial<Omit<AxisScaleConfig[S], 'scale'>> &
+  AxisConfigExtension;
+export type PolarAxisConfig<
+  S extends ScaleName = ScaleName,
+  V = any,
+  AxisProps extends ChartsAxisProps = ChartsRotationAxisProps | ChartsRadiusAxisProps,
+> = {
+  /**
+   * The offset of the axis in pixels. It can be used to move the axis from its default position.
+   * X-axis: A top axis will move up, and a bottom axis will move down.
+   * Y-axis: A left axis will move left, and a right axis will move right.
+   * @default 0
+   */
+  offset?: number;
+} & CommonAxisConfig<S, V> &
+  Omit<Partial<AxisProps>, 'axisId'> &
+  Omit<AxisScaleConfig[S], 'scale'> &
+  AxisConfigExtension;
+
+/**
+ * Use this type for advanced typing. For basic usage, use `XAxis`, `YAxis`, `RotationAxis` or `RadiusAxis`.
+ */
+export type AxisConfigInput<
+  S extends ScaleName = ScaleName,
+  V = any,
+  AxisProps extends ChartsAxisProps = ChartsXAxisProps | ChartsYAxisProps,
+> = {
+  /**
+   * The offset of the axis in pixels. It can be used to move the axis from its default position.
+   * X-axis: A top axis will move up, and a bottom axis will move down.
+   * Y-axis: A left axis will move left, and a right axis will move right.
+   * @default 0
+   */
+  offset?: number;
+} & CommonAxisConfig<S, V> &
+  Omit<Partial<AxisProps>, 'axisId'> &
+  Partial<Omit<AxisScaleConfig[S], 'scale'>> &
+  AxisSideConfig<AxisProps> &
+  TickParams &
   AxisConfigExtension;
 
 /**
@@ -516,7 +556,7 @@ export type AxisConfig<
   offset?: number;
 } & CommonAxisConfig<S, V> &
   Omit<Partial<AxisProps>, 'axisId'> &
-  Partial<Omit<AxisScaleConfig[S], 'scale'>> &
+  Omit<AxisScaleConfig[S], 'scale'> &
   AxisSideConfig<AxisProps> &
   TickParams &
   AxisConfigExtension;
@@ -621,16 +661,16 @@ export interface AxisItemIdentifier {
 }
 
 export type XAxis<S extends ScaleName = ScaleName, V = any> = S extends ScaleName
-  ? MakeOptional<AxisConfig<S, V, ChartsXAxisProps>, 'id'>
+  ? MakeOptional<AxisConfigInput<S, V, ChartsXAxisProps>, 'id'>
   : never;
 export type YAxis<S extends ScaleName = ScaleName, V = any> = S extends ScaleName
-  ? MakeOptional<AxisConfig<S, V, ChartsYAxisProps>, 'id'>
+  ? MakeOptional<AxisConfigInput<S, V, ChartsYAxisProps>, 'id'>
   : never;
 export type RotationAxis<S extends ScaleName = ScaleName, V = any> = S extends ScaleName
-  ? AxisConfig<S, V, ChartsRotationAxisProps>
+  ? AxisConfigInput<S, V, ChartsRotationAxisProps>
   : never;
 export type RadiusAxis<S extends 'linear' = 'linear', V = any> = S extends 'linear'
-  ? AxisConfig<S, V, ChartsRadiusAxisProps>
+  ? AxisConfigInput<S, V, ChartsRadiusAxisProps>
   : never;
 
 /**
@@ -641,6 +681,7 @@ export type DefaultedAxis<
   V = any,
   AxisProps extends ChartsAxisProps = ChartsXAxisProps | ChartsYAxisProps,
 > = AxisConfig<S, V, AxisProps> & {
+  reverse: boolean;
   zoom: DefaultizedZoomOptions | undefined;
 };
 /**

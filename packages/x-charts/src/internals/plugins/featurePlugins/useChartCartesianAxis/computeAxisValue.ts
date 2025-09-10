@@ -1,6 +1,6 @@
 import { scaleBand, scalePoint, ScaleSymLog } from '@mui/x-charts-vendor/d3-scale';
 import { createScalarFormatter } from '../../../defaultValueFormatters';
-import { AxisConfig, ScaleName } from '../../../../models';
+import { ScaleName } from '../../../../models';
 import {
   ChartsXAxisProps,
   ChartsAxisProps,
@@ -32,18 +32,15 @@ import { getAxisDomainLimit } from './getAxisDomainLimit';
 function getRange(
   drawingArea: ChartDrawingArea,
   axisDirection: 'x' | 'y', // | 'rotation' | 'radius',
-  axis: AxisConfig<ScaleName, any, ChartsAxisProps>,
+  reverse: boolean,
 ): [number, number] {
   const range: [number, number] =
     axisDirection === 'x'
       ? [drawingArea.left, drawingArea.left + drawingArea.width]
       : [drawingArea.top + drawingArea.height, drawingArea.top];
 
-  return axis.reverse ? [range[1], range[0]] : range;
+  return reverse ? [range[1], range[0]] : range;
 }
-
-const DEFAULT_CATEGORY_GAP_RATIO = 0.2;
-const DEFAULT_BAR_GAP_RATIO = 0.1;
 
 export type ComputeResult<T extends ChartsAxisProps> = {
   axis: ComputedAxisConfig<T>;
@@ -109,7 +106,7 @@ export function computeAxisValue<T extends ChartSeriesType>({
     const zoomOption = zoomOptions?.[axis.id];
     const zoom = zoomMap?.get(axis.id);
     const zoomRange: [number, number] = zoom ? [zoom.start, zoom.end] : [0, 100];
-    const range = getRange(drawingArea, axisDirection, axis);
+    const range = getRange(drawingArea, axisDirection, axis.reverse);
 
     const [minData, maxData] = getAxisExtremum(
       axis,
@@ -134,6 +131,7 @@ export function computeAxisValue<T extends ChartSeriesType>({
         height: 0,
         triggerTooltip,
         ...axis,
+        position: axis.position as any,
         data,
         scale: scaleBand(axis.data!, zoomedRange)
           .paddingInner(axis.categoryGapRatio)
@@ -147,7 +145,7 @@ export function computeAxisValue<T extends ChartSeriesType>({
       };
 
       if (isDateData(axis.data)) {
-        const dateFormatter = createDateFormatter(axis, scaleRange);
+        const dateFormatter = createDateFormatter(axis.data!, scaleRange, axis.tickNumber);
         completeAxis[axis.id].valueFormatter = axis.valueFormatter ?? dateFormatter;
       }
     }
@@ -160,6 +158,7 @@ export function computeAxisValue<T extends ChartSeriesType>({
         height: 0,
         triggerTooltip,
         ...axis,
+        position: axis.position as any,
         data,
         scale: scalePoint(axis.data!, zoomedRange),
         tickNumber: axis.data!.length,
@@ -171,7 +170,7 @@ export function computeAxisValue<T extends ChartSeriesType>({
       };
 
       if (isDateData(axis.data)) {
-        const dateFormatter = createDateFormatter(axis, scaleRange);
+        const dateFormatter = createDateFormatter(axis.data!, scaleRange, axis.tickNumber);
         completeAxis[axis.id].valueFormatter = axis.valueFormatter ?? dateFormatter;
       }
     }
@@ -215,6 +214,7 @@ export function computeAxisValue<T extends ChartSeriesType>({
       height: 0,
       triggerTooltip,
       ...axis,
+      position: axis.position as any,
       data,
       scaleType: scaleType as any,
       scale: finalScale.domain(domain) as any,

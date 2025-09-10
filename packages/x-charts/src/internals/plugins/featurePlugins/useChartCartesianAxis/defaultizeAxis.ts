@@ -8,7 +8,7 @@ import {
   AXIS_LABEL_DEFAULT_HEIGHT,
 } from '../../../../constants';
 import { XAxis, YAxis } from '../../../../models';
-import { DefaultedXAxis, DefaultedYAxis, isBandScaleConfig } from '../../../../models/axis';
+import { DefaultedXAxis, DefaultedYAxis } from '../../../../models/axis';
 import { DatasetType } from '../../../../models/seriesType/config';
 
 type InXAxis = XAxis & { zoom?: boolean | ZoomOptions };
@@ -141,15 +141,18 @@ const DEFAULT_CATEGORY_GAP_RATIO = 0.2;
 const DEFAULT_BAR_GAP_RATIO = 0.1;
 
 function getDefaults(axis: InXAxis | InYAxis) {
-  if (isBandScaleConfig(axis)) {
+  const defaults = { scaleType: axis.scaleType ?? 'linear', reverse: axis.reverse ?? false };
+
+  if (axis.scaleType === 'band') {
     const categoryGapRatio = axis.categoryGapRatio ?? DEFAULT_CATEGORY_GAP_RATIO;
     const barGapRatio = axis.barGapRatio ?? DEFAULT_BAR_GAP_RATIO;
 
     return {
+      ...defaults,
       categoryGapRatio,
       barGapRatio,
     };
   }
 
-  return {};
+  return defaults;
 }

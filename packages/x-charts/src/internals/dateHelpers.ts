@@ -11,16 +11,18 @@ export const isDateData = (data?: readonly any[]): data is Date[] => data?.[0] i
 
 /**
  * Creates a formatter function for date values.
- * @param axis The axis configuration.
+ * @param data The data array containing date values.
  * @param range The range for the time scale.
+ * @param tickNumber The number of ticks to format (optional).
  * @returns A formatter function for date values.
  */
 export function createDateFormatter(
-  axis: AxisConfig<'band' | 'point', any, ChartsAxisProps>,
+  data: readonly any[],
   range: number[],
+  tickNumber?: number,
 ): AxisConfig<'band' | 'point', any, ChartsAxisProps>['valueFormatter'] {
-  const timeScale = scaleTime(axis.data!, range);
+  const timeScale = scaleTime(data, range);
 
   return (v, { location }) =>
-    location === 'tick' ? timeScale.tickFormat(axis.tickNumber)(v) : `${v.toLocaleString()}`;
+    location === 'tick' ? timeScale.tickFormat(tickNumber)(v) : `${v.toLocaleString()}`;
 }

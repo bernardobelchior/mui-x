@@ -135,8 +135,6 @@ export function computeAxisValue({
       completeAxis[axis.id] = {
         offset: 0,
         height: 0,
-        categoryGapRatio: 0,
-        barGapRatio: 0,
         triggerTooltip,
         ...axis,
         data,
@@ -152,7 +150,7 @@ export function computeAxisValue({
       };
 
       if (isDateData(axis.data)) {
-        const dateFormatter = createDateFormatter(axis, scaleRange);
+        const dateFormatter = createDateFormatter(axis.data!, scaleRange, axis.tickNumber);
         completeAxis[axis.id].valueFormatter = axis.valueFormatter ?? dateFormatter;
       }
     }
