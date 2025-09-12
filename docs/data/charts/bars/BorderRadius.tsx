@@ -46,6 +46,7 @@ export default function BorderRadius() {
         margin={{ left: 0 }}
         {...(layout === 'vertical' ? chartSettingsV : chartSettingsH)}
         borderRadius={radius}
+        skipAnimation
       />
       <HighlightedCode
         code={`<BarChart
