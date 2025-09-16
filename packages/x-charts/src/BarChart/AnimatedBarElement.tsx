@@ -72,7 +72,7 @@ function JSAnimatedBarElement(props: BarProps) {
 }
 
 const Rect = styled('rect')({
-  transitionProperty: 'y, height, opacity, fill !important',
+  transitionProperty: 'x, width, y, height, opacity, fill !important',
   transitionDuration: '0.2s !important',
   transitionTimingFunction: 'ease-in !important',
 });

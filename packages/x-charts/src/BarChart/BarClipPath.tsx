@@ -160,6 +160,7 @@ function BarClipPathCSSAnimation(props: BarClipPathProps) {
         skipAnimation
           ? { transition: 'none' }
           : {
+              // @ts-expect-error
               '--initial-d': `path("${generateClipPath(
                 props.hasNegative,
                 props.hasPositive,
