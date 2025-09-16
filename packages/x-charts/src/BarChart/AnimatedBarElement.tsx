@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { styled } from '@mui/material/styles';
 import { SeriesId } from '../models/seriesType/common';
 import { BarElementOwnerState } from './barElementClasses';
 import { useAnimateBar } from '../hooks/animation/useAnimateBar';
@@ -70,11 +71,17 @@ function JSAnimatedBarElement(props: BarProps) {
   );
 }
 
+const Rect = styled('rect')({
+  transitionProperty: 'y, height, opacity, fill !important',
+  transitionDuration: '0.2s !important',
+  transitionTimingFunction: 'ease-in !important',
+});
+
 function CSSAnimatedBarElement(props: BarProps) {
   const { ownerState, skipAnimation, id, dataIndex, xOrigin, yOrigin, ...other } = props;
 
   return (
-    <rect
+    <Rect
       {...other}
       filter={ownerState.isHighlighted ? 'brightness(120%)' : undefined}
       opacity={ownerState.isFaded ? 0.3 : 1}

@@ -106,11 +106,16 @@ export interface BarClipPathProps {
 }
 
 const Path = styled('path')({
-  transition: 'd 0.5s !important',
+  transition: 'd 0.2s ease-in !important',
+  animation: 'animateBar 0.2s ease-in',
+
+  '@keyframes animateBar': {
+    from: { d: 'var(--initial-d)' },
+  },
 });
 
 export function supportsCSSPathAnimation() {
-  return CSS.supports('d', 'path("M0 0")');
+  return typeof window === 'object' && 'CSS' in window && CSS.supports('d', 'path("M0 0")');
 }
 
 /**
@@ -148,7 +153,29 @@ function BarClipPathCSSAnimation(props: BarClipPathProps) {
     props.borderRadius ?? 0,
   );
 
-  return <Path d={d} style={skipAnimation ? { transition: 'none' } : {}} />;
+  return (
+    <Path
+      d={d}
+      style={
+        skipAnimation
+          ? { transition: 'none' }
+          : {
+              '--initial-d': `path("${generateClipPath(
+                props.hasNegative,
+                props.hasPositive,
+                props.layout ?? 'vertical',
+                x,
+                props.yOrigin,
+                width,
+                0,
+                props.xOrigin,
+                props.yOrigin,
+                props.borderRadius ?? 0,
+              )}")`,
+            }
+      }
+    />
+  );
 }
 
 function BarClipPathJSAnimation(props: BarClipPathProps) {
