@@ -115,7 +115,7 @@ const Path = styled('path')({
 });
 
 export function supportsCSSPathAnimation() {
-  return typeof window === 'object' && 'CSS' in window && CSS.supports('d', 'path("M0 0")');
+  return typeof window !== 'object' || CSS.supports('d', 'path("M0 0")');
 }
 
 /**
@@ -140,10 +140,11 @@ function BarClipPath(props: BarClipPathProps) {
 function BarClipPathCSSAnimation(props: BarClipPathProps) {
   const { x, y, width, height, skipAnimation } = props;
 
+  const layout = props.layout ?? 'vertical';
   const d = generateClipPath(
     props.hasNegative,
     props.hasPositive,
-    props.layout ?? 'vertical',
+    layout,
     x,
     y,
     width,
@@ -164,11 +165,11 @@ function BarClipPathCSSAnimation(props: BarClipPathProps) {
               '--initial-d': `path("${generateClipPath(
                 props.hasNegative,
                 props.hasPositive,
-                props.layout ?? 'vertical',
-                x,
-                props.yOrigin,
-                width,
-                0,
+                layout,
+                layout === 'vertical' ? x : props.xOrigin,
+                layout === 'vertical' ? props.yOrigin : y,
+                layout === 'vertical' ? width : 0,
+                layout === 'vertical' ? 0 : height,
                 props.xOrigin,
                 props.yOrigin,
                 props.borderRadius ?? 0,
