@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { interpolateNumber } from '@mui/x-charts-vendor/d3-interpolate';
+import { styled } from '@mui/material/styles';
 import { useAnimate } from '../hooks/animation';
 
 interface UseAnimateBarClipPathParams {
@@ -104,11 +105,54 @@ export interface BarClipPathProps {
   skipAnimation: boolean;
 }
 
+const Path = styled('path')({
+  transition: 'd 0.5s !important',
+});
+
+export function supportsCSSPathAnimation() {
+  return CSS.supports('d', 'path("M0 0")');
+}
+
 /**
  * @ignore - internal component.
  */
 function BarClipPath(props: BarClipPathProps) {
-  const { maskId, x, y, width, height, skipAnimation } = props;
+  if (!props.borderRadius || props.borderRadius <= 0) {
+    return null;
+  }
+
+  return (
+    <clipPath id={props.maskId}>
+      {supportsCSSPathAnimation() ? (
+        <BarClipPathCSSAnimation {...props} />
+      ) : (
+        <BarClipPathJSAnimation {...props} />
+      )}
+    </clipPath>
+  );
+}
+
+function BarClipPathCSSAnimation(props: BarClipPathProps) {
+  const { x, y, width, height, skipAnimation } = props;
+
+  const d = generateClipPath(
+    props.hasNegative,
+    props.hasPositive,
+    props.layout ?? 'vertical',
+    x,
+    y,
+    width,
+    height,
+    props.xOrigin,
+    props.yOrigin,
+    props.borderRadius ?? 0,
+  );
+
+  return <Path d={d} style={skipAnimation ? { transition: 'none' } : {}} />;
+}
+
+function BarClipPathJSAnimation(props: BarClipPathProps) {
+  const { x, y, width, height, skipAnimation } = props;
   const { ref, d } = useAnimateBarClipPath({
     layout: props.layout ?? 'vertical',
     hasNegative: props.hasNegative,
@@ -123,18 +167,10 @@ function BarClipPath(props: BarClipPathProps) {
     skipAnimation,
   });
 
-  if (!props.borderRadius || props.borderRadius <= 0) {
-    return null;
-  }
-
-  return (
-    <clipPath id={maskId}>
-      <path ref={ref} d={d} />
-    </clipPath>
-  );
+  return <path ref={ref} d={d} />;
 }
 
-function generateClipPath(
+export function generateClipPath(
   hasNegative: boolean,
   hasPositive: boolean,
   layout: 'vertical' | 'horizontal',

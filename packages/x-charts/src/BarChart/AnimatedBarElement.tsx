@@ -3,6 +3,7 @@ import * as React from 'react';
 import { SeriesId } from '../models/seriesType/common';
 import { BarElementOwnerState } from './barElementClasses';
 import { useAnimateBar } from '../hooks/animation/useAnimateBar';
+import { supportsCSSPathAnimation } from './BarClipPath';
 
 export interface BarProps
   extends Omit<
@@ -48,8 +49,13 @@ export interface BarProps
 }
 
 export function AnimatedBarElement(props: BarProps) {
-  const { ownerState, skipAnimation, id, dataIndex, xOrigin, yOrigin, ...other } = props;
+  const BarElement = supportsCSSPathAnimation() ? CSSAnimatedBarElement : JSAnimatedBarElement;
 
+  return <BarElement {...props} />;
+}
+
+function JSAnimatedBarElement(props: BarProps) {
+  const { ownerState, skipAnimation, id, dataIndex, xOrigin, yOrigin, ...other } = props;
   const animatedProps = useAnimateBar(props);
 
   return (
@@ -60,6 +66,20 @@ export function AnimatedBarElement(props: BarProps) {
       data-highlighted={ownerState.isHighlighted || undefined}
       data-faded={ownerState.isFaded || undefined}
       {...animatedProps}
+    />
+  );
+}
+
+function CSSAnimatedBarElement(props: BarProps) {
+  const { ownerState, skipAnimation, id, dataIndex, xOrigin, yOrigin, ...other } = props;
+
+  return (
+    <rect
+      {...other}
+      filter={ownerState.isHighlighted ? 'brightness(120%)' : undefined}
+      opacity={ownerState.isFaded ? 0.3 : 1}
+      data-highlighted={ownerState.isHighlighted || undefined}
+      data-faded={ownerState.isFaded || undefined}
     />
   );
 }

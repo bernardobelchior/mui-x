@@ -58,15 +58,6 @@ const BarPlotRoot = styled('g', {
   },
 });
 
-const SeriesGroup = styled('g')({
-  animation: '0.2s seriesGroupGrow ease-in',
-
-  '@keyframes seriesGroupGrow': {
-    from: { transform: 'scaleY(0)' },
-    to: { transform: 'scaleY(1)' },
-  },
-});
-
 /**
  * Demos:
  *
@@ -115,12 +106,7 @@ function BarPlot(props: BarPlotProps) {
         )}
       {completedData.map(({ seriesId, data }) => {
         return (
-          <SeriesGroup
-            key={seriesId}
-            data-series={seriesId}
-            className={classes.series}
-            style={{ transformOrigin: `0px ${data[0]?.yOrigin ?? 0}px` }}
-          >
+          <g key={seriesId} data-series={seriesId} className={classes.series}>
             {data.map(
               ({ dataIndex, color, maskId, layout, x, xOrigin, y, yOrigin, width, height }) => {
                 const barElement = (
@@ -158,7 +144,7 @@ function BarPlot(props: BarPlotProps) {
                 );
               },
             )}
-          </SeriesGroup>
+          </g>
         );
       })}
       {barLabel && (
