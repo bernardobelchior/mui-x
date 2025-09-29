@@ -66,7 +66,7 @@ export const selectorChartPreviewComputedXAxis = createSelector(
     getFilters,
     chartDrawingArea,
     preferStrictDomainInLineCharts,
-    scales,
+    normalizedScales,
     axisId,
   ) => {
     const hasAxis = xAxes?.some((axis) => axis.id === axisId);
@@ -77,24 +77,24 @@ export const selectorChartPreviewComputedXAxis = createSelector(
       [axisId, { axisId, start: options.minStart, end: options.maxEnd }],
     ]);
 
-    const previewScales: Record<AxisId, ScaleDefinition> = {};
+    const scales: Record<AxisId, ScaleDefinition> = {};
 
-    for (const scaleAxisId in scales) {
-      if (!Object.hasOwn(scales, scaleAxisId)) {
+    for (const scaleAxisId in normalizedScales) {
+      if (!Object.hasOwn(normalizedScales, scaleAxisId)) {
         continue;
       }
 
-      const scaleDef = scales[scaleAxisId];
+      const scaleDef = normalizedScales[scaleAxisId];
       const scale = scaleDef.scale;
 
       const previewScale = scale.copy();
       previewScale.range([drawingArea.left, drawingArea.right]);
 
-      previewScales[scaleAxisId] = { ...scaleDef, scale: previewScale } as ScaleDefinition;
+      scales[scaleAxisId] = { ...scaleDef, scale: previewScale } as ScaleDefinition;
     }
 
     const computedAxes = computeAxisValue({
-      scales: previewScales,
+      scales,
       drawingArea,
       formattedSeries,
       axis: xAxes,
@@ -134,7 +134,7 @@ export const selectorChartPreviewComputedYAxis = createSelector(
     getFilters,
     chartDrawingArea,
     preferStrictDomainInLineCharts,
-    scales,
+    normalizedScales,
     axisId,
   ) => {
     const hasAxis = yAxes?.some((axis) => axis.id === axisId);
@@ -145,24 +145,24 @@ export const selectorChartPreviewComputedYAxis = createSelector(
       [axisId, { axisId, start: options.minStart, end: options.maxEnd }],
     ]);
 
-    const previewScales: Record<AxisId, ScaleDefinition> = {};
+    const scales: Record<AxisId, ScaleDefinition> = {};
 
-    for (const scaleAxisId in scales) {
-      if (!Object.hasOwn(scales, scaleAxisId)) {
+    for (const scaleAxisId in normalizedScales) {
+      if (!Object.hasOwn(normalizedScales, scaleAxisId)) {
         continue;
       }
 
-      const scaleDef = scales[scaleAxisId];
+      const scaleDef = normalizedScales[scaleAxisId];
       const scale = scaleDef.scale;
 
       const previewScale = scale.copy();
       previewScale.range([drawingArea.bottom, drawingArea.top]);
 
-      previewScales[scaleAxisId] = { ...scaleDef, scale: previewScale } as ScaleDefinition;
+      scales[scaleAxisId] = { ...scaleDef, scale: previewScale } as ScaleDefinition;
     }
 
     const computedAxes = computeAxisValue({
-      scales: previewScales,
+      scales,
       drawingArea,
       formattedSeries,
       axis: yAxes,
