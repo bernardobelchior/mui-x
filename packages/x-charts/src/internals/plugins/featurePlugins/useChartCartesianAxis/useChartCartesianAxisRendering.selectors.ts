@@ -85,14 +85,14 @@ const selectorChartYFilter = createSelector(
     zoomMap && zoomOptions && createAxisFilterMapper(zoomMap, zoomOptions, 'y'),
 );
 
-export const selectorDefaultXAxisTickNumber = createSelector(
+const selectorDefaultXAxisTickNumber = createSelector(
   [selectorChartDrawingArea],
   function selectorDefaultXAxisTickNumber(drawingArea) {
     return getDefaultTickNumber(drawingArea.width);
   },
 );
 
-export const selectorDefaultYAxisTickNumber = createSelector(
+const selectorDefaultYAxisTickNumber = createSelector(
   [selectorChartDrawingArea],
   function selectorDefaultYAxisTickNumber(drawingArea) {
     return getDefaultTickNumber(drawingArea.height);
