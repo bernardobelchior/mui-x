@@ -20,6 +20,7 @@ import { ZoomData } from './zoom.types';
 import { selectorChartDrawingArea } from '../../corePlugins/useChartDimensions';
 import { ZOOM_SLIDER_PREVIEW_SIZE } from '../../../constants';
 import { selectorPreferStrictDomainInLineCharts } from '../../corePlugins/useChartExperimentalFeature';
+import { ScaleDefinition } from './getAxisScale';
 
 function createPreviewDrawingArea(
   axisDirection: 'x' | 'y',
@@ -76,8 +77,24 @@ export const selectorChartPreviewComputedXAxis = createSelector(
       [axisId, { axisId, start: options.minStart, end: options.maxEnd }],
     ]);
 
+    const previewScales: Record<AxisId, ScaleDefinition> = {};
+
+    for (const scaleAxisId in scales) {
+      if (!Object.hasOwn(scales, scaleAxisId)) {
+        continue;
+      }
+
+      const scaleDef = scales[scaleAxisId];
+      const scale = scaleDef.scale;
+
+      const previewScale = scale.copy();
+      previewScale.range([drawingArea.left, drawingArea.right]);
+
+      previewScales[scaleAxisId] = { ...scaleDef, scale: previewScale } as ScaleDefinition;
+    }
+
     const computedAxes = computeAxisValue({
-      scales,
+      scales: previewScales,
       drawingArea,
       formattedSeries,
       axis: xAxes,
@@ -128,8 +145,24 @@ export const selectorChartPreviewComputedYAxis = createSelector(
       [axisId, { axisId, start: options.minStart, end: options.maxEnd }],
     ]);
 
+    const previewScales: Record<AxisId, ScaleDefinition> = {};
+
+    for (const scaleAxisId in scales) {
+      if (!Object.hasOwn(scales, scaleAxisId)) {
+        continue;
+      }
+
+      const scaleDef = scales[scaleAxisId];
+      const scale = scaleDef.scale;
+
+      const previewScale = scale.copy();
+      previewScale.range([drawingArea.bottom, drawingArea.top]);
+
+      previewScales[scaleAxisId] = { ...scaleDef, scale: previewScale } as ScaleDefinition;
+    }
+
     const computedAxes = computeAxisValue({
-      scales,
+      scales: previewScales,
       drawingArea,
       formattedSeries,
       axis: yAxes,
