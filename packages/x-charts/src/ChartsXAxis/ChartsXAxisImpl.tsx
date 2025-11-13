@@ -12,6 +12,13 @@ import { defaultProps, useUtilityClasses } from './utilities';
 import { useDrawingArea } from '../hooks';
 import { getStringSize } from '../internals/domUtils';
 import { AxisRoot } from '../internals/components/AxisSharedComponents';
+import { useTicks } from '../hooks/useTicks';
+import { useAxisTicksProps } from './useAxisTicksProps';
+import { getVisibleLabels, measureTickLabels } from './getVisibleLabels';
+import { useMounted } from '../hooks/useMounted';
+import { useChartContext } from '../context/ChartProvider';
+import { degToRad } from '../internals/degToRad';
+import { useChartDimensions, useSelector, useStore } from '../internals';
 
 const XAxisRoot = styled(AxisRoot, {
   name: 'MuiChartsXAxis',
@@ -68,6 +75,52 @@ export function ChartsXAxisImpl({ axis, ...inProps }: ChartsXAxisImplProps) {
     ownerState: {},
   });
 
+  const { instance } = useChartContext();
+  const isMounted = useMounted();
+  const {
+    axisTickLabelProps,
+    defaultizedProps: {
+      valueFormatter,
+      tickInterval,
+      tickLabelInterval,
+      tickPlacement,
+      tickLabelPlacement,
+      tickLabelMinGap,
+    },
+  } = useAxisTicksProps(inProps);
+  const xTicks = useTicks({
+    scale: xScale,
+    tickNumber,
+    valueFormatter,
+    tickInterval,
+    tickPlacement,
+    tickLabelPlacement,
+    direction: 'x',
+  });
+  const chartHeight = useSelector(useStore(), (state) => state.dimensions.height);
+  const visibleLabels = getVisibleLabels(xTicks, {
+    tickLabelStyle: axisTickLabelProps.style,
+    tickLabelInterval,
+    tickLabelMinGap,
+    reverse,
+    isMounted,
+    isXInside: instance.isXInside,
+  });
+  const measurements = Array.from(
+    measureTickLabels(Array.from(visibleLabels), axisTickLabelProps.style).values(),
+  ).map((v) => getHeight(v.width, v.height, axisTickLabelProps.style?.angle || 0));
+  const maxHeight = measurements.reduce((acc, cur) => Math.max(acc, cur), 0);
+  const maxAxisHeight = 0.5 * chartHeight;
+  const finalAxisHeight = Math.min(maxHeight, maxAxisHeight);
+  console.log(
+    axisTickLabelProps.style?.angle,
+    visibleLabels,
+    measurements,
+    Math.min(maxHeight, maxAxisHeight),
+    maxHeight,
+    maxAxisHeight,
+  );
+
   if (position === 'none') {
     return null;
   }
@@ -84,7 +137,11 @@ export function ChartsXAxisImpl({ axis, ...inProps }: ChartsXAxisImplProps) {
       'groups' in axis && Array.isArray(axis.groups) ? (
         <ChartsGroupedXAxisTicks {...inProps} />
       ) : (
-        <ChartsSingleXAxisTicks {...inProps} axisLabelHeight={labelHeight} />
+        <ChartsSingleXAxisTicks
+          {...inProps}
+          axisLabelHeight={labelHeight}
+          axisHeight={finalAxisHeight}
+        />
       );
   }
 
@@ -110,4 +167,12 @@ export function ChartsXAxisImpl({ axis, ...inProps }: ChartsXAxisImplProps) {
       )}
     </XAxisRoot>
   );
+}
+
+function getHeight(width: number, height: number, angleDeg: number) {
+  const angle = degToRad(angleDeg);
+
+  const angledHeight = Math.abs(width * Math.sin(angle)) + Math.abs(height * Math.cos(angle));
+
+  return angledHeight;
 }

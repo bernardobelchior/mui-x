@@ -20,7 +20,7 @@ interface ChartsSingleXAxisProps extends ChartsXAxisProps {
  * @ignore - internal component.
  */
 function ChartsSingleXAxisTicks(inProps: ChartsSingleXAxisProps) {
-  const { axisLabelHeight } = inProps;
+  const { axisLabelHeight, axisHeight } = inProps;
   const {
     xScale,
     defaultizedProps,
@@ -46,7 +46,6 @@ function ChartsSingleXAxisTicks(inProps: ChartsSingleXAxisProps) {
     tickPlacement,
     tickLabelPlacement,
     tickLabelMinGap,
-    height: axisHeight,
   } = defaultizedProps;
 
   const drawingArea = useDrawingArea();
@@ -82,6 +81,7 @@ function ChartsSingleXAxisTicks(inProps: ChartsSingleXAxisProps) {
       tickSize -
       TICK_LABEL_GAP,
   );
+  console.log(tickLabelsMaxHeight);
 
   const tickLabels = isHydrated
     ? shortenLabels(

@@ -101,7 +101,10 @@ function getTickLabelSize<T extends TickItemType>(
   return { width, height };
 }
 
-function measureTickLabels<T extends TickItemType>(ticks: T[], style: ChartsTextStyle | undefined) {
+export function measureTickLabels<T extends TickItemType>(
+  ticks: T[],
+  style: ChartsTextStyle | undefined,
+) {
   const strings = new Set<string>();
 
   for (const tick of ticks) {
