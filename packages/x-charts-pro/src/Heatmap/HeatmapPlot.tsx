@@ -1,6 +1,6 @@
 'use client';
 import PropTypes from 'prop-types';
-import { HeatmapSVGRenderer } from './HeatmapSVGRenderer';
+import { HeatmapSVGRenderer } from './svg/HeatmapSVGRenderer';
 import { HeatmapWebGLRenderer } from './webgl';
 import { type HeatmapRendererProps } from './Heatmap.types';
 

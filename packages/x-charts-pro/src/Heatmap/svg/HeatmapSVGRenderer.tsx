@@ -6,9 +6,9 @@ import {
   selectorChartsIsFadedCallback,
   selectorChartsIsHighlightedCallback,
   useStore,
+  useRegisterPointerInteractions
 } from '@mui/x-charts/internals';
-import { useRegisterPointerInteractions } from '@mui/x-charts/internals';
-import { useHeatmapSeriesContext } from '../hooks/useHeatmapSeries';
+import { useHeatmapSeriesContext } from '../hooks';
 import { HeatmapItem } from './HeatmapItem';
 import { selectorHeatmapItemAtPosition } from '../plugins/selectors/useChartHeatmapPosition.selectors';
 import { shouldRegisterPointerInteractionsGlobally } from './shouldRegisterPointerInteractionsGlobally';
