@@ -37,14 +37,38 @@ export function copyCanvasesContent(
   const originalCanvases = original.querySelectorAll('canvas');
   const cloneCanvases = clone.querySelectorAll('canvas');
 
-  originalCanvases.forEach((originalCanvas, index) => {
-    const cloneCanvas = cloneCanvases[index];
-    if (cloneCanvas) {
-      const context2d = cloneCanvas.getContext('2d');
+  const promises = Array.from(originalCanvases).map(async (originalCanvas, index) => {
+    return new Promise<void>((resolve, reject) => {
+      const cloneCanvas = cloneCanvases[index];
+      if (cloneCanvas) {
+        const dataURL = originalCanvas.toDataURL();
 
-      if (context2d) {
-        context2d.drawImage(originalCanvas, 0, 0);
+        const img = cloneCanvas.ownerDocument.createElement('img');
+        img.src = dataURL;
+        img.width = cloneCanvas.width;
+        img.height = cloneCanvas.height;
+
+        for (const styleKey in cloneCanvas.style) {
+          if (!Object.hasOwn(img.style, styleKey) || !Object.hasOwn(cloneCanvas.style, styleKey)) {
+            continue;
+          }
+
+          img.style[styleKey] = cloneCanvas.style[styleKey];
+        }
+
+        cloneCanvas.replaceWith(img);
+
+        img.onload = () => {
+          resolve();
+        };
+        img.onerror = (event) => {
+          reject(event);
+        };
+      } else {
+        resolve();
       }
-    }
+    });
   });
+
+  return Promise.all(promises);
 }

@@ -30,7 +30,7 @@ export function printChart(
       await Promise.all(loadStyleSheets(printDoc, root, nonce));
     }
 
-    copyCanvasesContent(element, elementClone);
+    await copyCanvasesContent(element, elementClone);
 
     const mediaQueryList = printWindow.contentWindow!.matchMedia('print');
     mediaQueryList.addEventListener('change', (mql) => {

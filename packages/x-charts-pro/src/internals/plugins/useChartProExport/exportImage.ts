@@ -62,7 +62,7 @@ export async function exportImage(
       await Promise.all(loadStyleSheets(exportDoc, root, nonce));
     }
 
-    copyCanvasesContent(element, elementClone);
+    await copyCanvasesContent(element, elementClone);
 
     resolve();
   };
