@@ -278,7 +278,7 @@ const Heatmap = React.forwardRef(function Heatmap(
         )}
         <ChartsSurface ref={ref} sx={sx}>
           <g clipPath={`url(#${clipPathId})`}>
-            <HeatmapPlot slots={slots} slotProps={slotProps} />
+            <HeatmapPlot slots={slots} slotProps={slotProps} renderer="webgl" />
             <FocusedHeatmapCell />
             <ChartsOverlay loading={loading} slots={slots} slotProps={slotProps} />
           </g>
