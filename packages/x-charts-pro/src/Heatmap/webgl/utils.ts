@@ -1,5 +1,10 @@
 const canvas = (() => {
-  if ('OffscreenCanvas' in global) {
+  if (typeof window === 'undefined') {
+    // No canvas in SSR
+    return null as unknown as HTMLCanvasElement;
+  }
+
+  if ('OffscreenCanvas' in window) {
     return new OffscreenCanvas(1, 1);
   }
 
@@ -10,7 +15,8 @@ const canvas = (() => {
 })();
 
 /**
- * Parse color string to RGBA object
+ * Parse color string to RGBA object. Each channel is normalized to [0, 1].
+ * This function does not work in SSR.
  */
 export function parseColor(color: string) {
   const ctx = canvas.getContext('2d')! as
