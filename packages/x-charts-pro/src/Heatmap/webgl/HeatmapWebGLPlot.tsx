@@ -1,7 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useXScale, useYScale, useZColorScale, useDrawingArea } from '@mui/x-charts/hooks';
-import { useWebGLContext } from '@mui/x-charts/internals';
+import {
+  selectorChartsIsFadedCallback,
+  selectorChartsIsHighlightedCallback,
+  useStore,
+  useWebGLContext,
+} from '@mui/x-charts/internals';
 import { useHeatmapSeriesContext } from '../../hooks';
 import { parseColor } from './utils';
 
@@ -11,6 +16,7 @@ const vertexShaderSource = `
     attribute vec2 a_position;
     attribute vec2 a_center;
     attribute vec4 a_color;
+    attribute float a_saturation;
     
     varying vec4 v_color;
     varying vec2 v_pos;
@@ -18,13 +24,22 @@ const vertexShaderSource = `
     uniform vec2 u_dimensions;
     uniform vec2 u_resolution;
     
+    // https://tsev.dev/posts/2020-06-19-colour-correction-with-webgl/
+    vec3 adjust_saturation(vec3 color, float value) {
+      // https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
+      const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);
+      vec3 grayscale = vec3(dot(color, luminosityFactor));
+    
+      return mix(grayscale, color, 1.0 + value);
+    }
+    
     void main() {
       // Convert from pixels to clip space (-1 to 1)
       vec2 position = a_center + a_position * u_dimensions / 2.0;
       vec2 clipSpace = (position / u_resolution) * 2.0 - 1.0;
       gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
       
-      v_color = a_color;
+      v_color = vec4(adjust_saturation(a_color.rgb, a_saturation), 1.0);
       v_pos = a_position;
     }
   `;
@@ -93,6 +108,9 @@ export function HeatmapWebGLPlot() {
   const yScale = useYScale<'band'>();
   const colorScale = useZColorScale()!;
   const series = useHeatmapSeriesContext();
+  const store = useStore();
+  const isHighlighted = store.use(selectorChartsIsHighlightedCallback);
+  const isFaded = store.use(selectorChartsIsFadedCallback);
 
   const gl = useWebGLContext();
   const vertexShaderRef = React.useRef<WebGLShader | null>(null);
@@ -176,6 +194,7 @@ export function HeatmapWebGLPlot() {
 
     const centers = new Float32Array(seriesToDisplay.data.length * 2);
     const colors = new Float32Array(seriesToDisplay.data.length * 4);
+    const saturations = new Float32Array(seriesToDisplay.data.length);
 
     const xDomain = xScale.domain();
     const yDomain = yScale.domain();
@@ -202,6 +221,12 @@ export function HeatmapWebGLPlot() {
       colors[dataIndex * 4 + 1] = rgbColor[1];
       colors[dataIndex * 4 + 2] = rgbColor[2];
       colors[dataIndex * 4 + 3] = 1.0;
+
+      if (isHighlighted({ seriesId: seriesToDisplay.id, dataIndex })) {
+        saturations[dataIndex] = 0.2;
+      } else if (isFaded({ seriesId: seriesToDisplay.id, dataIndex })) {
+        saturations[dataIndex] = -0.2;
+      }
     }
 
     const uDimensions = gl.getUniformLocation(program, 'u_dimensions');
@@ -229,6 +254,16 @@ export function HeatmapWebGLPlot() {
     gl.vertexAttribPointer(aColor, 4, gl.FLOAT, false, 0, 0);
     gl.vertexAttribDivisor(aColor, 1);
 
+    // Upload saturations
+    const saturationBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, saturationBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, saturations, gl.STATIC_DRAW);
+
+    const aSaturation = gl.getAttribLocation(program, 'a_saturation');
+    gl.enableVertexAttribArray(aSaturation);
+    gl.vertexAttribPointer(aSaturation, 1, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribDivisor(aSaturation, 1);
+
     // Clear and draw
     gl.clearColor(1, 1, 1, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -246,6 +281,8 @@ export function HeatmapWebGLPlot() {
     xScale,
     yScale,
     colorScale,
+    isHighlighted,
+    isFaded,
   ]);
 
   return null;
