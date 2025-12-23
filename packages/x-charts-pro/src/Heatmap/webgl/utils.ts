@@ -1,10 +1,22 @@
-const canvas = new OffscreenCanvas(1, 1);
+const canvas = (() => {
+  if ('OffscreenCanvas' in global) {
+    return new OffscreenCanvas(1, 1);
+  }
+
+  const c = document.createElement('canvas')!;
+  c.width = 1;
+  c.height = 1;
+  return c;
+})();
 
 /**
  * Parse color string to RGBA object
  */
 export function parseColor(color: string) {
-  const ctx = canvas.getContext('2d')!;
+  const ctx = canvas.getContext('2d')! as
+    | OffscreenCanvasRenderingContext2D
+    | CanvasRenderingContext2D;
+
   ctx.fillStyle = color;
   ctx.fillRect(0, 0, 1, 1);
 
