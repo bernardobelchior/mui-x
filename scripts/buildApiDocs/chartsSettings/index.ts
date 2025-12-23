@@ -106,6 +106,9 @@ export default chartsApiPages;
       'x-charts-pro/src/SankeyChart/SankeyLinkLabelPlot.tsx',
       'x-charts-pro/src/SankeyChart/SankeyNodeLabelPlot.tsx',
       'x-charts-premium/src/BarChartPremium/RangeBar/AnimatedRangeBarElement.tsx',
+      'x-charts-pro/src/Heatmap/svg/HeatmapSVGRenderer.tsx',
+      'x-charts-pro/src/Heatmap/webgl/HeatmapWebGLRenderer.tsx',
+      'x-charts-pro/src/Heatmap/webgl/HeatmapWebGLPlot.tsx',
       'x-charts-premium/src/ChartsRenderer/ChartsRenderer.tsx',
       'x-charts-premium/src/ChartsRenderer/components/PaletteOption.tsx',
       // TODO: document in https://github.com/mui/mui-x/pull/20756
