@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
+import { isJSDOM } from 'test/utils/skipIf';
 import { parseColor } from './parseColor';
 
-describe('parseColor', () => {
+describe.skipIf(!isJSDOM)('parseColor', () => {
   describe('hex color formats', () => {
     it('should parse 3-character hex color without hash', () => {
       const result = parseColor('f00');
