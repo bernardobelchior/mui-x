@@ -144,7 +144,6 @@
     "tsx": "catalog:",
     "typescript": "^5.9.3",
     "unist-util-visit": "^5.0.0",
-    "util": "^0.12.5",
     "vite": "catalog:",
     "vitest": "catalog:",
     "yargs": "catalog:"
