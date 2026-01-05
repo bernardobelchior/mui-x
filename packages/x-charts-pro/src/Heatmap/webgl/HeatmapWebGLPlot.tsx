@@ -13,7 +13,7 @@ import { heatmapFragmentShaderSource, heatmapVertexShaderSource } from './shader
 import { initializeWebGLProgram } from './initializeWebGLProgram';
 import { useRerenderWebGLCanvasOnResize } from './useRerenderWebGLCanvasOnResize';
 
-export function HeatmapWebGLPlot(): React.JSX.Element {
+export function HeatmapWebGLPlot(): React.JSX.Element | null {
   const drawingArea = useDrawingArea();
   const xScale = useXScale<'band'>();
   const yScale = useYScale<'band'>();
@@ -150,5 +150,5 @@ export function HeatmapWebGLPlot(): React.JSX.Element {
     isFaded,
   ]);
 
-  return <React.Fragment />;
+  return null;
 }
