@@ -25,8 +25,25 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
 
   const gl = useWebGLContext();
   const programRef = React.useRef<WebGLProgram | null>(null);
+  const dataLengthRef = React.useRef<number>(0);
+  const seriesToDisplay = series?.series[series.seriesOrder[0]];
 
   const renderKey = useRerenderWebGLCanvasOnResize();
+
+  const render = React.useCallback(() => {
+    if (!gl) {
+      return;
+    }
+
+    // Clear and draw
+    gl.clearColor(1, 1, 1, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    if (dataLengthRef.current > 0) {
+      // Draw all rectangles with one instanced draw call
+      gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, dataLengthRef.current);
+    }
+  }, [gl]);
 
   React.useEffect(() => {
     if (!gl) {
@@ -47,16 +64,20 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
       return;
     }
 
-    if (!series || series.seriesOrder.length === 0) {
-      return;
-    }
-
     // Setup resolution uniform
     const uResolution = gl.getUniformLocation(program, 'u_resolution');
     gl.uniform2f(uResolution, drawingArea.width, drawingArea.height);
+  }, [gl, drawingArea.width, drawingArea.height]);
 
-    const seriesToDisplay = series.series[series.seriesOrder[0]];
+  React.useEffect(() => {
+    const program = programRef.current;
 
+    if (!gl || !program || !seriesToDisplay) {
+      dataLengthRef.current = 0;
+      return;
+    }
+
+    dataLengthRef.current = seriesToDisplay.data.length;
     const centers = new Float32Array(seriesToDisplay.data.length * 2);
     const colors = new Float32Array(seriesToDisplay.data.length * 4);
     const saturations = new Float32Array(seriesToDisplay.data.length);
@@ -128,27 +149,21 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
     gl.enableVertexAttribArray(aSaturation);
     gl.vertexAttribPointer(aSaturation, 1, gl.FLOAT, false, 0, 0);
     gl.vertexAttribDivisor(aSaturation, 1);
-
-    // Clear and draw
-    gl.clearColor(1, 1, 1, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    // Draw all rectangles with one instanced draw call
-    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, seriesToDisplay.data.length);
   }, [
-    renderKey,
-    gl,
+    colorScale,
     drawingArea.left,
     drawingArea.top,
-    drawingArea.width,
-    drawingArea.height,
-    series,
+    gl,
+    isFaded,
+    isHighlighted,
+    seriesToDisplay,
     xScale,
     yScale,
-    colorScale,
-    isHighlighted,
-    isFaded,
   ]);
+
+  React.useEffect(() => {
+    render();
+  }, [render, renderKey]);
 
   return null;
 }

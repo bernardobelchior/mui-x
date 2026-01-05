@@ -2,6 +2,21 @@
 import * as React from 'react';
 import { useWebGLContext } from '@mui/x-charts/internals';
 
+function getDevicePixelContentBoxSize(entry: ResizeObserverEntry) {
+  // Safari does not support devicePixelContentBoxSize
+  if (entry.devicePixelContentBoxSize) {
+    return {
+      width: entry.devicePixelContentBoxSize[0].inlineSize,
+      height: entry.devicePixelContentBoxSize[0].blockSize,
+    };
+  }
+  // These values not correct, but they're as close as you can get in Safari
+  return {
+    width: entry.contentBoxSize[0].inlineSize * devicePixelRatio,
+    height: entry.contentBoxSize[0].blockSize * devicePixelRatio,
+  };
+}
+
 export function useRerenderWebGLCanvasOnResize() {
   const gl = useWebGLContext();
   const [renderKey, rerender] = React.useReducer((s) => s + 1, 0);
@@ -13,18 +28,13 @@ export function useRerenderWebGLCanvasOnResize() {
       return;
     }
 
-    // FIXME: This is broken in Safari, need to find a cross-browser way to handle this
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        const width =
-          entry.devicePixelContentBoxSize?.[0].inlineSize ||
-          entry.contentBoxSize[0].inlineSize * devicePixelRatio;
-        const height =
-          entry.devicePixelContentBoxSize?.[0].blockSize ||
-          entry.contentBoxSize[0].blockSize * devicePixelRatio;
+        const { width, height } = getDevicePixelContentBoxSize(entry);
+        console.log('observed');
 
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = Math.max(1, width);
+        canvas.height = Math.max(1, height);
 
         // Update WebGL viewport
         gl?.viewport(0, 0, width, height);
