@@ -20,7 +20,7 @@ export const WebGLProvider = React.forwardRef<
     const canvas = canvasRef.current;
 
     if (canvas) {
-      const ctx = canvas.getContext('webgl2');
+      const ctx = canvas.getContext('webgl2', { antialias: false });
 
       if (!ctx) {
         return;
