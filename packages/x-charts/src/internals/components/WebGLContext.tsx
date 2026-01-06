@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import useForkRef from '@mui/utils/useForkRef';
+import { useChartRootRef, useDrawingArea } from '../../hooks';
 
 const WebGLContext = React.createContext<WebGL2RenderingContext | null>(null);
 
@@ -15,6 +17,8 @@ export const WebGLProvider = React.forwardRef<
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [context, setContext] = React.useState<WebGL2RenderingContext | null>(null);
   const handleRef = useForkRef(canvasRef, ref);
+  const chartRootRef = useChartRootRef();
+  const drawingArea = useDrawingArea();
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
@@ -30,14 +34,27 @@ export const WebGLProvider = React.forwardRef<
     }
   }, []);
 
+  if (!chartRootRef.current) {
+    return null;
+  }
+
   return (
     <WebGLContext.Provider value={context}>
-      {/* This div with position fixed is necessary to work around https://bugs.webkit.org/show_bug.cgi?id=23113 which
-       * would incorrectly position the canvas when using browser zoom.
-       */}
-      <div style={{ position: 'fixed', inset: 0 }}>
-        <canvas ref={handleRef} {...props} style={{ width: '100%', height: '100%' }} />
-      </div>
+      {ReactDOM.createPortal(
+        <canvas
+          ref={handleRef}
+          {...props}
+          style={{
+            position: 'absolute',
+            left: drawingArea.left,
+            top: drawingArea.top,
+            width: drawingArea.width,
+            height: drawingArea.height,
+            pointerEvents: 'none',
+          }}
+        />,
+        chartRootRef.current,
+      )}
       {children}
     </WebGLContext.Provider>
   );
