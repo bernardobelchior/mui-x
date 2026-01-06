@@ -32,7 +32,12 @@ export const WebGLProvider = React.forwardRef<
 
   return (
     <WebGLContext.Provider value={context}>
-      <canvas ref={handleRef} {...props} style={{ width: '100%', height: '100%' }} />
+      {/* This div with position fixed is necessary to work around https://bugs.webkit.org/show_bug.cgi?id=23113 which
+       * would incorrectly position the canvas when using browser zoom.
+       */}
+      <div style={{ position: 'fixed', inset: 0 }}>
+        <canvas ref={handleRef} {...props} style={{ width: '100%', height: '100%' }} />
+      </div>
       {children}
     </WebGLContext.Provider>
   );
