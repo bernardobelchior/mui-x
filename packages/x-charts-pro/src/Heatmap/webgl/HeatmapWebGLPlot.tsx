@@ -28,8 +28,6 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
   const dataLengthRef = React.useRef<number>(0);
   const seriesToDisplay = series?.series[series.seriesOrder[0]];
 
-  const renderKey = useRerenderWebGLCanvasOnResize();
-
   const render = React.useCallback(() => {
     if (!gl) {
       return;
@@ -44,6 +42,8 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
       gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, dataLengthRef.current);
     }
   }, [gl]);
+
+  useRerenderWebGLCanvasOnResize(render);
 
   React.useEffect(() => {
     if (!gl) {
@@ -163,7 +163,7 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
 
   React.useEffect(() => {
     render();
-  }, [render, renderKey]);
+  }, [render]);
 
   return null;
 }

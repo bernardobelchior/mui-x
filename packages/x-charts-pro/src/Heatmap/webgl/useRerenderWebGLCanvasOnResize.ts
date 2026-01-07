@@ -17,9 +17,8 @@ function getDevicePixelContentBoxSize(entry: ResizeObserverEntry) {
   };
 }
 
-export function useRerenderWebGLCanvasOnResize() {
+export function useRerenderWebGLCanvasOnResize(onResize: () => void) {
   const gl = useWebGLContext();
-  const [renderKey, rerender] = React.useReducer((s) => s + 1, 0);
 
   React.useEffect(() => {
     const canvas = gl?.canvas;
@@ -31,7 +30,6 @@ export function useRerenderWebGLCanvasOnResize() {
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = getDevicePixelContentBoxSize(entry);
-        console.log('observed');
 
         canvas.width = Math.max(1, width);
         canvas.height = Math.max(1, height);
@@ -39,7 +37,7 @@ export function useRerenderWebGLCanvasOnResize() {
         // Update WebGL viewport
         gl?.viewport(0, 0, width, height);
 
-        rerender();
+        onResize();
       }
     });
 
@@ -49,7 +47,5 @@ export function useRerenderWebGLCanvasOnResize() {
     } catch {
       observer.observe(canvas, { box: 'content-box' });
     }
-  }, [gl, gl?.canvas]);
-
-  return renderKey;
+  }, [gl, gl?.canvas, onResize]);
 }
