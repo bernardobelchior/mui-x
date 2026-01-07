@@ -149,6 +149,8 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
     gl.enableVertexAttribArray(aSaturation);
     gl.vertexAttribPointer(aSaturation, 1, gl.FLOAT, false, 0, 0);
     gl.vertexAttribDivisor(aSaturation, 1);
+
+    render();
   }, [
     colorScale,
     drawingArea.left,
@@ -156,14 +158,11 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
     gl,
     isFaded,
     isHighlighted,
+    render,
     seriesToDisplay,
     xScale,
     yScale,
   ]);
-
-  React.useEffect(() => {
-    render();
-  }, [render]);
 
   return null;
 }
