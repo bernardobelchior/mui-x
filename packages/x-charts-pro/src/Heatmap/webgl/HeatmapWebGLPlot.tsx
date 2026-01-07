@@ -28,6 +28,8 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
   const dataLengthRef = React.useRef<number>(0);
   const seriesToDisplay = series?.series[series.seriesOrder[0]];
 
+  // TODO: I think the render calls are wrong. They should be called just once and for every change that potentially impacts the rendering
+
   const render = React.useCallback(() => {
     if (!gl) {
       return;
