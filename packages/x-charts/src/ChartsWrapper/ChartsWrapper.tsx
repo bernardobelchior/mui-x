@@ -152,7 +152,6 @@ const Root = styled('div', {
         },
       },
     ],
-    position: 'relative',
     flex: 1,
     display: 'grid',
     gridTemplateColumns,

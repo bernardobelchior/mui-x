@@ -3,6 +3,11 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import useForkRef from '@mui/utils/useForkRef';
 import { useChartRootRef, useDrawingArea } from '../../hooks';
+import {
+  selectorChartSvgHeight,
+  selectorChartSvgWidth,
+} from '../plugins/corePlugins/useChartDimensions';
+import { useStore } from '../store/useStore';
 
 const WebGLContext = React.createContext<WebGL2RenderingContext | null>(null);
 
@@ -24,7 +29,12 @@ export const WebGLProvider = React.forwardRef<
     const canvas = canvasRef.current;
 
     if (canvas) {
-      const ctx = canvas.getContext('webgl2', { antialias: false });
+      const ctx = canvas.getContext('webgl2', {
+        /* Fixes blurry lines when drawing sharp edges */
+        antialias: false,
+        /* Required so we can export the WebGL plot */
+        preserveDrawingBuffer: true,
+      });
 
       if (!ctx) {
         return;
@@ -41,21 +51,45 @@ export const WebGLProvider = React.forwardRef<
   return (
     <WebGLContext.Provider value={context}>
       {ReactDOM.createPortal(
-        <canvas
-          ref={handleRef}
-          {...props}
-          style={{
-            position: 'absolute',
-            left: drawingArea.left,
-            top: drawingArea.top,
-            width: drawingArea.width,
-            height: drawingArea.height,
-            pointerEvents: 'none',
-          }}
-        />,
+        <CanvasPositioner>
+          <canvas
+            ref={handleRef}
+            {...props}
+            style={{
+              position: 'relative',
+              left: drawingArea.left,
+              top: drawingArea.top,
+              width: drawingArea.width,
+              height: drawingArea.height,
+            }}
+          />
+        </CanvasPositioner>,
         chartRootRef.current,
       )}
       {children}
     </WebGLContext.Provider>
   );
 });
+
+function CanvasPositioner({ children }: React.PropsWithChildren) {
+  const store = useStore();
+  const svgWidth = store.use(selectorChartSvgWidth);
+  const svgHeight = store.use(selectorChartSvgHeight);
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        pointerEvents: 'none',
+        /* Ensures the canvas occupies the same space as the SVG */
+        gridArea: 'chart',
+        maxWidth: svgWidth,
+        maxHeight: svgHeight,
+        width: '100%',
+        height: '100%',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
