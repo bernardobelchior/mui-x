@@ -51,7 +51,7 @@ export const heatmapFragmentShaderSource = `
       float dist = roundedBoxSDF(v_pos, u_dimensions / 2.0, u_borderRadius);
       
       // Create smooth alpha based on distance
-      float alpha = 1.0 - smoothstep(-1.0, 1.0, dist);
+      float alpha = 1.0 - smoothstep(-0.5, 0.5, dist);
       
       gl_FragColor = vec4(v_color.rgb, v_color.a * alpha);
     }
