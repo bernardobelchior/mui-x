@@ -28,7 +28,6 @@ export const heatmapVertexShaderSource = `
       gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
       
       v_color = vec4(adjust_saturation(a_color.rgb, a_saturation), 1.0);
-      v_pos = a_position;
     }
   `;
 
@@ -36,14 +35,8 @@ export const heatmapFragmentShaderSource = `
     precision mediump float;
     
     varying vec4 v_color;
-    varying vec2 v_pos;
-    
-    uniform vec2 u_dimensions;
     
     void main() {
-      float alpha_x = 1.0 - step(u_dimensions.x, v_pos.x);
-      float alpha_y = 1.0 - step(u_dimensions.y, v_pos.y);
-      float alpha = alpha_x * alpha_y;
-      gl_FragColor = vec4(v_color.rgb, v_color.a * alpha);
+      gl_FragColor = v_color;
     }
   `;
