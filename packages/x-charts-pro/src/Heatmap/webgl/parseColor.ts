@@ -44,9 +44,9 @@ function parseColorUsingRegex(color: string): [number, number, number, number] |
       .join('');
   }
 
-  const r = parseInt(color.slice(0, 2), 16);
-  const g = parseInt(color.slice(2, 4), 16);
-  const b = parseInt(color.slice(4, 6), 16);
+  const r = parseInt(color.slice(0, 2), 16) / 255;
+  const g = parseInt(color.slice(2, 4), 16) / 255;
+  const b = parseInt(color.slice(4, 6), 16) / 255;
 
   const a = color.length === 8 ? parseInt(color.substring(6, 8), 16) / 255 : 1;
 

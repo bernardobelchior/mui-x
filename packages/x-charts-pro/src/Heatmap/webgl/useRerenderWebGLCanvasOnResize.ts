@@ -37,7 +37,6 @@ export function useRerenderWebGLCanvasOnResize(onResize: () => void) {
         // Update WebGL viewport
         gl?.viewport(0, 0, width, height);
 
-        console.log('resize');
         onResize();
       }
     });
