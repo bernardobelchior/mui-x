@@ -28,15 +28,31 @@ export const heatmapVertexShaderSource = `
       gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
       
       v_color = vec4(adjust_saturation(a_color.rgb, a_saturation), 1.0);
+      v_pos = a_position * u_dimensions / 2.0;
     }
   `;
 
 export const heatmapFragmentShaderSource = `
     precision mediump float;
-    
+
     varying vec4 v_color;
-    
+    varying vec2 v_pos;
+
+    uniform vec2 u_dimensions;
+    uniform float u_borderRadius;
+
+    float roundedBoxSDF(vec2 pos, vec2 half_size, float radius) {
+      vec2 q = abs(pos) - half_size + radius;
+      return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - radius;
+    }
+
     void main() {
-      gl_FragColor = v_color;
+      // Calculate distance from rounded rectangle edge
+      float dist = roundedBoxSDF(v_pos, u_dimensions / 2.0, u_borderRadius);
+      
+      // Create smooth alpha based on distance
+      float alpha = 1.0 - smoothstep(-1.0, 1.0, dist);
+      
+      gl_FragColor = vec4(v_color.rgb, v_color.a * alpha);
     }
   `;

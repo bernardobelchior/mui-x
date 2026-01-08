@@ -13,6 +13,8 @@ import { heatmapFragmentShaderSource, heatmapVertexShaderSource } from './shader
 import { initializeWebGLProgram } from './initializeWebGLProgram';
 import { useRerenderWebGLCanvasOnResize } from './useRerenderWebGLCanvasOnResize';
 
+const BORDER_RADIUS = 0.0;
+
 export function HeatmapWebGLPlot(): React.JSX.Element | null {
   const drawingArea = useDrawingArea();
   const xScale = useXScale<'band'>();
@@ -57,6 +59,8 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
       heatmapVertexShaderSource,
       heatmapFragmentShaderSource,
     );
+
+    gl.uniform1f(gl.getUniformLocation(programRef.current, 'u_borderRadius'), BORDER_RADIUS);
   }, [gl]);
 
   React.useEffect(() => {
