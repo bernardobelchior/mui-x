@@ -18,33 +18,43 @@ export function useWebGLContext(): WebGL2RenderingContext | null {
 export const WebGLProvider = React.forwardRef<
   HTMLCanvasElement,
   React.PropsWithChildren<React.ComponentProps<'canvas'>>
->(function CanvasProvider({ children, ...props }, ref) {
+>(function WebGLProvider({ children, ...props }, ref) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [context, setContext] = React.useState<WebGL2RenderingContext | null>(null);
   const handleRef = useForkRef(canvasRef, ref);
-  const chartRootRef = useChartRootRef();
+  const chartRoot = useChartRootRef().current;
   const drawingArea = useDrawingArea();
+  const [_, rerender] = React.useReducer((s) => s + 1, 0);
+
+  // FIXME: Why isn't chart root available on the first render?
+  React.useEffect(() => {
+    if (!chartRoot) {
+      rerender();
+    }
+  }, [chartRoot]);
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
 
-    if (canvas) {
-      const ctx = canvas.getContext('webgl2', {
-        /* Fixes blurry lines when drawing sharp edges */
-        antialias: false,
-        /* Required so we can export the WebGL plot */
-        preserveDrawingBuffer: true,
-      });
-
-      if (!ctx) {
-        return;
-      }
-
-      setContext(ctx);
+    if (!canvas) {
+      return;
     }
-  }, []);
 
-  if (!chartRootRef.current) {
+    const ctx = canvas.getContext('webgl2', {
+      /* Fixes blurry lines when drawing sharp edges */
+      antialias: false,
+      /* Required so we can export the WebGL plot */
+      preserveDrawingBuffer: true,
+    });
+
+    if (!ctx) {
+      return;
+    }
+
+    setContext(ctx);
+  }, [chartRoot]);
+
+  if (!chartRoot) {
     return null;
   }
 
@@ -64,7 +74,7 @@ export const WebGLProvider = React.forwardRef<
             }}
           />
         </CanvasPositioner>,
-        chartRootRef.current,
+        chartRoot,
       )}
       {children}
     </WebGLContext.Provider>
