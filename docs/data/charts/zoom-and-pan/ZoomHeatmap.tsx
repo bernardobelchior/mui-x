@@ -84,7 +84,7 @@ export default function ZoomHeatmap() {
             },
           },
         ]}
-        series={[{ data: seriesData }]}
+        series={[{ data: seriesData, borderRadius: 4 }]}
         slots={{ cell: HeatmapCell, tooltip: Tooltip }}
       />
       <Typography variant="caption">Source: GitHub</Typography>
