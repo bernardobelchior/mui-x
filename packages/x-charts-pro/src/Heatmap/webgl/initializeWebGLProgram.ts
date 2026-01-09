@@ -2,7 +2,7 @@
  * Initializes a WebGL program with given vertex and fragment shader sources.
  */
 export function initializeWebGLProgram(
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   vertexShaderSource: string,
   fragmentShaderSource: string,
 ) {
@@ -52,4 +52,36 @@ export function initializeWebGLProgram(
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
   return program;
+}
+
+export function replaceShader(
+  gl: WebGL2RenderingContext,
+  program: WebGLProgram,
+  shaderSource: string,
+  shaderType: WebGL2RenderingContext['FRAGMENT_SHADER'] | WebGL2RenderingContext['VERTEX_SHADER'],
+) {
+  const shader = gl.createShader(shaderType)!;
+  gl.shaderSource(shader, shaderSource);
+  gl.compileShader(shader);
+
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.error('Shader compilation error:', gl.getShaderInfoLog(shader));
+  }
+
+  const shaders = gl.getAttachedShaders(program) ?? [];
+
+  // Detach old shader of this type
+  shaders.forEach((attachedShader) => {
+    if (gl.getShaderParameter(attachedShader, gl.SHADER_TYPE) === shaderType) {
+      gl.detachShader(program, attachedShader);
+      gl.deleteShader(attachedShader);
+    }
+  });
+
+  gl.attachShader(program, shader);
+  gl.linkProgram(program);
+
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.error('Program linking error:', gl.getProgramInfoLog(program));
+  }
 }

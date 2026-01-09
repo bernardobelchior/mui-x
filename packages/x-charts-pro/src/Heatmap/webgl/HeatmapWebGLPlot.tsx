@@ -9,8 +9,12 @@ import {
 } from '@mui/x-charts/internals';
 import { useHeatmapSeriesContext } from '../../hooks';
 import { parseColor } from './parseColor';
-import { heatmapFragmentShaderSource, heatmapVertexShaderSource } from './shaders';
-import { initializeWebGLProgram } from './initializeWebGLProgram';
+import {
+  heatmapFragmentShaderSourceNoBorderRadius,
+  heatmapFragmentShaderSourceWithBorderRadius,
+  heatmapVertexShaderSource,
+} from './shaders';
+import { initializeWebGLProgram, replaceShader } from './initializeWebGLProgram';
 import { useRerenderWebGLCanvasOnResize } from './useRerenderWebGLCanvasOnResize';
 
 export function HeatmapWebGLPlot(): React.JSX.Element | null {
@@ -47,6 +51,10 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
 
   useRerenderWebGLCanvasOnResize(render);
 
+  const seriesBorderRadius = seriesToDisplay?.borderRadius ?? 0;
+  const lastFragmentShaderRef = React.useRef<'no-border-radius' | 'border-radius'>(
+    seriesBorderRadius > 0 ? 'border-radius' : 'no-border-radius',
+  );
   React.useEffect(() => {
     if (!gl) {
       return;
@@ -55,7 +63,9 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
     programRef.current = initializeWebGLProgram(
       gl,
       heatmapVertexShaderSource,
-      heatmapFragmentShaderSource,
+      lastFragmentShaderRef.current === 'border-radius'
+        ? heatmapFragmentShaderSourceWithBorderRadius
+        : heatmapFragmentShaderSourceNoBorderRadius,
     );
   }, [gl]);
 
@@ -70,6 +80,25 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
     const uResolution = gl.getUniformLocation(program, 'u_resolution');
     gl.uniform2f(uResolution, drawingArea.width, drawingArea.height);
   }, [gl, drawingArea.width, drawingArea.height]);
+
+  React.useEffect(() => {
+    const program = programRef.current;
+
+    if (!gl || !program) {
+      return;
+    }
+
+    if (lastFragmentShaderRef.current === 'no-border-radius' && seriesBorderRadius > 0) {
+      replaceShader(gl, program, heatmapFragmentShaderSourceWithBorderRadius, gl.FRAGMENT_SHADER);
+      lastFragmentShaderRef.current = 'border-radius';
+    } else if (lastFragmentShaderRef.current === 'border-radius' && !seriesBorderRadius) {
+      replaceShader(gl, program, heatmapFragmentShaderSourceNoBorderRadius, gl.FRAGMENT_SHADER);
+      lastFragmentShaderRef.current = 'no-border-radius';
+    }
+
+    gl.uniform1f(gl.getUniformLocation(program, 'u_borderRadius'), seriesBorderRadius);
+    render();
+  }, [gl, render, seriesBorderRadius]);
 
   React.useEffect(() => {
     const program = programRef.current;
@@ -151,11 +180,6 @@ export function HeatmapWebGLPlot(): React.JSX.Element | null {
     gl.enableVertexAttribArray(aSaturation);
     gl.vertexAttribPointer(aSaturation, 1, gl.FLOAT, false, 0, 0);
     gl.vertexAttribDivisor(aSaturation, 1);
-
-    gl.uniform1f(
-      gl.getUniformLocation(program, 'u_borderRadius'),
-      seriesToDisplay.borderRadius ?? 0,
-    );
 
     render();
   }, [

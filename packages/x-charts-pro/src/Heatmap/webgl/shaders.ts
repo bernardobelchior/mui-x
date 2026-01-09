@@ -32,7 +32,17 @@ export const heatmapVertexShaderSource = `
     }
   `;
 
-export const heatmapFragmentShaderSource = `
+export const heatmapFragmentShaderSourceNoBorderRadius = `
+    precision mediump float;
+    
+    varying vec4 v_color;
+    
+    void main() {
+      gl_FragColor = v_color;
+    }
+  `;
+
+export const heatmapFragmentShaderSourceWithBorderRadius = `
     precision mediump float;
 
     varying vec4 v_color;
