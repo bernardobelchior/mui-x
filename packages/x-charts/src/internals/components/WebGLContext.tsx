@@ -24,7 +24,7 @@ export const WebGLProvider = React.forwardRef<
   const handleRef = useForkRef(canvasRef, ref);
   const chartRoot = useChartRootRef().current;
   const drawingArea = useDrawingArea();
-  const [_, rerender] = React.useReducer((s) => s + 1, 0);
+  const [, rerender] = React.useReducer((s) => s + 1, 0);
 
   // FIXME: Why isn't chart root available on the first render?
   React.useEffect(() => {
