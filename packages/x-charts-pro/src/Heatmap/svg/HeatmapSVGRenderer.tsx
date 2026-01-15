@@ -6,13 +6,13 @@ import {
   selectorChartsIsFadedCallback,
   selectorChartsIsHighlightedCallback,
   useStore,
-  useRegisterPointerInteractions
+  useRegisterPointerInteractions,
 } from '@mui/x-charts/internals';
-import { useHeatmapSeriesContext } from '../hooks';
-import { HeatmapItem } from './HeatmapItem';
-import { selectorHeatmapItemAtPosition } from '../plugins/selectors/useChartHeatmapPosition.selectors';
-import { shouldRegisterPointerInteractionsGlobally } from './shouldRegisterPointerInteractionsGlobally';
-import { type HeatmapRendererProps } from './Heatmap.types';
+import { useHeatmapSeriesContext } from '../../hooks';
+import { HeatmapItem } from '../HeatmapItem';
+import { selectorHeatmapItemAtPosition } from '../../plugins/selectors/useChartHeatmapPosition.selectors';
+import { shouldRegisterPointerInteractionsGlobally } from '../shouldRegisterPointerInteractionsGlobally';
+import { type HeatmapRendererProps } from '../Heatmap.types';
 
 const MemoHeatmapItem = React.memo(HeatmapItem);
 
