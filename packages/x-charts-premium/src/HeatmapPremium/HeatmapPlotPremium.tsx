@@ -1,6 +1,6 @@
 'use client';
 import { HeatmapSVGPlot, type HeatmapRendererProps } from '@mui/x-charts-pro/internals';
-import { HeatmapWebGLRenderer } from './webgl';
+import { HeatmapWebGLRenderer } from './webgl/HeatmapWebGLRenderer';
 
 export interface HeatmapPlotPremiumProps extends HeatmapRendererProps {
   renderer: 'svg-single' | 'webgl';

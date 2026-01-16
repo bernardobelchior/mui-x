@@ -1,1 +1,0 @@
-export { HeatmapWebGLRenderer } from './HeatmapWebGLRenderer';

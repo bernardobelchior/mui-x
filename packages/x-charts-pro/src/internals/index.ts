@@ -7,3 +7,4 @@ export type { ProPluginsPerSeriesType } from '../context/ChartProApi';
 export { useHeatmapProps } from '../Heatmap/useHeatmapProps';
 export * from '../Heatmap/svg/HeatmapSVGPlot';
 export type * from '../Heatmap/Heatmap.types';
+export { selectorHeatmapItemAtPosition } from '../plugins/selectors/useChartHeatmapPosition.selectors';
