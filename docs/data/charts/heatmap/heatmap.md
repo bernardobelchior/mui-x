@@ -110,6 +110,7 @@ Heatmaps can contain a large number of cells.
 To improve performance when rendering many cells, you can use the WebGL renderer by setting the `renderer` prop to `'webgl'`.
 
 The WebGL renderer has some limitations compared to the SVG renderer:
+
 - The `cell` slot is not supported;
 - TODO
 
