@@ -21,7 +21,9 @@ const settings: HeatmapPremiumProps = {
     {
       data: xData,
       ordinalTimeTicks: ['months', 'biweekly', 'weeks', 'days'],
-      zoom: true,
+      valueFormatter: (date: Date) =>
+        date.toLocaleString('en-US', { month: 'short', day: 'numeric' }),
+      zoom: { minSpan: 3 },
     },
   ],
   yAxis: [{ data: yData, valueFormatter: (hour: number) => `${hour}:00` }],
@@ -36,7 +38,7 @@ const settings: HeatmapPremiumProps = {
     },
   ],
   series: [{ data: seriesData }],
-  height: 400,
+  height: 450,
 };
 
 export default function WebGLHeatmap() {
