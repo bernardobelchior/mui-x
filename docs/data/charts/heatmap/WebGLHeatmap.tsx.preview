@@ -1,0 +1,9 @@
+<Heatmap
+  dataset={data}
+  xAxis={[{ dataKey: '0', valueFormatter: dayFormatter }]}
+  yAxis={[{ dataKey: '1', valueFormatter: (hour) => `${hour}:00` }]}
+  series={[
+    { dataKey: '2', highlightScope: { highlight: 'item', fade: 'global' } },
+  ]}
+  height={300}
+/>
