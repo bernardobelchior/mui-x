@@ -16,7 +16,7 @@ import { type HeatmapRendererProps } from '../Heatmap.types';
 
 const MemoHeatmapItem = React.memo(HeatmapItem);
 
-export function HeatmapSVGRenderer(props: HeatmapRendererProps) {
+export function HeatmapSVGPlot(props: HeatmapRendererProps) {
   const store = useStore();
   const xScale = useXScale<'band'>();
   const yScale = useYScale<'band'>();

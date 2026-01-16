@@ -1,19 +1,12 @@
 'use client';
 import PropTypes from 'prop-types';
-import { HeatmapSVGRenderer } from './svg/HeatmapSVGRenderer';
-import { HeatmapWebGLRenderer } from './webgl';
+import { HeatmapSVGPlot } from './svg/HeatmapSVGPlot';
 import { type HeatmapRendererProps } from './Heatmap.types';
 
-export interface HeatmapPlotProps extends HeatmapRendererProps {
-  renderer: 'svg-single' | 'webgl';
-}
+export interface HeatmapPlotProps extends HeatmapRendererProps {}
 
-function HeatmapPlot({ renderer, borderRadius, ...props }: HeatmapPlotProps) {
-  if (renderer === 'webgl') {
-    return <HeatmapWebGLRenderer borderRadius={borderRadius} />;
-  }
-
-  return <HeatmapSVGRenderer borderRadius={borderRadius} {...props} />;
+function HeatmapPlot({ borderRadius, ...props }: HeatmapPlotProps) {
+  return <HeatmapSVGPlot borderRadius={borderRadius} {...props} />;
 }
 
 HeatmapPlot.propTypes = {

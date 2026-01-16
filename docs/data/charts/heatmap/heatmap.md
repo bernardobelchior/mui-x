@@ -103,3 +103,14 @@ You can modify it with `slots.legend` and `slotProps.legend`.
 ## Custom item
 
 {{"demo": "CustomItem.js"}}
+
+## WebGL Renderer [<span class="plan-premium"></span>](/x/introduction/licensing/#premium-plan 'Premium plan')
+
+Heatmaps can contain a large number of cells.
+To improve performance when rendering many cells, you can use the WebGL renderer by setting the `renderer` prop to `'webgl'`.
+
+The WebGL renderer has some limitations compared to the SVG renderer:
+- The `cell` slot is not supported;
+- TODO
+
+{{"demo": "WebGLHeatmap.js"}}
