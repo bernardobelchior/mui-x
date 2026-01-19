@@ -112,7 +112,7 @@ To improve performance when rendering many cells, you can use the WebGL renderer
 The WebGL renderer has some limitations compared to the SVG renderer:
 
 - The `cell` slot is not supported;
-- TODO
+- The heatmap cell cannot be customized using CSS;
 
 The following example showcases a heatmap with approximately 8800 cells rendered using WebGL.
 
