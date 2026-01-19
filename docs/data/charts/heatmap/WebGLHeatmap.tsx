@@ -1,3 +1,5 @@
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import { interpolateOrRd } from 'd3-scale-chromatic';
 import {
   HeatmapPremium,
@@ -42,5 +44,13 @@ const settings: HeatmapPremiumProps = {
 };
 
 export default function WebGLHeatmap() {
-  return <HeatmapPremium renderer="webgl" {...settings} />;
+  return (
+    <Stack width="100%">
+      <Typography variant="h6" sx={{ alignSelf: 'center', textAlign: 'center' }}>
+        Yellow Taxi Trip Count - 2024
+      </Typography>
+      <HeatmapPremium renderer="webgl" {...settings} />
+      <Typography variant="caption">Source: NYC.gov</Typography>
+    </Stack>
+  );
 }

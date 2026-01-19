@@ -1,3 +1,5 @@
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import { interpolateOrRd } from 'd3-scale-chromatic';
 import { HeatmapPremium } from '@mui/x-charts-premium/HeatmapPremium';
 import data from '../dataset/nyc-yellow-taxi-2024-trip-count.json';
@@ -18,7 +20,9 @@ const settings = {
     {
       data: xData,
       ordinalTimeTicks: ['months', 'biweekly', 'weeks', 'days'],
-      zoom: true,
+      valueFormatter: (date) =>
+        date.toLocaleString('en-US', { month: 'short', day: 'numeric' }),
+      zoom: { minSpan: 3 },
     },
   ],
   yAxis: [{ data: yData, valueFormatter: (hour) => `${hour}:00` }],
@@ -33,9 +37,17 @@ const settings = {
     },
   ],
   series: [{ data: seriesData }],
-  height: 400,
+  height: 450,
 };
 
 export default function WebGLHeatmap() {
-  return <HeatmapPremium renderer="webgl" {...settings} />;
+  return (
+    <Stack width="100%">
+      <Typography variant="h6" sx={{ alignSelf: 'center', textAlign: 'center' }}>
+        Yellow Taxi Trip Count - 2024
+      </Typography>
+      <HeatmapPremium renderer="webgl" {...settings} />
+      <Typography variant="caption">Source: NYC.gov</Typography>
+    </Stack>
+  );
 }
