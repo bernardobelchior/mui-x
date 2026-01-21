@@ -35,10 +35,11 @@ export function HeatmapWebGLPlot({
   const programRef = React.useRef<WebGLProgram | null>(null);
   const dataLengthRef = React.useRef<number>(0);
   const seriesToDisplay = series?.series[series.seriesOrder[0]];
-
-  // TODO: I think the render calls are wrong. They should be called just once and for every change that potentially impacts the rendering
+  const renderScheduledRef = React.useRef<boolean>(false);
 
   const render = React.useCallback(() => {
+    renderScheduledRef.current = false;
+
     if (!gl) {
       return;
     }
@@ -53,6 +54,11 @@ export function HeatmapWebGLPlot({
     }
   }, [gl]);
 
+  const scheduleRender = React.useCallback(() => {
+    renderScheduledRef.current = true;
+  }, []);
+
+  // On resize render directly to avoid a frame where the canvas is blank
   useRerenderWebGLCanvasOnResize(render);
 
   const seriesBorderRadius = borderRadius ?? 0;
@@ -101,8 +107,8 @@ export function HeatmapWebGLPlot({
     }
 
     gl.uniform1f(gl.getUniformLocation(program, 'u_borderRadius'), seriesBorderRadius);
-    render();
-  }, [gl, render, seriesBorderRadius]);
+    scheduleRender();
+  }, [gl, scheduleRender, seriesBorderRadius]);
 
   React.useEffect(() => {
     const program = programRef.current;
@@ -185,7 +191,7 @@ export function HeatmapWebGLPlot({
     gl.vertexAttribPointer(aSaturation, 1, gl.FLOAT, false, 0, 0);
     gl.vertexAttribDivisor(aSaturation, 1);
 
-    render();
+    scheduleRender();
   }, [
     colorScale,
     drawingArea.left,
@@ -193,11 +199,17 @@ export function HeatmapWebGLPlot({
     gl,
     isFaded,
     isHighlighted,
-    render,
+    scheduleRender,
     seriesToDisplay,
     xScale,
     yScale,
   ]);
+
+  React.useEffect(() => {
+    if (renderScheduledRef.current) {
+      render();
+    }
+  });
 
   return null;
 }
