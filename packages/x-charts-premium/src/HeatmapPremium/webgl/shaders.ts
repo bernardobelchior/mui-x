@@ -1,4 +1,5 @@
-export const heatmapVertexShaderSource = `
+// language=Glsl
+export const heatmapVertexShaderSource = /* glsl */ `
     precision mediump float;
     
     attribute vec2 a_position;
@@ -32,7 +33,8 @@ export const heatmapVertexShaderSource = `
     }
   `;
 
-export const heatmapFragmentShaderSourceNoBorderRadius = `
+// language=Glsl
+export const heatmapFragmentShaderSourceNoBorderRadius = /* glsl */ `
     precision mediump float;
     
     varying vec4 v_color;
@@ -42,7 +44,8 @@ export const heatmapFragmentShaderSourceNoBorderRadius = `
     }
   `;
 
-export const heatmapFragmentShaderSourceWithBorderRadius = `
+// language=Glsl
+export const heatmapFragmentShaderSourceWithBorderRadius = /* glsl */ `
     precision mediump float;
 
     varying vec4 v_color;
