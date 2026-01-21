@@ -69,6 +69,7 @@ export function HeatmapSVGPlot(props: HeatmapRendererProps) {
               slotProps={props.slotProps}
               isHighlighted={isHighlighted(item)}
               isFaded={isFaded(item)}
+              borderRadius={props.borderRadius}
             />
           );
         })}
