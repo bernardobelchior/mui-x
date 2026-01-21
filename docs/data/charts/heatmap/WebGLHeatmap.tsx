@@ -36,6 +36,7 @@ const settings: HeatmapPremiumProps = {
       colorMap: {
         type: 'continuous',
         color: interpolateOrRd,
+        max,
       },
     },
   ],

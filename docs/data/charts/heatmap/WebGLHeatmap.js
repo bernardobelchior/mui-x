@@ -33,6 +33,7 @@ const settings = {
       colorMap: {
         type: 'continuous',
         color: interpolateOrRd,
+        max,
       },
     },
   ],
