@@ -26,8 +26,8 @@ export const WebGLProvider = React.forwardRef<
   const drawingArea = useDrawingArea();
   const [, rerender] = React.useReducer((s) => s + 1, 0);
 
-  // FIXME: Why isn't chart root available on the first render?
   React.useEffect(() => {
+    /* The chart root isn't available on first render because the ref is only set after mounting the root component. */
     if (!chartRoot) {
       rerender();
     }
