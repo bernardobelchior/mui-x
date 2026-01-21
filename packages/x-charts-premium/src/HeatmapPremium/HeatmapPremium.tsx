@@ -121,7 +121,6 @@ HeatmapPremium.propTypes = {
   height: PropTypes.number,
   /**
    * If `true`, the legend is not rendered.
-   * @default true
    */
   hideLegend: PropTypes.bool,
   /**
@@ -177,6 +176,8 @@ HeatmapPremium.propTypes = {
    * The second argument contains information about all line/bar elements at the current mouse position.
    * @param {MouseEvent} event The mouse event recorded on the `<svg/>` element.
    * @param {null | ChartsAxisData} data The data about the clicked axis and items associated with it.
+   *
+   * @deprecated Use `onItemClick` instead to get access to both x- and y-axis values.
    */
   onAxisClick: PropTypes.func,
   /**
@@ -185,6 +186,13 @@ HeatmapPremium.propTypes = {
    * @param {HighlightItemData | null} highlightedItem  The newly highlighted item.
    */
   onHighlightChange: PropTypes.func,
+  /**
+   * The callback fired when an item is clicked.
+   *
+   * @param {React.MouseEvent<SVGSVGElement, MouseEvent>} event The click event.
+   * @param {SeriesItemIdentifier<SeriesType>} item The clicked item.
+   */
+  onItemClick: PropTypes.func,
   /**
    * The callback fired when the tooltip item changes.
    *
