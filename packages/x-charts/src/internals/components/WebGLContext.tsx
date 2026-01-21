@@ -93,6 +93,8 @@ function CanvasPositioner({ children }: React.PropsWithChildren) {
         pointerEvents: 'none',
         /* Ensures the canvas occupies the same space as the SVG */
         gridArea: 'chart',
+        /* This property ensures the canvas renders below the SVG */
+        order: -1,
         maxWidth: svgWidth,
         maxHeight: svgHeight,
         width: '100%',
