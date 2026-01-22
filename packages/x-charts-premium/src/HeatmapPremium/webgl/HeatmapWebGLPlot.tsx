@@ -73,6 +73,7 @@ export function HeatmapWebGLPlot({
     programRef.current = initializeWebGLProgram(
       gl,
       heatmapVertexShaderSource,
+      // The border radius shader looks odd when border radius is 0, so we use the shader without border radius in that case
       lastFragmentShaderRef.current === 'border-radius'
         ? heatmapFragmentShaderSourceWithBorderRadius
         : heatmapFragmentShaderSourceNoBorderRadius,

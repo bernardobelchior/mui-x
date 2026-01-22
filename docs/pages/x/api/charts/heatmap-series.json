@@ -6,7 +6,6 @@
   ],
   "properties": {
     "type": { "type": { "description": "'heatmap'" }, "required": true, "isProPlan": true },
-    "borderRadius": { "type": { "description": "number" }, "default": "0", "isProPlan": true },
     "data": { "type": { "description": "readonly HeatmapValueType[]" }, "isProPlan": true },
     "dataKey": { "type": { "description": "string" }, "isProPlan": true },
     "highlightScope": { "type": { "description": "HighlightScope" }, "isProPlan": true },

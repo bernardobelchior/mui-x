@@ -22,14 +22,6 @@ export interface HeatmapSeriesType
    * The label to display on the tooltip or the legend. It can be a string or a function.
    */
   label?: string | ((location: 'tooltip' | 'legend') => string);
-  /**
-   * The border radius of each cell in pixels.
-   * TODO: Do we want to support different border radius for each corner?
-   * TODO: Do we want to support percentage values like in CSS?
-   * FIXME: Do we want to support this at the chart level like in the Bar chart?
-   * @default 0
-   */
-  borderRadius?: number;
 }
 
 /**
