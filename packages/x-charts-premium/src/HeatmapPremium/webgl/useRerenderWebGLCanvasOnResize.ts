@@ -17,6 +17,12 @@ function getDevicePixelContentBoxSize(entry: ResizeObserverEntry) {
   };
 }
 
+/**
+ * This hook calls the provided `onResize` callback whenever the WebGL canvas is resized.
+ * It detects size changes when the element is resized, the browser zoom updates or the device pixel ratio changes.
+ * These last two conditions aren't supported by Safari, so `onResize` won't be called in these cases on Safari.
+ * @param onResize
+ */
 export function useRerenderWebGLCanvasOnResize(onResize: () => void) {
   const gl = useWebGLContext();
 
@@ -42,7 +48,10 @@ export function useRerenderWebGLCanvasOnResize(onResize: () => void) {
     });
 
     try {
-      // Throws in Safari
+      /* We use 'device-pixel-content-box' to observe the size of the canvas in device pixels, rather than CSS pixels.
+       * This ensures that we correctly handle high-DPI displays and browser zoom.
+       * However, this is not supported in Safari, which throws, so we fall back to 'content-box'.
+       * WebKit Bug: https://www2.webkit.org/show_bug.cgi?id=219005 */
       observer.observe(canvas, { box: 'device-pixel-content-box' });
     } catch {
       observer.observe(canvas, { box: 'content-box' });
