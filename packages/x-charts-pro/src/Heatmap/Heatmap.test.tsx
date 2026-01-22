@@ -1,6 +1,9 @@
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { clearLicenseStatusCache, LicenseInfo } from '@mui/x-license';
+import { vi } from 'vitest';
+import { isJSDOM } from 'test/utils/skipIf';
 import { Heatmap } from './Heatmap';
+import { heatmapClasses } from './heatmapClasses';
 
 describe('<Heatmap /> - License', () => {
   const { render } = createRenderer();
@@ -66,6 +69,40 @@ describe('<Heatmap /> - License', () => {
         '4',
         '5',
       ]);
+    });
+  });
+});
+
+describe('Heatmap - onItemClick', () => {
+  const { render } = createRenderer();
+
+  const config = {
+    series: [
+      {
+        data: [
+          [1, 2, 3],
+          [4, 5, 6],
+        ],
+      },
+    ],
+    xAxis: [{ position: 'none' }],
+    yAxis: [{ position: 'none' }],
+    width: 300,
+    height: 300,
+    margin: { top: 0, left: 0, bottom: 0, right: 0 },
+  } as const;
+
+  it.skipIf(isJSDOM)('should provide the right context as second argument', async () => {
+    const onItemClick = vi.fn();
+    const { user } = render(<Heatmap {...config} onItemClick={onItemClick} />);
+
+    const cells = document.querySelectorAll<HTMLElement>(`.${heatmapClasses.cell}`);
+
+    await user.click(cells[5]);
+    expect(onItemClick).toHaveBeenLastCalledWith(expect.any(Event), {
+      type: 'heatmap',
+      seriesId: 0,
+      dataIndex: 5,
     });
   });
 });
