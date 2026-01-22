@@ -5,3 +5,5 @@ export type { PreviewPlotProps } from '../ChartZoomSlider/internals/previews/Pre
 export { defaultSeriesConfigPro } from '../ChartDataProviderPro/ChartDataProviderPro';
 export type { ProPluginsPerSeriesType } from '../context/ChartProApi';
 export { useHeatmapProps } from '../Heatmap/useHeatmapProps';
+export * from '../Heatmap/HeatmapSVGPlot';
+export type * from '../Heatmap/Heatmap.types';
