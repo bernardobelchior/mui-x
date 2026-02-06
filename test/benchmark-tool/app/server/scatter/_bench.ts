@@ -1,24 +1,14 @@
 import { test, expect } from '@playwright/test';
 import { goToPage, getRouteFromFilename } from '../../../utils/goToPage';
-import { iterateTest } from '../../../utils/iterateTest';
-import { generateReportFromIterations, saveReport } from '../../../utils/reporter';
+import { bench } from '../../../utils/bench';
 
-const route = getRouteFromFilename(__filename);
+const route = getRouteFromFilename(import.meta.filename);
 
-test(
-  'benchmark scatter render',
-  iterateTest(
-    50,
-    async ({ page }, _, { renders }) => {
-      await goToPage(__filename, page, renders);
+await bench({ warmupRuns: 10, iterations: 50, route }, (type, iteration, { renders }) => {
+  test(`benchmark scatter render - ${type} run ${iteration + 1}`, async ({ page }) => {
+    await goToPage(import.meta.filename, page, renders);
 
-      // Wait for chart to be visible
-      await expect(page.locator('svg:not([aria-hidden="true"])')).toBeVisible();
-    },
-    async (iterations) => {
-      const report = generateReportFromIterations(iterations);
-      await saveReport(report, route);
-    },
-    { warmupRuns: 10 },
-  ),
-);
+    // Wait for chart to be visible
+    await expect(page.locator('svg:not([aria-hidden="true"])')).toBeVisible();
+  });
+});

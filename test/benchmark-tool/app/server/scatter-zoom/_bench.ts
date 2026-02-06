@@ -1,45 +1,35 @@
 import { test, expect } from '@playwright/test';
 import { getRouteFromFilename, goToPage } from '../../../utils/goToPage';
-import { generateReportFromIterations, saveReport } from '../../../utils/reporter';
-import { iterateTest } from '../../../utils/iterateTest';
+import { bench } from '../../../utils/bench';
 
-const route = getRouteFromFilename(__filename);
+const route = getRouteFromFilename(import.meta.filename);
 
-test(
-  'benchmark render',
-  iterateTest(
-    10,
-    async ({ page }, _, { renders }) => {
-      const { startBench, endBench } = await goToPage(__filename, page, renders);
+await bench({ warmupRuns: 3, iterations: 10, route }, (type, iteration, { renders }) => {
+  test(`benchmark render - ${type} run ${iteration + 1}`, async ({ page }) => {
+    const { startBench, endBench } = await goToPage(import.meta.filename, page, renders);
 
-      // Wait for chart to be visible
-      const svg = page.locator('svg:not([aria-hidden="true"])');
-      await expect(svg).toBeVisible();
+    // Wait for chart to be visible
+    const svg = page.locator('svg:not([aria-hidden="true"])');
+    await expect(svg).toBeVisible();
 
-      // Scroll from the center of the SVG
-      const boundingBox = (await svg.boundingBox())!;
-      const centerX = boundingBox.width / 2;
-      const centerY = boundingBox.height / 2;
+    // Scroll from the center of the SVG
+    const boundingBox = (await svg.boundingBox())!;
+    const centerX = boundingBox.width / 2;
+    const centerY = boundingBox.height / 2;
 
-      await svg.hover({ position: { x: centerX, y: centerY } });
+    await svg.hover({ position: { x: centerX, y: centerY } });
 
-      const deltaY = -1000; // Negative for zooming in
-      const steps = 20;
+    const deltaY = -1000; // Negative for zooming in
+    const steps = 20;
 
-      startBench();
+    startBench();
 
-      for (let i = 0; i < steps; i += 1) {
-        // Scroll in smaller increments to simulate a smoother zoom
-        // eslint-disable-next-line no-await-in-loop
-        await page.mouse.wheel(0, deltaY / steps);
-      }
+    for (let i = 0; i < steps; i += 1) {
+      // Scroll in smaller increments to simulate a smoother zoom
+      // eslint-disable-next-line no-await-in-loop
+      await page.mouse.wheel(0, deltaY / steps);
+    }
 
-      endBench();
-    },
-    async (iterations) => {
-      const report = generateReportFromIterations(iterations);
-      await saveReport(report, route);
-    },
-    { warmupRuns: 3 },
-  ),
-);
+    endBench();
+  });
+});

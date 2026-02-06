@@ -4,7 +4,7 @@ import type { TraceEvent, TraceFileObjectFormat } from './reporter-types';
 import type { RenderEvent } from './Profiler';
 import { routeToFileName } from './utils';
 
-const benchmarksDir = path.resolve(__dirname, '../benchmarks');
+const benchmarksDir = path.resolve(import.meta.dirname, '../benchmarks');
 
 export async function saveReport(report: TraceFileObjectFormat, route: string) {
   // Ensure benchmarks directory exists

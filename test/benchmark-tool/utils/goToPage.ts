@@ -9,6 +9,7 @@ interface PageState {
   name: string;
   trackEvents: boolean;
 }
+
 const pageState = new WeakMap<Page, PageState>();
 
 export function getRouteFromFilename(filename: string): string {

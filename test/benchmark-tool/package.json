@@ -6,6 +6,7 @@
     "start": "next start -p 5002",
     "test": "playwright test"
   },
+  "type": "module",
   "dependencies": {
     "@base-ui/react": "^1.1.0",
     "@emotion/cache": "^11.14.0",

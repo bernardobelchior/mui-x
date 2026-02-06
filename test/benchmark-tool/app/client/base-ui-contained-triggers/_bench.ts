@@ -1,28 +1,18 @@
 import { test } from '@playwright/test';
 import { getRouteFromFilename, goToPage } from '../../../utils/goToPage';
-import { iterateTest } from '../../../utils/iterateTest';
-import { generateReportFromIterations, saveReport } from '../../../utils/reporter';
+import { bench } from '../../../utils/bench';
 
-const route = getRouteFromFilename(__filename);
+const route = getRouteFromFilename(import.meta.filename);
 
-test(
-  'Base UI Contained Triggers',
-  iterateTest(
-    10,
-    async ({ page }, _, { renders }) => {
-      await goToPage(__filename, page, renders);
+await bench({ warmupRuns: 5, iterations: 10, route }, (type, iteration, { renders }) => {
+  test(`Base UI Contained Triggers - ${type} run ${iteration + 1}`, async ({ page }) => {
+    await goToPage(import.meta.filename, page, renders);
 
-      // Wait for the browser to be idle before finishing the iteration
-      await page.evaluate(() => {
-        return new Promise((resolve) => {
-          requestIdleCallback(resolve, { timeout: 5000 });
-        });
+    // Wait for the browser to be idle before finishing the iteration
+    await page.evaluate(() => {
+      return new Promise((resolve) => {
+        requestIdleCallback(resolve, { timeout: 5000 });
       });
-    },
-    async (iterations) => {
-      const report = generateReportFromIterations(iterations);
-      await saveReport(report, route);
-    },
-    { warmupRuns: 5 },
-  ),
-);
+    });
+  });
+});
