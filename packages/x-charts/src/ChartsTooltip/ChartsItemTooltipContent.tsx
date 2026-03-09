@@ -1,10 +1,9 @@
 'use client';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import Typography from '@mui/material/Typography';
 import { type SxProps, type Theme } from '@mui/material/styles';
 import { type ChartsTooltipClasses, useUtilityClasses } from './chartsTooltipClasses';
-import { useInternalItemTooltip } from './useItemTooltip';
+import { useItemTooltip } from './useItemTooltip';
 import {
   ChartsTooltipCell,
   ChartsTooltipPaper,
@@ -25,45 +24,12 @@ export interface ChartsItemTooltipContentProps {
 
 function ChartsItemTooltipContent(props: ChartsItemTooltipContentProps) {
   const { classes: propClasses, sx } = props;
-  const tooltipData = useInternalItemTooltip();
+  const tooltipData = useItemTooltip();
 
   const classes = useUtilityClasses(propClasses);
 
   if (!tooltipData) {
     return null;
-  }
-
-  if ('values' in tooltipData) {
-    const { label: seriesLabel, color, markType, markShape } = tooltipData;
-    return (
-      <ChartsTooltipPaper sx={sx} className={classes.paper}>
-        <ChartsTooltipTable className={classes.table}>
-          <Typography component="caption">
-            <div className={classes.markContainer}>
-              <ChartsLabelMark
-                type={markType}
-                markShape={markShape}
-                color={color}
-                className={classes.mark}
-              />
-            </div>
-            {seriesLabel}
-          </Typography>
-          <tbody>
-            {tooltipData.values.map(({ formattedValue, label }) => (
-              <ChartsTooltipRow key={label} className={classes.row}>
-                <ChartsTooltipCell className={clsx(classes.labelCell, classes.cell)} component="th">
-                  {label}
-                </ChartsTooltipCell>
-                <ChartsTooltipCell className={clsx(classes.valueCell, classes.cell)} component="td">
-                  {formattedValue}
-                </ChartsTooltipCell>
-              </ChartsTooltipRow>
-            ))}
-          </tbody>
-        </ChartsTooltipTable>
-      </ChartsTooltipPaper>
-    );
   }
 
   const { color, label, formattedValue, markType, markShape } = tooltipData;
