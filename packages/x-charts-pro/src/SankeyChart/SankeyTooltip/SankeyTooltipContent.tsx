@@ -9,6 +9,7 @@ import {
   useItemTooltip,
 } from '@mui/x-charts/ChartsTooltip';
 import { ChartsLabelMark } from '@mui/x-charts/internals';
+import * as React from 'react';
 import { type SankeyTooltipProps } from './SankeyTooltip.types';
 import { useUtilityClasses } from './SankeyTooltip.classes';
 
@@ -23,23 +24,36 @@ export function SankeyTooltipContent(props: SankeyTooltipContentProps) {
     return null;
   }
 
-  const { color, formattedValue, markType, label } = tooltipData;
+  const { color, formattedValue, markType } = tooltipData;
+
+  const valueArray = Array.isArray(formattedValue)
+    ? formattedValue
+    : [formattedValue].filter((v) => v != null);
 
   return (
     <ChartsTooltipPaper className={classes.paper}>
       <ChartsTooltipTable className={classes.table}>
         <tbody>
-          <ChartsTooltipRow className={classes.row}>
-            <ChartsTooltipCell className={clsx(classes.cell)} component="th">
-              <div className={classes.markContainer}>
-                <ChartsLabelMark type={markType} color={color} className={classes.mark} />
-              </div>
-              {label}
-            </ChartsTooltipCell>
-            <ChartsTooltipCell className={clsx(classes.valueCell, classes.cell)} component="td">
-              {formattedValue}
-            </ChartsTooltipCell>
-          </ChartsTooltipRow>
+          {valueArray.map((value, index) => {
+            const label = typeof value === 'object' ? value.label : tooltipData.label;
+            const cellValue = typeof value === 'object' ? value.value : value;
+
+            return (
+              <ChartsTooltipRow key={index} className={classes.row}>
+                <ChartsTooltipCell className={clsx(classes.labelCell, classes.cell)} component="th">
+                  <div className={classes.markContainer}>
+                    {index === 0 && (
+                      <ChartsLabelMark type={markType} color={color} className={classes.mark} />
+                    )}
+                  </div>
+                  {label}
+                </ChartsTooltipCell>
+                <ChartsTooltipCell className={clsx(classes.valueCell, classes.cell)} component="td">
+                  {cellValue}
+                </ChartsTooltipCell>
+              </ChartsTooltipRow>
+            );
+          })}
         </tbody>
       </ChartsTooltipTable>
     </ChartsTooltipPaper>

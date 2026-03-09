@@ -28,9 +28,7 @@ export interface ItemTooltipValue<T extends ChartSeriesType> {
   /**
    * The value formatted with context set to "tooltip".
    */
-  formattedValue: NonNullable<ChartsSeriesConfig[T]['valueType']> extends Array<unknown>
-    ? Array<string | null>
-    : string | null;
+  formattedValue: string | null | Array<{ label?: string; value: string }>;
   /**
    * The series mark type.
    */

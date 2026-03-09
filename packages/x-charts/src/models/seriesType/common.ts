@@ -18,7 +18,7 @@ export type SeriesValueFormatterContext = {
 export type SeriesValueFormatter<TValue> = (
   value: TValue,
   context: SeriesValueFormatterContext,
-) => string | null;
+) => string | null | Array<{ label?: string; value: string }>;
 
 export type ColorCallbackValue<TValue> = { value: TValue; dataIndex: number };
 

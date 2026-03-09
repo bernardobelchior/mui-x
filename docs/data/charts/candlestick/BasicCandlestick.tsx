@@ -15,7 +15,18 @@ export default function BasicCandlestick() {
   return (
     <CandlestickChart
       xAxis={[{ id: 'x', data: xData, zoom: { minSpan: 1, filterMode: 'discard' } }]}
-      series={[{ data, label: 'S&P500', valueFormatter: (v) => `$${v.toFixed(2)}` }]}
+      series={[
+        {
+          data,
+          label: 'S&P500',
+          valueFormatter: (v) => [
+            { label: 'Open', value: v[0].toFixed(2) },
+            { label: 'High', value: v[1].toFixed(2) },
+            { label: 'Low', value: v[2].toFixed(2) },
+            { label: 'Close', value: v[3].toFixed(2) },
+          ],
+        },
+      ]}
       height={400}
       tooltipAxis={[{ axisId: 'x', dataIndex: 0 }]}
     />

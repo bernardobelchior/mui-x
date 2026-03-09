@@ -33,7 +33,7 @@ export interface OHLCSeriesType
    * @param {SeriesValueFormatterContext} context The rendering context of the value.
    * @returns {string | null} The string to display or null if the value should not be shown.
    */
-  valueFormatter?: SeriesValueFormatter<OHLCValueType[number]>;
+  valueFormatter?: SeriesValueFormatter<OHLCValueType>;
 }
 
 /**

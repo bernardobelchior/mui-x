@@ -110,16 +110,27 @@ function DefaultMultipleValueContent({
 
   return (
     <React.Fragment>
-      {item.values.map((value) => (
-        <ChartsTooltipRow key={value.label} className={classes.row}>
-          <ChartsTooltipCell className={clsx(classes.labelCell, classes.cell)} component="th">
-            {value.label}
-          </ChartsTooltipCell>
-          <ChartsTooltipCell className={clsx(classes.valueCell, classes.cell)} component="td">
-            {value.formattedValue}
-          </ChartsTooltipCell>
-        </ChartsTooltipRow>
-      ))}
+      {item.values.flatMap((itemValue) => {
+        const valueArray = Array.isArray(itemValue.formattedValue)
+          ? itemValue.formattedValue
+          : [itemValue.formattedValue].filter((v) => v != null);
+
+        return valueArray.map((value) => {
+          const label = typeof value === 'object' ? value.label : item.label;
+          const cellValue = typeof value === 'object' ? value.value : value;
+
+          return (
+            <ChartsTooltipRow key={itemValue.label} className={classes.row}>
+              <ChartsTooltipCell className={clsx(classes.labelCell, classes.cell)} component="th">
+                {label}
+              </ChartsTooltipCell>
+              <ChartsTooltipCell className={clsx(classes.valueCell, classes.cell)} component="td">
+                {cellValue}
+              </ChartsTooltipCell>
+            </ChartsTooltipRow>
+          );
+        });
+      })}
     </React.Fragment>
   );
 }
@@ -134,43 +145,39 @@ function DefaultSingleValueContent<T extends ChartSeriesType>({
   classes: propClasses,
   item,
 }: DefaultSingleValueContentProps<T>) {
-  const { color, label, formattedValue, markType, markShape } = item;
+  const { color, formattedValue, markType, markShape } = item;
 
   const classes = useChartsTooltipUtilityClasses(propClasses);
 
-  return (
-    <ChartsTooltipRow className={classes.row}>
-      <ChartsTooltipCell
-        className={clsx(classes.labelCell, classes.cell)}
-        component="th"
-        rowSpan={Array.isArray(formattedValue) ? formattedValue.length : 1}
-      >
-        <div className={classes.markContainer}>
-          <ChartsLabelMark
-            type={markType}
-            markShape={markShape}
-            color={color}
-            className={classes.mark}
-          />
-        </div>
-        {label}
-      </ChartsTooltipCell>
-      {Array.isArray(formattedValue) ? (
-        formattedValue.map((v) => (
-          <ChartsTooltipCell className={clsx(classes.valueCell, classes.cell)} component="td">
-            {v}
-          </ChartsTooltipCell>
-        ))
-      ) : (
-        <ChartsTooltipCell className={clsx(classes.valueCell, classes.cell)} component="td">
-          {formattedValue}
+  const valueArray = Array.isArray(formattedValue)
+    ? formattedValue
+    : [formattedValue].filter((v) => v != null);
+
+  return valueArray.map((value, index) => {
+    const label = typeof value === 'object' ? value.label : item.label;
+    const cellValue = typeof value === 'object' ? value.value : value;
+
+    return (
+      <ChartsTooltipRow key={index} className={classes.row}>
+        <ChartsTooltipCell className={clsx(classes.labelCell, classes.cell)} component="th">
+          <div className={classes.markContainer}>
+            {index === 0 && (
+              <ChartsLabelMark
+                type={markType}
+                markShape={markShape}
+                color={color}
+                className={classes.mark}
+              />
+            )}
+          </div>
+          {label}
         </ChartsTooltipCell>
-      )}
-      <ChartsTooltipCell className={clsx(classes.valueCell, classes.cell)} component="td">
-        {formattedValue}
-      </ChartsTooltipCell>
-    </ChartsTooltipRow>
-  );
+        <ChartsTooltipCell className={clsx(classes.valueCell, classes.cell)} component="td">
+          {cellValue}
+        </ChartsTooltipCell>
+      </ChartsTooltipRow>
+    );
+  });
 }
 
 ChartsItemTooltipContent.propTypes = {

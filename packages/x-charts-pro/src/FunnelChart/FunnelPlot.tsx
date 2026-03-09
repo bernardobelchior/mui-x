@@ -180,6 +180,7 @@ function FunnelPlot(props: FunnelPlotProps) {
               return (
                 <FunnelSectionLabel
                   key={id}
+                  // FIXME: Should I fix this or should we stop using `valueFormatter` to format the label value?
                   label={label}
                   dataIndex={dataIndex}
                   seriesId={seriesId}

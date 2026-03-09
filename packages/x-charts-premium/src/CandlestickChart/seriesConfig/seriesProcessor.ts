@@ -1,9 +1,8 @@
 import { type SeriesId } from '@mui/x-charts/models';
 import { type SeriesProcessor } from '@mui/x-charts/internals';
-import { type DefaultizedOHLCSeriesType } from '../../models';
+import { type DefaultizedOHLCSeriesType, type OHLCValueType } from '../../models';
 
-const candlestickValueFormatter = (v: number) => `${v}`;
-
+const candlestickValueFormatter = (value: OHLCValueType) => value.map((v) => ({ value: `${v}` }));
 const seriesProcessor: SeriesProcessor<'ohlc'> = (params) => {
   const { seriesOrder, series } = params;
 
